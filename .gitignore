@@ -1,0 +1,22 @@
+# Component checkouts are versioned independently and pinned in sean3.repos.
+/sources/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local data, reconstructed assets, and generated results
+/data/
+/datasets/
+/scans/
+/results/
+/recordings/
+
+# Build and editor output
+/build/
+/install/
+/log/
+.DS_Store

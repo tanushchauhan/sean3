@@ -20,7 +20,10 @@ ARG TCP_ENDPOINT_REF=main-ros2
 RUN mkdir -p /opt/sean3_ws/src && cd /opt/sean3_ws/src \
     && git clone --depth 1 --branch ${TCP_ENDPOINT_REF} https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git
 
+# Loopback-only DDS: keeps traffic off the shared lab network and avoids multicast-less interface failures.
+COPY cyclonedds.xml /etc/cyclonedds.xml
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV CYCLONEDDS_URI=file:///etc/cyclonedds.xml
 WORKDIR /opt/sean3_ws
 RUN . /opt/ros/humble/setup.sh && colcon build --symlink-install
 

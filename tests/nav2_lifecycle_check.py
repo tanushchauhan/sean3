@@ -86,7 +86,7 @@ def stop_processes(processes):
 
 def main():
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
-    log_dir = Path(tempfile.mkdtemp(prefix='sean3-nav2-'))
+    log_dir = Path(tempfile.mkdtemp(prefix='sean3-nav2-', dir=os.environ.get('SEAN_TEST_LOG_DIR')))
     print(f'Logs: {log_dir}', flush=True)
     commands = [
         [sys.executable, __file__, '--clock'],

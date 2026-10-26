@@ -24,3 +24,6 @@
 # Python test output
 __pycache__/
 *.pyc
+
+# ROS validation overlay
+/ros_ws/

@@ -15,10 +15,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ros-humble-rmw-cyclonedds-cpp \
     && rm -rf /var/lib/apt/lists/*
 
-# Unity-side TCP bridge (ROS 2 branch). Pin a commit once the working combination is verified.
-ARG TCP_ENDPOINT_REF=main-ros2
+# ROS 2 endpoint revision used by the integration checks.
+ARG TCP_ENDPOINT_REF=54c1a64b6d5ef6ffa0a0431570bb74329b79b15b
 RUN mkdir -p /opt/sean3_ws/src && cd /opt/sean3_ws/src \
-    && git clone --depth 1 --branch ${TCP_ENDPOINT_REF} https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git
+    && git init ROS-TCP-Endpoint && cd ROS-TCP-Endpoint \
+    && git remote add origin https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git \
+    && git fetch --depth 1 origin ${TCP_ENDPOINT_REF} \
+    && git checkout --detach FETCH_HEAD
 
 # Loopback-only DDS: keeps traffic off the shared lab network and avoids multicast-less interface failures.
 COPY cyclonedds.xml /etc/cyclonedds.xml

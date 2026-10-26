@@ -2,8 +2,8 @@ repositories:
   social_sim_unity:
     type: git
     url: https://github.com/tanushchauhan/social_sim_unity.git
-    version: d7192770153bc45698042902cc7e6ec09a240b62
+    version: 4b11140846dc8d6a508bccb7522ae90b15410c02
   social_sim_ros:
     type: git
     url: https://github.com/tanushchauhan/social_sim_ros.git
-    version: 904c1419c3df878c7101400969ad8773d834fbea
+    version: a46a3ef72e04e1f16e3da0b6543eba49d7671dbd

@@ -6,12 +6,14 @@ Development entry point for modernizing SEAN 2 and evaluating pedestrian control
 
 The development branches target ROS 2 Humble and Unity 2022.3.62f3. The ROS
 package builds, all eight Nav2 lifecycle nodes activate, and the velocity
-smoother passes command-routing and timeout checks. Eight Unity EditMode tests
+smoother passes command-routing and timeout checks. Nine Unity EditMode tests
 and six startup-check regression tests pass. See [VALIDATION.md](VALIDATION.md)
 for versions, commands, and limits.
 
-A closed-loop Unity navigation episode, participant workflows, and scene reloads
-still need validation. ORCA remains unimplemented. Review Michal's prototype and
+Three live Warehouse navigation checks pass: initial startup, task reset, and
+scene reload, with fresh sensors and a continuous clock. Participant workflows,
+camera rendering, collision metrics, and broader navigation scenarios still
+need validation. ORCA remains unimplemented. Review Michal's prototype and
 Howard's extensions before adding new sensor, learning, or study interfaces.
 
 ## Repositories

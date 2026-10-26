@@ -85,6 +85,7 @@ def stop_processes(processes):
 
 
 def main():
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
     log_dir = Path(tempfile.mkdtemp(prefix='sean3-nav2-'))
     print(f'Logs: {log_dir}', flush=True)
     commands = [
@@ -110,6 +111,9 @@ def main():
         for path in log_dir.glob('*.log'):
             if any(token in path.read_text() for token in ('[ERROR]', '[FATAL]')):
                 raise RuntimeError(f'Startup errors in {path}')
+        if '--check-commands' in sys.argv:
+            from nav2_command_check import check_commands
+            check_commands()
         print('All Nav2 lifecycle nodes are active. Unity navigation is not tested.')
         return 0
     except (OSError, RuntimeError, ValueError) as error:

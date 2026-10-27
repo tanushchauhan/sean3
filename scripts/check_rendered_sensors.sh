@@ -51,6 +51,10 @@ docker run -d --name "$container" -p "127.0.0.1:$port:10000" -e ROS_DOMAIN_ID=74
     -v "$repository:/sean3_ws_overlay/src/social_sim_ros:ro" \
     -v "$scripts/../tests:/tests:ro" -v "$results:/results" \
     "$image" ros2 launch social_sim_ros sim_tcp_bridge.launch.py > "$results/container-id.txt"
+placement=()
+if [ "${SEAN_PLACEMENT_AUDIT:-0}" = 1 ] || [ "${SEAN_PLACEMENT_RESETS:-0}" = 1 ]; then
+    placement=(-placement-validation-output "$results/placement-audit.json")
+fi
 fixture=()
 capture=()
 if [ -n "${SEAN_SENSOR_HEADING:-}" ]; then
@@ -63,12 +67,18 @@ LP_NUM_THREADS=${SEAN_RENDER_THREADS:-4} setsid xvfb-run -a -s '-screen 0 1024x7
     bash "${SEAN_VGL_DEVICE:-}" "$results/glxinfo.txt" \
     "$scripts/run_unity_player.sh" "$player" -force-glcore \
     -screen-width 640 -screen-height 480 -screen-fullscreen 0 -job-worker-count 4 -frame-rate "${SEAN_FRAME_RATE:-30}" \
-    -scene SEAN/Warehouse -scenario None -task RandomABNav -seed 7 \
+    -scene SEAN/Warehouse -scenario None -task RandomABNav -seed "${SEAN_SEED:-7}" \
     -ros-tcp-port "$port" -task-timeout-seconds 3600 -external-goals \
-    "${fixture[@]}" -logFile "$results/player.log" > "$results/player-console.log" 2>&1 &
+    "${fixture[@]}" "${placement[@]}" -logFile "$results/player.log" > "$results/player-console.log" 2>&1 &
 player_pid=$!
 printf '%s\n' "$player_pid" > "$results/player.pid"
-printf 'heading=%s\nport=%s\nrenderer=OpenGL under Xvfb\nvgl_device=%s\nframe_rate_target=%s\n' "${SEAN_SENSOR_HEADING:-warehouse}" "$port" "${SEAN_VGL_DEVICE:-none}" "${SEAN_FRAME_RATE:-30}" > "$results/config.txt"
+printf 'seed=%s\nheading=%s\nport=%s\nrenderer=OpenGL under Xvfb\nvgl_device=%s\nframe_rate_target=%s\n' "${SEAN_SEED:-7}" "${SEAN_SENSOR_HEADING:-warehouse}" "$port" "${SEAN_VGL_DEVICE:-none}" "${SEAN_FRAME_RATE:-30}" > "$results/config.txt"
+# Measured-target runs already wait for their fixture, which moves the robot.
+if [ -z "${SEAN_SENSOR_HEADING:-}" ]; then
+docker exec "$container" bash -c \
+    'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; exec python3 /tests/wait_for_task_capture.py --output /results/startup.json' \
+    > "$results/startup-console.log" 2>&1
+fi
 if [ "${SEAN_CAPTURE_RESET:-0}" = 1 ]; then
     docker exec "$container" bash -c \
         'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; exec python3 /tests/reset_for_sensor_capture.py --output /results/reset.json' \
@@ -77,6 +87,12 @@ fi
 docker exec "$container" bash -c \
     'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; exec python3 /tests/capture_rendered_sensors.py --output /results/capture --seconds "$@"' \
     bash "${SEAN_CAPTURE_SECONDS:-35}" "${capture[@]}" > "$results/capture-console.log" 2>&1
+
+if [ "${SEAN_PLACEMENT_RESETS:-0}" = 1 ]; then
+    docker exec "$container" bash -c \
+        'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; exec python3 /tests/unity_placement_check.py --output /results/placements.json --audit /results/placement-audit.json' \
+        > "$results/placements-console.log" 2>&1
+fi
 
 cleanup
 trap - EXIT

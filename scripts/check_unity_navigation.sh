@@ -72,9 +72,11 @@ if [ "$mode" = lifecycle ]; then
         'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; python3 /tests/unity_lifecycle_check.py --output /results/lifecycle.json --resources /results/player-resources.json --pairs "$1"' \
         bash "${SEAN_LIFECYCLE_PAIRS:-6}" > "$results/check.log" 2>&1 || check_status=$?
 else
+strict=()
+if [ "${SEAN_REQUIRE_CLEAR_START:-0}" = 1 ]; then strict=(--require-clear-start); fi
 docker exec "$container" bash -c \
-    'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; python3 /tests/unity_navigation_check.py --cycles 3 --output /results/navigation.json' \
-    > "$results/check.log" 2>&1
+    'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; python3 /tests/unity_navigation_check.py --cycles 3 --output /results/navigation.json "$@"' \
+    bash "${strict[@]}" > "$results/check.log" 2>&1
 fi
 cat "$results/check.log"
 if [ "$mode" = lifecycle ]; then

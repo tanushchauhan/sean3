@@ -1,5 +1,20 @@
 # Migration validation
 
+## Warehouse placement milestone
+
+The bounded October 27 placement result passes at Unity
+`fa6386105302338edbda0420d486df80d2f7908c`, with ROS and Rocketbox unchanged.
+All 23 Unity tests and 14 Python harness tests pass. Across two full rendered
+sequences, 46 real starts and goals pass independent ROS-map, height, freshness,
+and global-planning checks. Nine short driving episodes pass with zero fallback
+placement resets. Normal startup image capture now waits for task initialization.
+
+See [PLACEMENT_RESULT_2026-10-27.md](PLACEMENT_RESULT_2026-10-27.md) for source,
+results, preserved failures, and limits; [PLACEMENT.md](PLACEMENT.md) documents
+reproduction and the pinned ROS-map constraint. Transport reload/exit errors,
+map/collider accuracy, arbitrary camera-boom clearance, long-task driving,
+populated scenarios, and participant workflows remain open.
+
 ## Rendered camera and sensor milestone
 
 The bounded October 27 sensor baseline passes for Unity
@@ -14,7 +29,8 @@ See [RENDERED_SENSOR_RESULT_2026-10-27.md](RENDERED_SENSOR_RESULT_2026-10-27.md)
 for evidence and limits and [RENDERED_SENSORS.md](RENDERED_SENSORS.md) for commands.
 This candidate was built from verified source diffs in the existing cached
 checkout; the clean-source result below remains specific to its earlier commit.
-Startup shelving occlusion, transport teardown errors, camera throughput,
+The placement follow-up above corrects pre-task image sampling and constrains
+random starts/goals. Transport teardown errors, camera throughput,
 standard ROS 2 metric-depth consumption, and participant workflows remain open.
 
 ## Clean-source Unity build milestone

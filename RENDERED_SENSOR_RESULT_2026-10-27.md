@@ -92,6 +92,14 @@ laser-frame or transform-filter failure was found in the final navigation logs.
 
 ## Remaining findings and limits
 
+**Later placement investigation:** the saved normal-start image samples in this
+report were collected before the first task was initialized. Their occlusion
+does not establish that the subsequently sampled task start was inside shelving.
+The navigation runner did independently reject that start against the ROS map.
+See [the placement follow-up](PLACEMENT_RESULT_2026-10-27.md), which waits for a
+settled initial task before saving camera samples and constrains both endpoints
+to the supported ROS map. The historical captures below remain unchanged.
+
 The default seed-7 Warehouse startup view is occluded by shelving. The navigation
 runner also rejects an initial placement before choosing a clear test start.
 A separate acknowledged task reset produced the clear inspected views at ROS

@@ -28,6 +28,8 @@ def main():
     parser.add_argument('--scene', default='warehouse')
     parser.add_argument('--output', default='/tmp/unity-navigation.json')
     parser.add_argument('--cycles', type=int, choices=(1, 2, 3), default=1)
+    parser.add_argument('--require-clear-start', action='store_true',
+                        help='Fail rather than reset away a rejected placement')
     args = parser.parse_args()
     rclpy.init()
     node = rclpy.create_node('sean_navigation_check', parameter_overrides=[Parameter('use_sim_time', value=True)])
@@ -145,6 +147,8 @@ def main():
                     if target is not None:
                         break
                     rejected_starts.append([x, y])
+                    if args.require_clear_start:
+                        raise RuntimeError(f'Initial placement has no clear one metre path: {x}, {y}')
                     previous_number = latest['trial'].trial_number
                     reset.publish(Bool(data=True))
                     wait(lambda: latest['trial'].trial_number != previous_number, 15, 'clear test placement')

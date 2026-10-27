@@ -1,5 +1,25 @@
 # Migration validation
 
+## Connection reload and shutdown milestone
+
+The bounded October 27 transport result passes at Unity
+`4e9371c7fb3c0344cce130f2ce5c11dea8c78b7b` and ROS
+`bf0ea37a4f1eac53ae8a995d7a7d5276ecdc7712`, with Rocketbox unchanged.
+All 28 Unity tests, 16 Python harness tests, and 10 endpoint tests pass. Across
+headless lifecycle, driving, and rendered runs, twelve connections have twelve
+announced closes and disconnects, zero transport errors, normal process exits,
+and no forced player kills. Six task resets and six scene reloads also pass the
+recorded graph, clock, drift, and resource-growth limits. Twenty further task
+resets and two scene reloads pass in the rendered placement sequence.
+
+See [TRANSPORT_RESULT_2026-10-27.md](TRANSPORT_RESULT_2026-10-27.md) and
+[TRANSPORT_LIFECYCLE.md](TRANSPORT_LIFECYCLE.md) for evidence and reproduction.
+This resolves the earlier expected reload/exit transport diagnostics for the
+new paired pins. Historical reports below retain their original outcomes.
+General network-fault recovery, overload, full RPC interoperability, GPU resource
+growth, broader scenarios, long-task driving, and participant workflows remain
+outside the bounded result.
+
 ## Warehouse placement milestone
 
 The bounded October 27 placement result passes at Unity

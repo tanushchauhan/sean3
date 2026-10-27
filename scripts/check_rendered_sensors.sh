@@ -6,6 +6,7 @@ if [ "$#" -ne 4 ]; then
     exit 2
 fi
 scripts=$(cd "$(dirname "$0")" && pwd)
+source "$scripts/cleanup_validation.sh"
 player=$(realpath "$1")
 workspace=$(realpath "$2")
 repository=$(realpath "$3")
@@ -15,42 +16,25 @@ image=${SEAN_ROS_IMAGE:-localhost/sean3-humble:dev}
 port=${SEAN_TCP_PORT:-10322}
 container="sean3-rendered-$$"
 player_pid=
+cleanup_status=0
 cleanup() {
     if [ -n "$player_pid" ]; then
-        # Keep Xvfb alive until the GPU application has released its context.
-        # Killing the whole group at once can crash NVIDIA/Mono during teardown.
-        app_pids=$(pgrep -g "$player_pid" -x "$(basename "$player")" || true)
-        printf '%s\n' "$app_pids" > "$results/player-app-pids.txt"
-        for app_pid in $app_pids; do kill -TERM "$app_pid" 2>/dev/null || true; done
-        for attempt in $(seq 1 100); do
-            alive=false
-            for app_pid in $app_pids; do
-                if kill -0 "$app_pid" 2>/dev/null; then alive=true; fi
-            done
-            [ "$alive" = true ] || break
-            sleep 0.1
-        done
-        for app_pid in $(pgrep -g "$player_pid" -x "$(basename "$player")" || true); do
-            kill -KILL "$app_pid" 2>/dev/null || true
-        done
-        kill -TERM -- "-$player_pid" 2>/dev/null || true
-        player_status=0
-        wait "$player_pid" 2>/dev/null || player_status=$?
-        printf '%s\n' "$player_status" > "$results/player-wrapper-exit.txt"
+        stop_unity_player "$player_pid" "$player" "$results" || cleanup_status=1
+        player_pid=
     fi
-    docker logs "$container" > "$results/endpoint.log" 2>&1 || true
-    docker rm -f "$container" >/dev/null 2>&1 || true
+    stop_ros_container "$container" "$results" || cleanup_status=1
 }
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 docker image inspect "$image" > "$results/container.json"
 sha256sum "$player" > "$results/player.sha256"
-docker run -d --name "$container" -p "127.0.0.1:$port:10000" -e ROS_DOMAIN_ID=74 \
+docker run -d --stop-signal SIGINT --name "$container" -p "127.0.0.1:$port:10000" -e ROS_DOMAIN_ID=74 \
     -v "$workspace:/sean3_ws_overlay" \
     -v "$repository:/sean3_ws_overlay/src/social_sim_ros:ro" \
     -v "$scripts/../tests:/tests:ro" -v "$results:/results" \
     "$image" ros2 launch social_sim_ros sim_tcp_bridge.launch.py > "$results/container-id.txt"
+wait_ros_endpoint "$container" "$results"
 placement=()
 if [ "${SEAN_PLACEMENT_AUDIT:-0}" = 1 ] || [ "${SEAN_PLACEMENT_RESETS:-0}" = 1 ]; then
     placement=(-placement-validation-output "$results/placement-audit.json")
@@ -96,8 +80,5 @@ fi
 
 cleanup
 trap - EXIT
-if rg -q 'Native Crash Reporting|Got a SIGSEGV' "$results/player.log"; then
-    echo 'Native player crash found during capture or shutdown' > "$results/shutdown-check.txt"
-    exit 1
-fi
-echo 'No native crash marker in the complete player log; endpoint teardown is a separate check.' > "$results/shutdown-check.txt"
+python3 "$scripts/../tests/lifecycle_log_check.py" "$results"
+[ "$cleanup_status" -eq 0 ]

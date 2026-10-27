@@ -6,6 +6,7 @@ if [ "$#" -ne 4 ]; then
     exit 2
 fi
 scripts=$(cd "$(dirname "$0")" && pwd)
+source "$scripts/cleanup_validation.sh"
 player=$(realpath "$1")
 workspace=$(realpath "$2")
 repository=$(realpath "$3")
@@ -32,12 +33,12 @@ cleanup() {
         wait "$sampler_pid" 2>/dev/null || true
     fi
     if [ -n "$player_pid" ]; then
-        kill -TERM -- "-$player_pid" 2>/dev/null || true
-        wait "$player_pid" 2>/dev/null || true
+        stop_unity_player "$player_pid" "$player" "$results" || check_status=1
+        player_pid=
     fi
     if [ "$container_started" = true ]; then
-        docker logs "$container" > "$results/endpoint.log" 2>&1 || true
-        docker rm -f "$container" >/dev/null 2>&1 || true
+        stop_ros_container "$container" "$results" || check_status=1
+        container_started=false
     fi
 }
 trap cleanup EXIT
@@ -50,12 +51,13 @@ docker run --rm --network none \
     -v "$repository:/sean3_ws_overlay/src/social_sim_ros:ro" \
     "$image" bash -c 'cd /sean3_ws_overlay && colcon build --packages-select social_sim_ros'
 
-docker run -d --name "$container" -p "127.0.0.1:$port:10000" -e ROS_DOMAIN_ID=73 \
+docker run -d --stop-signal SIGINT --name "$container" -p "127.0.0.1:$port:10000" -e ROS_DOMAIN_ID=73 \
     -v "$workspace:/sean3_ws_overlay" \
     -v "$repository:/sean3_ws_overlay/src/social_sim_ros:ro" \
     -v "$scripts/../tests:/tests:ro" -v "$results:/results" \
     "$image" ros2 launch social_sim_ros sim_tcp_bridge.launch.py >/dev/null
 container_started=true
+wait_ros_endpoint "$container" "$results"
 
 setsid xvfb-run -a bash "$scripts/run_unity_player.sh" "$player" \
     -batchmode -nographics -scene SEAN/Warehouse -scenario None -task RandomABNav \
@@ -76,12 +78,10 @@ strict=()
 if [ "${SEAN_REQUIRE_CLEAR_START:-0}" = 1 ]; then strict=(--require-clear-start); fi
 docker exec "$container" bash -c \
     'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; python3 /tests/unity_navigation_check.py --cycles 3 --output /results/navigation.json "$@"' \
-    bash "${strict[@]}" > "$results/check.log" 2>&1
+    bash "${strict[@]}" > "$results/check.log" 2>&1 || check_status=$?
 fi
 cat "$results/check.log"
-if [ "$mode" = lifecycle ]; then
-    cleanup
-    trap - EXIT
-    python3 "$scripts/../tests/lifecycle_log_check.py" "$results" || check_status=1
-fi
+cleanup
+trap - EXIT
+python3 "$scripts/../tests/lifecycle_log_check.py" "$results" || check_status=1
 exit "$check_status"

@@ -15,7 +15,10 @@ for versions, commands, and limits.
 Three live Warehouse navigation checks pass: initial startup, task reset, and
 scene reload, with fresh sensors and a continuous clock. Participant workflows,
 camera rendering, collision metrics, and broader navigation scenarios still
-need validation. ORCA remains unimplemented. Review Michal's prototype and
+need validation. A clean-source Unity player build under the existing recorded
+environment is the next validation milestone; it does not include rebuilding
+the container image or proving bit-for-bit reproducibility. ORCA remains
+unimplemented. Review Michal's prototype and
 Howard's extensions before adding new sensor, learning, or study interfaces.
 
 ## Repositories
@@ -64,7 +67,9 @@ git -C sources/social_sim_unity remote add upstream https://github.com/yale-sean
 git -C sources/social_sim_ros remote add upstream https://github.com/yale-sean/social_sim_ros.git
 ```
 
-Use [VALIDATION.md](VALIDATION.md) for the current ROS container and Unity test procedure. The legacy `sim_ws` remains a [reference](https://github.com/yale-sean/sim_ws), rather than a dependency of the new workspace.
+Use [VALIDATION.md](VALIDATION.md) for existing ROS and Unity checks and
+[CLEAN_BUILD.md](CLEAN_BUILD.md) for the clean-source build procedure and
+acceptance criteria. The legacy `sim_ws` remains a [reference](https://github.com/yale-sean/sim_ws), rather than a dependency of the new workspace.
 
 ## Development workflow
 

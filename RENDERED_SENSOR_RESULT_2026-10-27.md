@@ -62,7 +62,7 @@ The existing `localhost/sean3-humble:dev` image and overlay were reused.
 | Same headings, NVIDIA Quadro RTX 6000 OpenGL 4.6 / driver 580.178.04 | All passed |
 | Normal Warehouse capture on both renderers | Both passed payload/timing checks |
 | NVIDIA Warehouse capture after an acknowledged task reset | Passed; clear first-, third-person, and overhead views inspected |
-| Image payloads decoded across the nine final captures | 2,820; zero decode failures |
+| Image payloads decoded across the original nine captures | 2,820; zero decode failures; two runs later failed shutdown |
 | Largest first-person marker projection error | 1.885 pixels; limit 3 pixels |
 | Largest central depth error against the wall plane | Less than 0.00001 m; limit 0.03 m |
 | Largest laser error across five bearings at each heading | Less than 0.000015 m; limit 0.01 m |
@@ -99,12 +99,27 @@ position approximately (-10.5625, 2.6040, 0.0400). This milestone does not fix
 or accept arbitrary task-start placement or camera clearance. Resolve that
 before participant workflows rely on random starts.
 
-The final rendered-player logs contain no managed exception, unsupported-shader
-error, or fixture kinematic-body warning. The separate `-nographics` navigation
-run retains its expected unsupported-shader messages. Transport teardown is
-still unclean: its endpoint log contains two end-of-stream errors and one bad
-file descriptor; two GPU capture endpoint logs each contain an end-of-stream
-error on exit. These remain open transport findings, not sensor acceptance.
+Rendered operation has no managed exception, unsupported-shader error, or
+fixture kinematic-body warning. Full-log cleanup review found native SIGSEGVs
+in the original NVIDIA heading-0 and Warehouse runs after their captures had
+completed: the display connection closed while the application was still
+releasing NVIDIA/Mono resources. Their geometry measurements pass, but those
+shutdowns failed. The original logs and both 10 MB crash blobs are preserved.
+
+The runner now stops the application first, keeps Xvfb alive while it exits,
+and only then removes the remaining display processes. It checks the complete
+player log for native crash markers after cleanup. Ordered-stop repeats of
+heading 0 and Warehouse pass capture analysis and runner shutdown checks with
+no native crash marker. One intermediate heading repeat had a shell parse
+failure while its running script was replaced; that attempt is unaccepted and
+is preserved separately from the successful stable-script repeat.
+
+The separate `-nographics` navigation run retains its expected unsupported-shader
+messages, a reset-by-peer player write, and an XIO shutdown diagnostic. Its
+endpoint log contains two end-of-stream errors and one bad file descriptor;
+GPU endpoint logs also retain end-of-stream messages on exit. Transport
+teardown remains open. The ordered-stop repeats do not establish a general
+resource/lifecycle guarantee.
 
 Depth remains a custom RGBA-packed PNG, not a standard metric ROS depth image.
 The old ROS 1 depth synchronizer is not a validated ROS 2 consumer. The
@@ -121,6 +136,7 @@ Authoritative paths on robovision:
 - `/scratch/tchauhan/sean3/validation/rendered-sensors/20261027-baseline/`
 - `/scratch/tchauhan/sean3/validation/rendered-sensors/20261027-fix6/`
 - `/scratch/tchauhan/sean3/validation/rendered-sensors/20261027-fix6-gpu/`
+- `/scratch/tchauhan/sean3/validation/rendered-sensors/20261027-fix6-gpu-ordered-stop/`
 - `/scratch/tchauhan/sean3/builds/rendered-sensors-20261027-fix6/`
 
 Local evidence is under ignored `results/rendered-sensors-20261027/`.

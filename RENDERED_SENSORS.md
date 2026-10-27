@@ -3,7 +3,9 @@
 Run this on robovision. The runner uses the existing ROS overlay and a Linux
 player built from the sensor candidate. It launches a private ROS endpoint,
 exposes only its TCP port on localhost, and stops only its own processes.
-Use a new results directory for every run.
+Use a new results directory for every run. The runner stops the GPU player
+before its display server and rejects native-crash markers in the full player
+log after cleanup. Endpoint transport diagnostics remain a separate review.
 
 ```sh
 root=/scratch/tchauhan/sean3

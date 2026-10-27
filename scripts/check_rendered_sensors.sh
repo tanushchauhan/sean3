@@ -17,8 +17,26 @@ container="sean3-rendered-$$"
 player_pid=
 cleanup() {
     if [ -n "$player_pid" ]; then
+        # Keep Xvfb alive until the GPU application has released its context.
+        # Killing the whole group at once can crash NVIDIA/Mono during teardown.
+        app_pids=$(pgrep -g "$player_pid" -x "$(basename "$player")" || true)
+        printf '%s\n' "$app_pids" > "$results/player-app-pids.txt"
+        for app_pid in $app_pids; do kill -TERM "$app_pid" 2>/dev/null || true; done
+        for attempt in $(seq 1 100); do
+            alive=false
+            for app_pid in $app_pids; do
+                if kill -0 "$app_pid" 2>/dev/null; then alive=true; fi
+            done
+            [ "$alive" = true ] || break
+            sleep 0.1
+        done
+        for app_pid in $(pgrep -g "$player_pid" -x "$(basename "$player")" || true); do
+            kill -KILL "$app_pid" 2>/dev/null || true
+        done
         kill -TERM -- "-$player_pid" 2>/dev/null || true
-        wait "$player_pid" 2>/dev/null || true
+        player_status=0
+        wait "$player_pid" 2>/dev/null || player_status=$?
+        printf '%s\n' "$player_status" > "$results/player-wrapper-exit.txt"
     fi
     docker logs "$container" > "$results/endpoint.log" 2>&1 || true
     docker rm -f "$container" >/dev/null 2>&1 || true
@@ -59,3 +77,11 @@ fi
 docker exec "$container" bash -c \
     'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; exec python3 /tests/capture_rendered_sensors.py --output /results/capture --seconds "$@"' \
     bash "${SEAN_CAPTURE_SECONDS:-35}" "${capture[@]}" > "$results/capture-console.log" 2>&1
+
+cleanup
+trap - EXIT
+if rg -q 'Native Crash Reporting|Got a SIGSEGV' "$results/player.log"; then
+    echo 'Native player crash found during capture or shutdown' > "$results/shutdown-check.txt"
+    exit 1
+fi
+echo 'No native crash marker in the complete player log; endpoint teardown is a separate check.' > "$results/shutdown-check.txt"

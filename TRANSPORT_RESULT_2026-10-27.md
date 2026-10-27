@@ -86,6 +86,10 @@ unmodified upstream endpoint is not accepted by the clean-close checker.
 | Process exits and forced player kills across all three runs | All player/endpoint exits 0; zero forced kills |
 | Full-log transport, native-crash, and display-error counters | All zero |
 
+Headless `-nographics` logs retain expected unsupported-shader diagnostics.
+They are not classified as transport errors. This clean lifecycle result does
+not certify every asset or shader; rendered payloads are checked separately.
+
 Resource budgets remained the previously declared 128 MiB RSS, four threads,
 and eight descriptors, measured after the first warm-up pair. The graph check
 covers clock, odometry, laser, reset controls, and the velocity-command topic;

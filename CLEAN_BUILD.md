@@ -9,16 +9,22 @@ validate camera rendering, or establish bit-for-bit reproducibility. Unity may
 create editor metadata during import; preserve and report those changes rather
 than folding them into the pinned source silently.
 
-**Status: interrupted; not completed.** The remote Unity import/build was
-stopped at the user's request before its outcome was recorded. Do not treat
-this as a successful clean build. Resume by inspecting
-`/scratch/tchauhan/sean3/builds/clean-source-20261027T002705Z` and its linked
-validation record at
-`/scratch/tchauhan/sean3/validation/clean-source/20261027T002705Z` before
-deciding what evidence can be recovered. Preserve this interrupted output; any
-resumed build must use a new output directory. The source revision is
-`3e5f863a37f4f8139692f2e896c78dc715443142`; the runner is recorded in commit
-`2559138`.
+**Accepted for the configured Warehouse fixture on October 27, 2026.** The
+corrected candidate built from fresh committed source, verified all 175 payload
+hashes, passed 12 EditMode tests and all three navigation stages, and eliminated
+the 544 Rocketbox callback exceptions found in the first resumed run. Remaining
+unused-asset and editor diagnostics are classified in
+[CLEAN_BUILD_RESULT_2026-10-27.md](CLEAN_BUILD_RESULT_2026-10-27.md). This is not
+an all-asset or all-scenario validation. Rendering remains unvalidated and
+transport teardown remains unclean.
+
+Accepted output:
+`/scratch/tchauhan/sean3/builds/clean-source-20261027T184537Z`.
+Linked validation record:
+`/scratch/tchauhan/sean3/validation/clean-source/20261027T184537Z`.
+The interrupted `20261027T002705Z` attempt and the first resumed
+`20261027T182807Z` attempt remain separately preserved. Repeating validation
+requires another new output directory.
 
 ## Procedure
 
@@ -35,7 +41,7 @@ before import. The lower-level build writes the player and evidence to
 scripts/clean_build_unity_player.sh \
   /path/to/2022.3.62f3/Editor/Unity \
   /path/to/social_sim_unity \
-  3e5f863a37f4f8139692f2e896c78dc715443142 \
+  7ae54bab2297bc263e0bb22fbd9dac8035f376df \
   /scratch/tchauhan/sean3/builds/clean-source-<run-id>
 ```
 
@@ -51,8 +57,8 @@ diffs, missing `.meta` inventories, Unity editor version and executable hash,
 package manifest and lock hashes, build command and status,
 full `build.log`, player hash, and `player-tree.sha256`. The remote environment
 snapshot is under
-`/scratch/tchauhan/sean3/validation/clean-source/20261027T002705Z/` (`host.txt`,
-`unity.txt`, `container.txt`, and `checkouts.txt`). Review import output and
+`/scratch/tchauhan/sean3/validation/clean-source/20261027T184537Z/` (`host.txt`,
+`unity.txt`, `container.json`, and `checkouts.txt`). Review import output and
 every source change, including `.meta` files, before accepting the result.
 
 ## Acceptance
@@ -72,8 +78,8 @@ every source change, including `.meta` files, before accepting the result.
   insufficient.
 
 The build result is separate from functional validation. Run the existing
-11-test Unity EditMode suite and three-stage live navigation check against the
-freshly built player, then link their reports to the build record. These checks
+12-test Unity EditMode suite (the original 11 plus the importer regression) and
+three-stage live navigation check against the freshly built player, then link their reports to the build record. These checks
 cover specific behavior; they do not validate rendered camera images,
 participant workflows, or all assets.
 

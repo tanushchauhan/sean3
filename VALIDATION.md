@@ -2,47 +2,46 @@
 
 ## Clean-source Unity build milestone
 
-**Status: interrupted; not completed.** The environment record is at
-`/scratch/tchauhan/sean3/validation/clean-source/20261027T002705Z/`; the
-interrupted build output is at
-`/scratch/tchauhan/sean3/builds/clean-source-20261027T002705Z`. Inspect both
-to recover partial evidence. Preserve this interrupted output; any resumed
-build must use a new output directory. The candidate Unity commit is
-`3e5f863a37f4f8139692f2e896c78dc715443142`; the build runner is recorded in
-`sean3` commit `2559138`. The milestone has not established a successful
-player build. It does not rebuild or freeze the ROS container image, verify
-camera pixels, or establish bit-for-bit reproducibility.
+**Accepted on October 27 for the configured Warehouse fixture in the recorded
+existing environment.** Unity commit
+`7ae54bab2297bc263e0bb22fbd9dac8035f376df` pins the guarded Rocketbox importer at
+`8aa27b9765284e01be88b1eed18ece55af5b7c5c`. ROS remains at
+`2ac78a303d323fbce0caad83555dbe940cc40435`. The runner is from coordination
+commit `2559138`, executed from `14a56c2` with unchanged script hashes.
 
-Before stopping, the build-tool regression script passed on robovision,
-including dirty-source isolation, submodule pinning, failed builds, missing
-players, payload checksums, and stale-output refusal. All 14 existing Python
-harness tests also passed. The final transferred tooling checksums matched
-commit `2559138`. Results are in `test_build_provenance.log`,
-`tooling.sha256`, and `harness.log` under the validation directory above.
-No new Unity EditMode or navigation checks ran. The earlier lifecycle results
-below remain historical evidence, not results for the new source revision.
+On robovision, the clean checkout checks, build provenance regressions, 14 Python
+harness tests, Linux player build, all 12 Unity EditMode tests (the previous 11
+plus an importer regression), and startup/task-reset/scene-reload navigation
+checks passed. All 175 recorded player payload hashes verified. The complete
+log has zero Rocketbox callback exceptions after the guarded importer fix;
+the first resumed run had 544, including callbacks on required models.
 
-Record the fresh checkout revision, recursive submodule revisions, Unity editor
-version and executable hash, host OS/architecture, installed Linux build
-support, package lock state, build command, build exit status, player hash, and
-complete Unity build log. Record import warnings/errors and classify each
-remaining warning. The build passes only if Unity exits successfully, produces
-an executable Linux player, and the log has no unresolved import or player
-build errors affecting the configured Warehouse player or its required assets.
-Report other import warnings without implying that every unused scene or asset
-was validated. Any source changes caused by import must be recorded and reviewed
-before treating the checkout as clean-source evidence.
+See [CLEAN_BUILD_RESULT_2026-10-27.md](CLEAN_BUILD_RESULT_2026-10-27.md) for the
+source/environment record, diagnostic classification, generated metadata review,
+functional results, and resume procedure. Authoritative accepted evidence:
 
-Run the existing 11-test EditMode suite and three-stage live navigation check
-against that fresh player as separate functional checks, and link those reports
-to the build record. Neither check validates rendered camera images or
-participant recording. See [CLEAN_BUILD.md](CLEAN_BUILD.md) for the runner's
-output layout and provenance files.
+- `/scratch/tchauhan/sean3/validation/clean-source/20261027T184537Z/`
+- `/scratch/tchauhan/sean3/builds/clean-source-20261027T184537Z/`
 
-Do not report this milestone as completed until the remote run artifacts and
-their source/environment provenance have been reviewed. Keep the result and
-any importer-generated diff separate from the historical lifecycle results
-below.
+Both earlier attempts remain separate: the interrupted `20261027T002705Z`
+output is unaccepted, and `20261027T182807Z` built and passed functional checks
+but failed import acceptance. All three used separate fresh checkout/output
+paths, with no pre-existing Library or UserSettings before import.
+
+Remaining diagnostics include broken unused legacy prefabs, missing legacy
+resource scripts, rig/animation warnings, and editor/shader warnings. Static
+LoadingScene/Warehouse traversal found no missing script references; runtime
+checks cover `None` pedestrian behavior, `RandomABNav`, and headless sensors.
+Import changed four Rocketbox child-model metadata files without changing GUIDs;
+those diffs and generated Search settings are preserved, not committed silently.
+Transport teardown remains unclean: the accepted run recorded one reset-by-peer
+write and two endpoint EOF errors.
+
+This is not an all-asset or all-scenario validation. It reuses the existing host,
+editor, package cache, and ROS image, and does not establish an immutable
+environment, bit-identical builds, rendered camera correctness, participant
+workflows, or broad navigation performance. The historical lifecycle results
+below are separate; their six-pair stress check was not rerun for this candidate.
 
 ## Lifecycle follow-up on October 26, 2026
 

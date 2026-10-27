@@ -1,5 +1,22 @@
 # Migration validation
 
+## Rendered camera and sensor milestone
+
+The bounded October 27 sensor baseline passes for Unity
+`23da99e3e1ddd9a99550665535935487ecc935d4`, with ROS and Rocketbox unchanged.
+Six measured-target runs (0°, 90°, 180° on Mesa and NVIDIA OpenGL), two normal
+Warehouse captures, and a post-reset GPU view pass. All 2,820 received image
+payloads decoded; optical frames, calibration/timestamp pairing, depth, and five
+laser bearings met the recorded limits. All 16 Unity tests, 14 Python harness
+tests, 175 payload hashes, and three navigation stages pass.
+
+See [RENDERED_SENSOR_RESULT_2026-10-27.md](RENDERED_SENSOR_RESULT_2026-10-27.md)
+for evidence and limits and [RENDERED_SENSORS.md](RENDERED_SENSORS.md) for commands.
+This candidate was built from verified source diffs in the existing cached
+checkout; the clean-source result below remains specific to its earlier commit.
+Startup shelving occlusion, transport teardown errors, camera throughput,
+standard ROS 2 metric-depth consumption, and participant workflows remain open.
+
 ## Clean-source Unity build milestone
 
 **Accepted on October 27 for the configured Warehouse fixture in the recorded

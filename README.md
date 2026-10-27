@@ -6,17 +6,20 @@ Development entry point for modernizing SEAN 2 and evaluating pedestrian control
 
 The development branches target ROS 2 Humble and Unity 2022.3.62f3. The ROS
 package builds, all eight Nav2 lifecycle nodes activate, and the velocity
-smoother passes command-routing and timeout checks. The clean-source candidate
-passes twelve Unity EditMode tests and fourteen harness regression tests. Three endpoint compatibility tests passed during the
+smoother passes command-routing and timeout checks. The current sensor candidate
+passes sixteen Unity EditMode tests and fourteen harness regression tests. Three endpoint compatibility tests passed during the
 earlier lifecycle milestone. Six task resets and six scene reloads
 preserve sensors, clock continuity, and ROS registration counts within the
 reported resource budgets. Transport teardown diagnostics remain. See [VALIDATION.md](VALIDATION.md)
 for versions, commands, and limits.
 
 Three live Warehouse navigation checks pass: initial startup, task reset, and
-scene reload, with fresh sensors and a continuous clock. Participant workflows,
-camera rendering, collision metrics, and broader navigation scenarios still
-need validation. The clean-source Unity build milestone now passes for the
+scene reload, with fresh sensors and a continuous clock. Rendered RGB/depth,
+optical frames, calibration, and measured laser geometry pass at three headings
+on Mesa and NVIDIA OpenGL. See the [sensor result](RENDERED_SENSOR_RESULT_2026-10-27.md)
+and [reproduction guide](RENDERED_SENSORS.md). Startup placement quality,
+participant workflows, collision metrics, and broader navigation scenarios
+still need validation. The earlier clean-source Unity build milestone passed for the
 configured Warehouse fixture: twelve EditMode tests and all three navigation
 stages pass after fixing the Rocketbox importer. See the
 [October 27 build review](CLEAN_BUILD_RESULT_2026-10-27.md). These checks reuse

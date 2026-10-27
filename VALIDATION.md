@@ -1,6 +1,108 @@
 # Migration validation
 
-## Results on October 26, 2026
+## Lifecycle follow-up on October 26, 2026
+
+The candidate pins now include connector destruction cleanup and the ROS
+endpoint compatibility wrapper. The original navigation results below remain
+historical evidence; they did not check repeated registration or resource growth.
+
+| Check | Result |
+| --- | --- |
+| Unity EditMode suite | 11 passed |
+| Harness regression suite | 14 passed |
+| Endpoint compatibility tests against installed ROS libraries | 3 passed |
+| Final Nav2 startup / task reset / scene reload | 3 goals passed |
+| Repeated task resets / scene reloads | 6 / 6 passed |
+| Post-reset translation drift | 0 m measured in each two-second window |
+| Clock regressions | 0 observed |
+| ROS graph | Stable single sensor publishers and control subscribers |
+| Player RSS growth after first pair | 1,120 KiB maximum |
+| Endpoint RSS growth after first pair | 396 KiB maximum |
+| Player / endpoint thread and descriptor growth | 0 / 0 after warm-up |
+| Transport teardown | Not clean; details below |
+
+The final navigation run measured displacements of 0.654, 0.651, and 0.654 m,
+with goal errors of 0.346, 0.349, and 0.346 m. One startup placement was rejected.
+These remain clear-path smoke tests, not benchmark results.
+
+The original `integration-final` player failed the new check after its first
+scene reload: sensor publishers and control subscribers doubled. Its failed
+run remains in `validation/lifecycle/baseline-host-sampling/` on robovision.
+The first baseline attempt in `baseline/` failed because container isolation
+prevented inspecting the host player. Resource sampling now runs on the host.
+
+Fixes tested:
+
+- The embedded connector cancels its connection worker and unregisters its HUD
+  header when destroyed. Repeated `Connect` calls do not replace a live worker.
+- The ROS wrapper implements the connector's removal commands. The pinned
+  upstream endpoint previously crashed its client thread on `remove_subscriber`.
+- Registration changes are serialized, and unchanged topic registrations are
+  reused across reconnects. Topic nodes retain their individual names. The
+  bridge uses wall time while Unity still supplies sensor timestamps.
+
+The final lifecycle log audit found no duplicate HUD headers, duplicate logger
+warnings, queue overflows, missing references, unregistered topics, reader
+exceptions, or endpoint tracebacks. It observed exactly seven connections:
+startup plus six scene reloads. **Transport teardown is still not clean:** one
+Unity reset-by-peer write, three endpoint writes to already-closed sockets, and
+seven endpoint EOF messages remain. `lifecycle-logs.json` reports
+`transport_clean: false`. These exact diagnostics are counted separately from
+unexpected failures. Reset-by-peer writes are bounded by the number of reloads;
+extra connections fail the audit. This is a recovery check, not proof of graceful
+socket teardown or a leak-free long-running session.
+
+Run the bounded check with the existing runner:
+
+```sh
+SEAN_ROS_IMAGE=localhost/sean3-humble:dev SEAN_CHECK_MODE=lifecycle \
+SEAN_LIFECYCLE_PAIRS=6 bash scripts/check_unity_navigation.sh \
+  /path/to/sean.x86_64 "$PWD/ros_ws" "$PWD/sources/social_sim_ros" \
+  "$PWD/results/lifecycle"
+```
+
+`SEAN_LIFECYCLE_PAIRS` accepts 2 through 20 pairs. Each stage checks new sensor
+messages after the reset acknowledgement, timestamp freshness, every received
+clock sample for regressions, a single task transition, stationary odometry,
+and unchanged graph counts. It issues an angular command before resetting.
+The stationary live check also permits the existing command timeout to stop the
+robot; an EditMode test separately checks immediate clearing of velocity targets
+and rigidbody velocities. Neither check establishes participant-input behavior.
+
+Resources are sampled after a two-second observation window. The first reset /
+reload pair is the warm-up baseline; subsequent stages enforce budgets of
+128 MiB RSS, four threads, and eight descriptors for each process. These budgets
+catch large regressions, not all leaks, and do not measure transient peak memory.
+Player sampling requires Linux `/proc` access for the same host user. The
+container sees only the resulting samples; DDS stays isolated inside it.
+
+Run endpoint regression tests inside the existing ROS image:
+
+```sh
+docker run --rm --network none \
+  -v "$PWD/tests:/tests:ro" \
+  -v "$PWD/sources/social_sim_ros/social_sim_ros/scripts:/scripts:ro" \
+  localhost/sean3-humble:dev \
+  python3 /tests/endpoint_compat_check.py /scripts/sean_tcp_endpoint
+```
+
+Remote evidence under `/scratch/tchauhan/sean3/`:
+
+- Player: `builds/lifecycle-final/sean.x86_64`.
+- Repeated lifecycle data and logs: `validation/lifecycle/final-run/`.
+- Unity XML and harness output: `validation/lifecycle/final-tests/`.
+- Final navigation smoke test: `validation/lifecycle/final-navigation/`.
+- Exact component source commits: `validation/lifecycle/sean-*-lifecycle.bundle`.
+
+The source bundles preserve the embedded connector, which was untracked when
+building and therefore absent from the original build's tracked-file patch.
+`builds/lifecycle-final/commit-provenance.txt` records the subsequent source
+verification against the commits. Existing Rocketbox metadata and UserSettings
+were preserved. This work does **not** establish a clean-source asset import,
+immutable container rebuild, rendered camera correctness, or participant
+recording. Those are the next milestones; ORCA remains deferred.
+
+## Initial results on October 26, 2026
 
 Checks ran on a Linux x86_64 host using the existing SEAN workspace and editor.
 The previous agent's source changes were saved before updating the checkouts.

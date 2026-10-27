@@ -18,11 +18,19 @@ fi
 image=${SEAN_ROS_IMAGE:-sean3-humble:dev}
 port=${SEAN_TCP_PORT:-10321}
 seed=${SEAN_SEED:-7}
+mode=${SEAN_CHECK_MODE:-navigation}
+check_status=0
+case "$mode" in navigation|lifecycle) ;; *) echo "Unknown check mode: $mode" >&2; exit 2 ;; esac
 container="sean3-navigation-$$"
+sampler_pid=
 player_pid=
 container_started=false
 
 cleanup() {
+    if [ -n "$sampler_pid" ]; then
+        kill "$sampler_pid" 2>/dev/null || true
+        wait "$sampler_pid" 2>/dev/null || true
+    fi
     if [ -n "$player_pid" ]; then
         kill -TERM -- "-$player_pid" 2>/dev/null || true
         wait "$player_pid" 2>/dev/null || true
@@ -55,8 +63,23 @@ setsid xvfb-run -a bash "$scripts/run_unity_player.sh" "$player" \
     -logFile "$results/player.log" > "$results/player-console.log" 2>&1 &
 player_pid=$!
 
-printf 'scene=SEAN/Warehouse\nscenario=None\ntask=RandomABNav\nseed=%s\n' "$seed" > "$results/config.txt"
+printf 'scene=SEAN/Warehouse\nscenario=None\ntask=RandomABNav\nseed=%s\nmode=%s\n' "$seed" "$mode" > "$results/config.txt"
+if [ "$mode" = lifecycle ]; then
+    python3 "$scripts/../tests/unity_lifecycle_check.py" --sample-player "$player" \
+        --output "$results/player-resources.json" > "$results/resource-sampler.log" 2>&1 &
+    sampler_pid=$!
+    docker exec "$container" bash -c \
+        'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; python3 /tests/unity_lifecycle_check.py --output /results/lifecycle.json --resources /results/player-resources.json --pairs "$1"' \
+        bash "${SEAN_LIFECYCLE_PAIRS:-6}" > "$results/check.log" 2>&1 || check_status=$?
+else
 docker exec "$container" bash -c \
     'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; python3 /tests/unity_navigation_check.py --cycles 3 --output /results/navigation.json' \
     > "$results/check.log" 2>&1
+fi
 cat "$results/check.log"
+if [ "$mode" = lifecycle ]; then
+    cleanup
+    trap - EXIT
+    python3 "$scripts/../tests/lifecycle_log_check.py" "$results" || check_status=1
+fi
+exit "$check_status"

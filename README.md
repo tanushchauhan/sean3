@@ -6,8 +6,10 @@ Development entry point for modernizing SEAN 2 and evaluating pedestrian control
 
 The development branches target ROS 2 Humble and Unity 2022.3.62f3. The ROS
 package builds, all eight Nav2 lifecycle nodes activate, and the velocity
-smoother passes command-routing and timeout checks. Nine Unity EditMode tests
-and six startup-check regression tests pass. See [VALIDATION.md](VALIDATION.md)
+smoother passes command-routing and timeout checks. Eleven Unity EditMode tests, fourteen harness regression tests, and three
+endpoint compatibility tests pass. Six task resets and six scene reloads
+preserve sensors, clock continuity, and ROS registration counts within the
+reported resource budgets. Transport teardown diagnostics remain. See [VALIDATION.md](VALIDATION.md)
 for versions, commands, and limits.
 
 Three live Warehouse navigation checks pass: initial startup, task reset, and

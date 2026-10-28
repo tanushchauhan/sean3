@@ -195,3 +195,35 @@ pedestrian completions, fresh streams and zero contacts. Its original criteria
 are retained separately in `pre-wire-summary.json`; it is not counted as final
 wire-telemetry qualification. The full prospective matrix uses the frozen new
 checker from the start.
+
+## Sustained navigation follow-up
+
+Candidate11's clean-source player passed all 80 populated checks, 45 Unity tests,
+53 harness tests and all three ordinary navigation stages. Its subsequent long
+seed7 route failed: the outgoing transport reported 14,754 queue-overflow warnings,
+then stale streams and a reset timeout. No physical contacts were recorded.
+That failed sustained run remains preserved; the 80 successful controlled-step
+cases do not qualify unbounded frame-rate telemetry.
+
+A proposed physics-stamp publication gate was tested in candidate12 and rejected:
+the same sustained failure and 15,206 outgoing queue warnings remained. Live
+measurements already showed zero repeated snapshot headers without that gate.
+All gate code and its temporary test were reverted; the failed attempt is retained.
+Candidate13 adds topic names to the existing queue warning for diagnosis, without
+suppressing warnings or changing publication behavior. Its modern-profile run
+had no queue warnings, but still failed the unchanged navigation/stall gates.
+Thus queue overflow alone does not explain the observed route failures.
+
+The old-profile control also failed. The previously accepted executable then
+failed the exact historical startup route using both the diagnostic checker
+and the frozen original checker. Its payload checksums remained unchanged.
+This weakens attribution to the new encounter/laser code or added monitoring;
+it does not identify a root cause. See the result report for exact outcomes.
+The populated qualification remains bounded to candidate11's recorded source
+and controlled stepping. It does not establish sustained normal-navigation reliability.
+
+For controlled navigation comparisons, `SEAN_LASER_NO_RETURN` selects the player
+laser profile (default `PositiveInfinity`). `SEAN_NAV2_PARAMS_FILE` optionally
+mounts a frozen Kuri YAML into only the test container; its bytes/hash are saved
+with the result. These overrides do not modify the source or installed host files.
+Historical executables predating the laser option retain their original behavior.

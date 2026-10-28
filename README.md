@@ -4,47 +4,41 @@ Development entry point for modernizing SEAN 2 and evaluating pedestrian control
 
 ## Current status
 
-The development branches target ROS 2 Humble and Unity 2022.3.62f3. The ROS
-package builds, all eight Nav2 lifecycle nodes activate, and the velocity
-smoother passes command-routing and timeout checks. The current candidate passes
-42 Unity EditMode tests and 26 harness regressions. The unchanged endpoint
-previously passed 12 compatibility, socket, and process tests. The earlier transport candidate passed six task resets
-and six scene reloads with fresh sensors, clock continuity, stable graph counts,
-and bounded resource growth. Its headless and NVIDIA rendered sequences also
-passed clean closure and process exit checks; those larger sequences were not
-rerun on the latest pedestrian-response candidate. See the [transport result](TRANSPORT_RESULT_2026-10-27.md)
-and [VALIDATION.md](VALIDATION.md) for exact versions, commands, and limits.
+The development branches use Unity 2022.3.62f3 and ROS 2 Humble. The current
+clean-source candidate passes 80 controlled four-person Warehouse encounters
+(320 person routes), including sixteen live Nav2 actions, with zero recorded
+physical contacts. Forty-five Unity tests, 53 harness regressions, five installed
+costmap controls and ordinary startup/task-reset/scene-reload navigation pass.
+This autonomous fixture does not require Michal's prototype or Howard's extensions.
+See the [multi-person result](WAREHOUSE_ENCOUNTERS_RESULT_2026-10-28.md) and
+[protocol](WAREHOUSE_ENCOUNTERS.md) for exact source pins, geometry and limits.
 
-Three live Warehouse navigation checks pass: initial startup, task reset, and
-scene reload, with fresh sensors and a continuous clock. Earlier rendered RGB/depth,
-optical frames, calibration, and measured laser geometry checks passed at three headings
-on Mesa and NVIDIA OpenGL. See the [sensor result](RENDERED_SENSOR_RESULT_2026-10-27.md)
-and [reproduction guide](RENDERED_SENSORS.md). The bounded Warehouse random-task
-placement checks now pass with ROS-map and live-geometry constraints; see the
-[placement result](PLACEMENT_RESULT_2026-10-27.md) and [guide](PLACEMENT.md).
-The earlier longer-navigation milestone passed six actual generated routes across
-seeds 7 and 42 with zero recorded physical object contacts, stalls, or recovery
-actions, and clean shutdown. The configured robot is Kuri; earlier Jackal labels
-came from the ROS profile name. See the [longer-navigation result](LONG_NAVIGATION_RESULT_2026-10-27.md)
-and [protocol](LONG_NAVIGATION.md). Participant workflows, populated scenarios,
-and broader navigation reliability still need validation. The earlier clean-source
-Unity build milestone passed for the
-configured Warehouse fixture: twelve EditMode tests and all three navigation
-stages pass after fixing the Rocketbox importer. See the
-[October 27 build review](CLEAN_BUILD_RESULT_2026-10-27.md). These checks reuse
-the recorded environment and do not establish bit-for-bit reproducibility.
-ORCA remains unimplemented. Review Michal's prototype and
-Howard's extensions before adding new sensor, learning, or study interfaces.
+**Longer normal navigation remains unqualified.** The prospective follow-up failed;
+the earlier accepted executable also failed a repeated historical route with its
+old profile. All failures are retained. The 80 encounter cases use controlled
+stepping and do not establish broad reliability. All robot conditions, including
+oblivious motion, had zero contacts, and the declared clearance-benefit threshold
+was not met in the aisle. This is a development baseline, not a generally reliable
+release or a validated controller benchmark.
 
-The pedestrian-response milestone now passes 60 controlled checks with the
-actual Kuri body and animated pedestrians, covering parked, moving and yielding
-robots, no-robot controls, a fresh seed and a larger time step. ColliderV1 adds
-physical robot geometry, braking and obstacle-aware sidestepping, with an
-independent contact-model correction for animated walking. The Legacy-force
-comparison holds contact physics fixed. These are single-person open-floor checks, not populated
-Warehouse or human-realism validation. See the [pedestrian result](PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md)
-and [protocol](PEDESTRIAN_AVOIDANCE.md). Multi-person encounters and an oblivious
-robot control are next, to check both safety and benchmark difficulty.
+The earlier [single-person pedestrian result](PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md)
+passes 60 open-floor checks and explains ColliderV1's body geometry, braking and
+sidestepping corrections. The new milestone preserves that model and repairs
+laser free-space reporting/costmap clearing. Historical
+[longer-navigation](LONG_NAVIGATION_RESULT_2026-10-27.md),
+[transport](TRANSPORT_RESULT_2026-10-27.md),
+[rendered-sensor](RENDERED_SENSOR_RESULT_2026-10-27.md),
+[placement](PLACEMENT_RESULT_2026-10-27.md) and
+[clean-build](CLEAN_BUILD_RESULT_2026-10-27.md) reports retain their own source pins
+and coverage. Their successful results must not be attributed to every later
+candidate. See [VALIDATION.md](VALIDATION.md) for the validation history.
+
+The next work is sustained-navigation diagnosis and a prospectively designed,
+more discriminating encounter benchmark. Participant workflows, large crowds,
+human realism and broad navigation reliability remain open. ORCA is unimplemented.
+Review Michal's prototype and Howard's extensions before adding overlapping
+sensor, learning or participant-study interfaces; they are not dependencies of
+the autonomous fixture above.
 
 ## Repositories
 

@@ -1,5 +1,27 @@
 # Migration validation
 
+## Multi-person Warehouse candidate — October 28
+
+At Unity `3033ba1fb63a01698d543c16f6b21a0e210db85e`, ROS
+`cceff5bd54ce52787fa47595fdff8b9c9775527f` and executed encounter tooling
+`1e6cad48298aa6dfbecae7659ccd389e118e90b9`, the new clean-source player passes
+80 controlled four-person cases: 40 development, 20 on a fresh seed, and 20
+at a larger step. All 320 person routes and sixteen actual Nav2 actions complete
+within 45 simulation seconds with zero recorded physical contacts and no sampled
+body overlaps. All 45 Unity tests, 53 harness regressions, five installed costmap
+controls, three ordinary navigation stages and 175 payload checksums pass.
+
+**The full follow-up pipeline failed sustained normal navigation.** The older
+accepted executable also failed an identical historical route with its old
+profile. No deadline or stall gate was relaxed. The controlled population result
+is valid separately; it does not establish broad reliability. Yielding clearance
+headroom is layout-dependent and fails the declared threshold in the aisle;
+no contact-rate advantage is demonstrated. See
+[WAREHOUSE_ENCOUNTERS_RESULT_2026-10-28.md](WAREHOUSE_ENCOUNTERS_RESULT_2026-10-28.md)
+for all outcomes, rejected attempts, source/build provenance and remaining work;
+[WAREHOUSE_ENCOUNTERS.md](WAREHOUSE_ENCOUNTERS.md) gives the protocol. Historical
+results below retain their own versions and must not be read as later coverage.
+
 ## Pedestrian response to Kuri milestone — October 28
 
 The bounded open-floor diagnostic passes at Unity `aeaa7d247bc99fab12eacc95b22b3ad230d8f207`

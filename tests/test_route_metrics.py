@@ -1,6 +1,6 @@
 import math
 import unittest
-from route_metrics import path_geometry, trajectory_metrics
+from route_metrics import path_geometry, receipt_lag_growth, trajectory_metrics
 
 
 class RouteMetricTests(unittest.TestCase):
@@ -34,3 +34,10 @@ class RouteMetricTests(unittest.TestCase):
         result = trajectory_metrics([[i, .1*math.cos(i), .1*math.sin(i), i] for i in range(31)])
         self.assertEqual(result['translation_stalls'], [])
         self.assertEqual(result['bounded_motion_stalls'], [[0, 30]])
+
+    def test_receipt_lag_growth_detects_backlog_but_not_steady_latency(self):
+        self.assertAlmostEqual(receipt_lag_growth([[10+i, i] for i in range(20)]), 0)
+        backlog = [[10+i, .8*i] for i in range(11)] + [[20.5, 9.5]]
+        self.assertAlmostEqual(receipt_lag_growth(backlog), 2)
+        with self.assertRaises(ValueError):
+            receipt_lag_growth([])

@@ -22,7 +22,7 @@ from rosgraph_msgs.msg import Clock
 from std_msgs.msg import Bool
 from social_sim_ros.msg import TrialInfo
 from nav2_msgs.action import ComputePathToPose
-from route_metrics import path_geometry, trajectory_metrics
+from route_metrics import path_geometry, receipt_lag_growth, trajectory_metrics
 
 
 def main():
@@ -41,12 +41,15 @@ def main():
     received = {}
     counts = {}
     samples = []
+    clock_receipts = []
     recording = False
 
     def receive(key, message):
         latest[key] = message
         received[key] = time.monotonic()
         counts[key] = counts.get(key, 0) + 1
+        if recording and key == 'clock':
+            clock_receipts.append([time.time(), message.clock.sec + message.clock.nanosec*1e-9])
         if recording and key == 'odom':
             p, q = message.pose.pose.position, message.pose.pose.orientation
             stamp = message.header.stamp
@@ -106,6 +109,9 @@ def main():
         wait(lambda: fresh() and 'trial' in latest, 45, 'live Unity sensors and initial task')
         for cycle in range(args.cycles):
             if cycle:
+                # Nav2 shutdown blocked spinning; anchor on a clock sample received afterwards.
+                anchor_wait = time.monotonic()
+                wait(lambda: received.get('clock', 0) > anchor_wait, 10, 'clock after Nav2 shutdown')
                 reset_started = time.monotonic()
                 clock_before = latest['clock'].clock.sec + latest['clock'].clock.nanosec * 1e-9
                 previous = latest.get('trial')
@@ -210,6 +216,7 @@ def main():
                         raise RuntimeError('No global plan for generated goal')
                 print(f'Episode {cycle}: start=({x:.3f}, {y:.3f}), goal={target}', flush=True)
                 samples.clear()
+                clock_receipts.clear()
                 collision_fields = ('obj_collisions', 'robot_on_person_collisions', 'person_on_robot_collisions')
                 collision_start = {k: getattr(latest['trial'], k) for k in collision_fields}
                 collision_max = dict(collision_start)
@@ -265,13 +272,16 @@ def main():
                            'wall_seconds': time.monotonic()-started, 'failure': failure})
                 if args.task_goals:
                     episode.update(trajectory_metrics(samples))
+                    episode['receipt_lag_growth_seconds'] = receipt_lag_growth(clock_receipts)
+                    episode['clock_receipts_1hz'] = clock_receipts[::100]
                     episode.update(trajectory=samples.copy(), collision_start=collision_start, collision_max=collision_max,
                                    feedback=feedback_samples,
                                    max_recoveries=max((f['recoveries'] for f in feedback_samples), default=0))
                 episode['passed'] = (not failure and episode['status'] == 4 and error <= .4 and distance >= .5 and fresh()
                                      and (not args.task_goals or (not any(collision_max.values()) and not episode['translation_stalls']
-                                                                 and not episode['bounded_motion_stalls'] and episode['max_sample_gap_seconds'] <= 1)))
-                print(json.dumps({k:v for k,v in episode.items() if k not in ('trajectory', 'plan', 'feedback')}), flush=True)
+                                                                 and not episode['bounded_motion_stalls'] and episode['max_sample_gap_seconds'] <= 1
+                                                                 and episode['receipt_lag_growth_seconds'] <= 1)))
+                print(json.dumps({k:v for k,v in episode.items() if k not in ('trajectory', 'plan', 'feedback', 'clock_receipts_1hz')}), flush=True)
                 Path(args.output).write_text(json.dumps(report, indent=2))
                 if not episode['passed'] and not args.task_goals:
                     raise RuntimeError('Navigation did not meet success criteria')

@@ -49,3 +49,15 @@ def pause_windows(samples, movement_m, stall_seconds):
     if samples[-1][0]-anchor[0] >= stall_seconds:
         stalls.append([anchor[0], samples[-1][0]])
     return longest, stalls
+
+
+def receipt_lag_growth(samples):
+    """Largest increase of (wall receipt - simulation stamp) after the first sample.
+
+    Unity's clock cannot outrun wall time, so growth means a delivery backlog or a
+    player stall: either way Nav2 acted on old state. Samples are [wall, sim].
+    """
+    if not samples:
+        raise ValueError('No clock receipts')
+    baseline = samples[0][0] - samples[0][1]
+    return max(wall - sim for wall, sim in samples) - baseline

@@ -137,3 +137,14 @@ that duplicate write; the snapshot completes before publishing the request.
 Large report writes are timed in the player log and all remain outside live
 Nav2 actions. The driver now retains detailed stale-sensor ages on failure.
 No sensor threshold, force, contact profile, speed, goal or deadline was relaxed.
+
+Candidate7 also exposed a separate planar-fixture constraint defect: rotation
+was frozen on every axis. Straight Nav2 aisle actions could finish, but Nav2
+could not turn around pedestrians at the rack end. This does not qualify the
+navigation controller. The corrected fixture freezes height, roll and pitch
+while allowing Nav2 yaw; scripted controls retain their explicit orientation.
+A physical Unity regression commands angular/linear velocity through this exact
+fixture configuration and requires measured turning without height/tilt drift.
+Raw samples now include robot yaw. Candidate8's superseded clean build was
+stopped before qualification after this defect was identified. The next full
+matrix uses a new committed-source clone with both fixture repairs.

@@ -120,3 +120,20 @@ subsets; they cannot stand in for the full declared matrix. Defaults include
 both layouts and all five conditions. The runner retains raw trajectories,
 actual setup paths/avatars, Nav2 plans/feedback, script logs and closure evidence.
 Failed attempts use fresh directories and remain available.
+
+## Diagnostic integrity
+
+The encounter JSON/case index, not the disabled random task's legacy TrialInfo
+timer or goal, supplies the per-case metrics. The normal task does not reset
+between these diagnostic encounters. The four-person population is published
+through the existing agent streams; Nav2 uses normal laser/odometry/clock inputs.
+
+Candidate7's first full development run exposed a recording/setup ordering bug:
+a second complete JSON snapshot was written after issuing the Nav2 request.
+As the accumulated trajectories grew, that blocked Unity long enough for a
+Nav2 case to fail the unchanged sensor freshness gate despite reaching its
+goal without contacts. The full attempt remains unaccepted. The repair removes
+that duplicate write; the snapshot completes before publishing the request.
+Large report writes are timed in the player log and all remain outside live
+Nav2 actions. The driver now retains detailed stale-sensor ages on failure.
+No sensor threshold, force, contact profile, speed, goal or deadline was relaxed.

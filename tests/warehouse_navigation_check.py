@@ -90,15 +90,21 @@ def main():
             def on_feedback(msg):feedback.append({'remaining':msg.feedback.distance_remaining,'recoveries':msg.feedback.number_of_recoveries})
             future=client.send_goal_async(goal,feedback_callback=on_feedback);wait(future.done,10,'navigation accepted');active=future.result()
             if not active.accepted:raise RuntimeError('Nav2 rejected route')
-            result=active.get_result_async();(exchange/f'go-{index}').write_text('go\n');started=time.monotonic(); stale=False
+            result=active.get_result_async();(exchange/f'go-{index}').write_text('go\n');started=time.monotonic(); stale=False; stale_samples=[]
             until=started+100
             while not result.done() and time.monotonic()<until and not (exchange/f'ended-{index}').exists():
                 rclpy.spin_once(node,timeout_sec=.05)
-                if not fresh():stale=True
+                if not fresh():
+                    stale=True
+                    if len(stale_samples)<30:
+                        t=latest['clock'].clock.sec+latest['clock'].clock.nanosec*1e-9
+                        stale_samples.append(dict(wall_seconds=time.monotonic()-started,clock=t,
+                            received_ages={k:time.monotonic()-received.get(k,0) for k in ('odom','scan','clock','people')},
+                            stamp_ages={k:t-(latest[k].header.stamp.sec+latest[k].header.stamp.nanosec*1e-9) for k in ('odom','scan','people')}))
             if not result.done():
                 canceled=active.cancel_goal_async();wait(canceled.done,10,'cancel');wait(result.done,10,'canceled result')
             status=result.result().status;pos=latest['odom'].pose.pose.position
-            episode.update(status=status,final=[pos.x,pos.y],goal_error=math.dist((pos.x,pos.y),target),fresh_sensors=not stale and fresh(),wall_seconds=time.monotonic()-started,feedback=feedback)
+            episode.update(status=status,final=[pos.x,pos.y],goal_error=math.dist((pos.x,pos.y),target),fresh_sensors=not stale and fresh(),stale_samples=stale_samples,wall_seconds=time.monotonic()-started,feedback=feedback)
             episode['passed']=status==4 and episode['goal_error']<=.4 and episode['fresh_sensors']
             (exchange/f'done-{index}').write_text(str(status)+'\n');active=None;save()
             print({k:v for k,v in episode.items() if k not in ('plan','feedback')},flush=True)

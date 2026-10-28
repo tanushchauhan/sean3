@@ -135,7 +135,7 @@ def analyze(report, navigation=None):
         and all(e.get('published_people')==4 and e.get('fresh_sensors') and e.get('plan_status')==4
                 and len(e.get('plan',[]))>=2 and e.get('goal_error',math.inf)<=.4 for e in nav_episodes)))
     actual = {(e['seed'],e['layout'],e['mirror'],e['mode']) for e in episodes}
-    schema_ok = (report.get('schema') == 1 and report.get('layoutVersion') == 3 and report.get('model') == 'ColliderV1'
+    schema_ok = (report.get('schema') == 2 and report.get('laserNoReturn') == 'PositiveInfinity' and report.get('layoutVersion') == 3 and report.get('model') == 'ColliderV1'
                  and report.get('contactModel') == 'VelocityBodyV1' and any(abs(report['step']-v)<1e-6 for v in (.02,.04))
                  and report['deadline'] == 45 and abs(report['desiredSpeed']-.6) < 1e-6
                  and len(set(report['seeds'])) == len(report['seeds'])

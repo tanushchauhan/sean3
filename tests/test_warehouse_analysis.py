@@ -7,7 +7,7 @@ from analyze_warehouse_encounters import analyze
 
 
 def fixture():
-    r=dict(schema=1,layoutVersion=3,model='ColliderV1',contactModel='VelocityBodyV1',step=.02,deadline=45,desiredSpeed=.6,seeds=[7],layouts=['aisle'],modes=['parked'],complete=True,episodes=[])
+    r=dict(schema=2,laserNoReturn='PositiveInfinity',layoutVersion=3,model='ColliderV1',contactModel='VelocityBodyV1',step=.02,deadline=45,desiredSpeed=.6,seeds=[7],layouts=['aisle'],modes=['parked'],complete=True,episodes=[])
     for mirror in (-1,1):
         e=dict(index=len(r['episodes']),seed=7,layout='aisle',mirror=mirror,mode='parked',setup=True,complete=True,error=None,
                robotStart=dict(x=-5,y=0,z=5),robotGoal=dict(x=-5,y=0,z=9),robotPlan=[{},{}],duration=.02,
@@ -50,6 +50,7 @@ class WarehouseAnalysisTests(unittest.TestCase):
         r=fixture();r['step']=.019999999552965165;self.assertTrue(analyze(r)['passed'])
     def test_person_fell_through_floor(self): self.rejected(lambda r:r['episodes'][0]['samples'][1]['people'][0].update(y=-10))
     def test_robot_height_drift(self): self.rejected(lambda r:r['episodes'][0]['samples'][1]['robot'].update(y=.5))
+    def test_legacy_empty_rays_not_qualified(self): self.rejected(lambda r:r.update(laserNoReturn='LegacyZero'))
     def test_missing_mirror(self): self.rejected(lambda r:r['episodes'].pop())
     def test_duplicate_episode(self): self.rejected(lambda r:r['episodes'].append(copy.deepcopy(r['episodes'][0])))
     def test_incomplete(self): self.rejected(lambda r:r.update(complete=False))

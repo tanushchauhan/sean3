@@ -148,3 +148,40 @@ fixture configuration and requires measured turning without height/tilt drift.
 Raw samples now include robot yaw. Candidate8's superseded clean build was
 stopped before qualification after this defect was identified. The next full
 matrix uses a new committed-source clone with both fixture repairs.
+
+## Moving-obstacle laser clearing
+
+The corrected-turning pilot still failed both rack-end deadlines: all pedestrians
+finished, sensor streams stayed fresh and no contacts occurred, but Nav2's path
+grew into a long detour. These 45-second failures remain preserved. No longer
+deadline is substituted.
+
+A separate installed-Humble-costmap regression identified a concrete sensor defect:
+legacy empty laser rays are zero, so laser projection drops them and they cannot
+clear a departed person's obstacle mark. Merely enabling infinity on a marking
+source creates a 360-cell obstacle ring near the 3.5 m limit. Shortening marking
+to 3.49 m avoids that ring but loses a real finite hit at 3.495 m.
+
+The candidate repair reports a no-hit beam as positive infinity; a physical hit
+below range_min stays invalid zero. `-laser-no-return LegacyZero` retains the
+old behavior for controlled ablation; `PositiveInfinity` is the new default.
+Kuri's local/global costmaps each use two observations of the same scan: finite
+hits mark obstacles with `inf_is_valid: false`; a clearing-only source accepts
+positive infinity. Both retain the full 3.5 m horizon. This clears departed
+obstacles without inventing a max-range ring or discarding far finite returns.
+
+Run `scripts/check_laser_clearing.sh NEW_DIRECTORY` on robovision for all five
+negative/proposed configurations using the installed controller/costmap plugin.
+It marks an actual scan endpoint, removes it, inspects the published grid,
+checks a 3.495 m finite endpoint, and requires clean lifecycle/process exit.
+Unity additionally tests an actual disappearing physical cube and a too-close
+hit. Warehouse schema2 records the actual laser profile; schema1/LegacyZero
+cannot qualify as the repaired full matrix. `SEAN_LASER_NO_RETURN` selects the
+explicit runner profile. Pedestrian forces, contacts, speed, layouts and the
+45-second deadline remain unchanged.
+
+The relevant implementation is documented in the upstream
+[Humble obstacle layer](https://github.com/ros-navigation/navigation2/blob/humble/nav2_costmap_2d/plugins/obstacle_layer.cpp)
+and [laser projection](https://github.com/ros-perception/laser_geometry/blob/ros2/src/laser_geometry.cpp).
+The direct plugin regression establishes the clearing defect; a new live pilot
+must establish whether this repair resolves these navigation detours.

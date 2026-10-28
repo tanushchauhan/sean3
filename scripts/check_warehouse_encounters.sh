@@ -19,6 +19,7 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 image=${SEAN_ROS_IMAGE:-localhost/sean3-humble:dev}; port=${SEAN_TCP_PORT:-10333}
 seeds=${SEAN_ENCOUNTER_SEEDS:-7,42}; step=${SEAN_ENCOUNTER_STEP:-0.02}
+laser=${SEAN_LASER_NO_RETURN:-PositiveInfinity}
 layouts=${SEAN_ENCOUNTER_LAYOUTS:-aisle,rack_end}; modes=${SEAN_ENCOUNTER_MODES:-absent,parked,yielding,oblivious,nav2}
 printf 'scene=Warehouse\nseeds=%s\nstep=%s\nlayouts=%s\nmodes=%s\n' "$seeds" "$step" "$layouts" "$modes" > "$results/config.txt"
 docker run -d --stop-signal SIGINT --name "$container" -p "127.0.0.1:$port:10000" -e ROS_DOMAIN_ID=76 \
@@ -31,7 +32,7 @@ docker exec "$container" bash -c 'source /opt/ros/humble/setup.bash; source /sea
 driver_pid=$!
 setsid xvfb-run -a bash "$scripts/run_unity_player.sh" "$player" -batchmode -nographics \
     -scene SEAN/Warehouse -scenario None -task RandomABNav -seed 7 -ros-tcp-port "$port" \
-    -completion-distance 0 -task-timeout-seconds 3600 -external-goals \
+    -completion-distance 0 -task-timeout-seconds 3600 -external-goals -laser-no-return "$laser" \
     -warehouse-encounter-output "$results/encounters.json" -warehouse-encounter-step "$step" \
     -warehouse-encounter-seeds "$seeds" -warehouse-encounter-layouts "$layouts" -warehouse-encounter-modes "$modes" \
     -logFile "$results/player.log" > "$results/player-console.log" 2>&1 &
@@ -51,7 +52,7 @@ else
     status=1
 fi
 cleanup; trap - EXIT
-python3 -c 'import json,sys;d=json.load(open(sys.argv[1]));assert d["seeds"]==list(map(int,sys.argv[2].split(","))) and d["layouts"]==sys.argv[3].split(",") and d["modes"]==sys.argv[4].split(",") and abs(d["step"]-float(sys.argv[5]))<1e-6' "$results/encounters.json" "$seeds" "$layouts" "$modes" "$step" || status=1
+python3 -c 'import json,sys;d=json.load(open(sys.argv[1]));assert d["seeds"]==list(map(int,sys.argv[2].split(","))) and d["layouts"]==sys.argv[3].split(",") and d["modes"]==sys.argv[4].split(",") and abs(d["step"]-float(sys.argv[5]))<1e-6 and d["laserNoReturn"]==sys.argv[6]' "$results/encounters.json" "$seeds" "$layouts" "$modes" "$step" "$laser" || status=1
 python3 "$scripts/../tests/analyze_warehouse_encounters.py" "$results/encounters.json" --navigation "$results/warehouse-navigation.json" || status=1
 python3 "$scripts/../tests/lifecycle_log_check.py" "$results" || status=1
 python3 "$scripts/../tests/audit_simulation_logs.py" "$results" || status=1

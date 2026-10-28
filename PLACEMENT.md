@@ -1,6 +1,6 @@
 # Warehouse random-task placement
 
-The supported `SEAN/Warehouse`, `None`, `RandomABNav`, Jackal fixture samples
+The supported `SEAN/Warehouse`, `None`, `RandomABNav`, Kuri fixture samples
 start/goal pairs subject to three constraints:
 
 - A uniform point inside one area-weighted navigation-mesh triangle, with at
@@ -10,6 +10,11 @@ start/goal pairs subject to three constraints:
   column. The robot's own colliders and triggers are excluded.
 - A clear 0.7 m circular footprint in the pinned Warehouse ROS map. The
   independent ROS check uses 0.6 m, leaving one map cell of margin.
+
+The saved placement checks use `nav2_jackal.launch.py`, the historical ROS
+profile name. That name does not identify the live Unity robot. Earlier versions
+of this guide incorrectly called the configured Kuri fixture Jackal; placement
+results do not qualify the Jackal model.
 
 Pairs must be at least three metres apart and have a complete Unity navigation
 path. Sampling stops after 256 candidate pairs. Failure leaves the current task

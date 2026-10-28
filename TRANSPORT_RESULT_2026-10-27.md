@@ -1,11 +1,16 @@
 # Connection lifecycle result — October 27, 2026
 
 The bounded connection reload/shutdown milestone passes on robovision for the
-configured Warehouse / None / RandomABNav / Jackal fixture. Across a headless
+configured Warehouse / None / RandomABNav / Kuri fixture. Across a headless
 stress run, driving run, and NVIDIA rendered run, all twelve accepted endpoint
 connections have matching announced closes and disconnects. Both processes exit
 zero, no player is forcibly killed, and complete player/console/endpoint logs
 contain zero transport failures, queue drops, native crashes, or display errors.
+
+Robot identity correction, October 28: this report originally inferred Jackal
+from the ROS navigation profile name. The configured Unity robot is Kuri.
+Historical profile names, commands, source pins and results are retained;
+these checks do not establish coverage of the Jackal model.
 
 ## Changes
 

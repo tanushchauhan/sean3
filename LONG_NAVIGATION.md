@@ -1,7 +1,9 @@
 # Longer Warehouse navigation
 
-The configured Warehouse robot is Kuri; `nav2_jackal.launch.py` names the ROS
-profile, not the live Unity robot. The player now logs this identity explicitly.
+The configured Warehouse robot is Kuri, and the current navigation runner uses
+`nav2_kuri.launch.py`. Earlier checks used `nav2_jackal.launch.py`; that historical
+ROS profile name did not identify the live Unity robot. The player now logs
+this identity explicitly.
 This check drives the actual `RandomABNav` task goal with Nav2, rather than
 substituting a one-metre test goal. It runs startup, task reset, and scene reload
 in order. No rejected start or goal is silently replaced. Use at least seeds 7

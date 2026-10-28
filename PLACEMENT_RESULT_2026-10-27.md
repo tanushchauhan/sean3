@@ -1,10 +1,15 @@
 # Warehouse placement result — October 27, 2026
 
 The bounded Warehouse random-task placement milestone passes on robovision.
-The supported None / RandomABNav / Jackal configuration now chooses starts and
+The supported None / RandomABNav / Kuri configuration now chooses starts and
 goals compatible with both live geometry and the pinned ROS navigation map.
 No fallback placement reset was needed in any of the nine driving episodes.
 This is not participant readiness or a broad navigation benchmark.
+
+Robot identity correction, October 28: this report originally inferred Jackal
+from the `nav2_jackal.launch.py` ROS profile name. The configured Unity Warehouse
+robot is Kuri. The saved commands, source pins and measured outcomes are unchanged;
+these results do not qualify the Jackal model.
 
 ## What changed and why
 

@@ -7,11 +7,12 @@ Development entry point for modernizing SEAN 2 and evaluating pedestrian control
 The development branches target ROS 2 Humble and Unity 2022.3.62f3. The ROS
 package builds, all eight Nav2 lifecycle nodes activate, and the velocity
 smoother passes command-routing and timeout checks. The current candidate passes
-28 Unity EditMode tests, 16 harness regressions, and 10 endpoint compatibility,
-socket, and process tests. Six task resets and six scene reloads preserve fresh
-sensors, clock continuity, graph counts, and the recorded resource budgets.
-Headless driving and NVIDIA rendered reset sequences also pass clean connection
-closure and process exit checks. See the [transport result](TRANSPORT_RESULT_2026-10-27.md)
+33 Unity EditMode tests, 22 harness regressions, and 12 endpoint compatibility,
+socket, and process tests. The earlier transport candidate passed six task resets
+and six scene reloads with fresh sensors, clock continuity, stable graph counts,
+and bounded resource growth. Its headless and NVIDIA rendered sequences also
+passed clean closure and process exit checks; those larger sequences were not
+rerun on the latest navigation candidate. See the [transport result](TRANSPORT_RESULT_2026-10-27.md)
 and [VALIDATION.md](VALIDATION.md) for exact versions, commands, and limits.
 
 Three live Warehouse navigation checks pass: initial startup, task reset, and
@@ -21,8 +22,13 @@ on Mesa and NVIDIA OpenGL. See the [sensor result](RENDERED_SENSOR_RESULT_2026-1
 and [reproduction guide](RENDERED_SENSORS.md). The bounded Warehouse random-task
 placement checks now pass with ROS-map and live-geometry constraints; see the
 [placement result](PLACEMENT_RESULT_2026-10-27.md) and [guide](PLACEMENT.md).
-Participant workflows, collision metrics, and broader navigation scenarios
-still need validation. The earlier clean-source Unity build milestone passed for the
+The longer-navigation milestone now passes six actual generated routes across
+seeds 7 and 42 with zero recorded physical object contacts, stalls, or recovery
+actions, and clean shutdown. The configured robot is Kuri; earlier Jackal labels
+came from the ROS profile name. See the [longer-navigation result](LONG_NAVIGATION_RESULT_2026-10-27.md)
+and [protocol](LONG_NAVIGATION.md). Participant workflows, populated scenarios,
+and broader navigation reliability still need validation. The earlier clean-source
+Unity build milestone passed for the
 configured Warehouse fixture: twelve EditMode tests and all three navigation
 stages pass after fixing the Rocketbox importer. See the
 [October 27 build review](CLEAN_BUILD_RESULT_2026-10-27.md). These checks reuse

@@ -1,5 +1,24 @@
 # Migration validation
 
+## Longer Warehouse navigation milestone
+
+The bounded October 27 Kuri result passes at Unity `99110a72e87d18a26961d832a2d7b47780cb4799`
+and ROS `d5dd5eecd36c0d4b61a5edbceeba49afdcb2b91c`. All six generated routes (seeds 7 and 42;
+startup, task reset, scene reload) completed with zero recorded contacts,
+zero recovery actions, and no translation or bounded-motion stalls. Both runs
+passed clean shutdown. The final source passes 33 Unity, 22 harness, and 12
+endpoint tests; all 175 player payload checksums verified.
+
+See [LONG_NAVIGATION_RESULT_2026-10-27.md](LONG_NAVIGATION_RESULT_2026-10-27.md)
+for exact metrics, source/build provenance, failed attempts, and limitations;
+[LONG_NAVIGATION.md](LONG_NAVIGATION.md) gives the protocol. The actual robot is
+Kuri; previous Jackal labels came from the ROS profile name. This candidate uses
+an ideal velocity body, physical object-contact counting, a dedicated RPP
+profile, full finite laser observations, and endpoint executor synchronization.
+It was built incrementally in the cached checkout, not through a new clean-source
+import. Earlier reports below retain their original source pins and outcomes.
+Participant workflows, populated scenarios, and general reliability remain open.
+
 ## Connection reload and shutdown milestone
 
 The bounded October 27 transport result passes at Unity

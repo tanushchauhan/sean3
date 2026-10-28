@@ -1,0 +1,122 @@
+# Populated Warehouse encounters
+
+This milestone evaluates the actual Warehouse floor, racks, baked NavMesh,
+production animated SFAgents and Kuri. It requires neither participant-interface
+prototype. It does not claim human realism or qualify a participant study.
+
+## Protocol declared before live trajectories
+
+Four people, fixed placements, two layouts (`aisle`, `rack_end`), and lateral
+mirrors -1/+1. **Layout version 2** was chosen from the saved baked-mesh geometry
+before any live pedestrian trajectories: the first proposed absent pose (5,-15)
+was off mesh, and an audit also found several proposed rack-end poses invalid.
+Candidates4/5 retain those setup rejections; no failures were replaced inside a
+run. The map alone was insufficient to choose these scene coordinates.
+
+The aisle retains Unity x/z centre (-5,5), robot start/goal at longitudinal
++/-4 m, and four people at lateral +/-0.65 m, depths +3.5/+5 m, aiming at
+-5/-3.5 m. The rack-end centre is (-5,-8); robot crosses laterally from -4 to
++4 m about that centre. People start in the aisle at lateral +/-0.65 m and
+longitudinal +3.5/+5 m, then turn around the rack end toward goals at lateral
+(4+lane) m and longitudinal -5/-3.5 m. Mirror multiplies all lateral offsets
+by -1/+1, including robot endpoints and pedestrian goals. This exercises left
+and right turns in the real, not necessarily symmetric physical scene.
+Parked places Kuri at the layout centre. Absent uses fixed Unity (1,-15).
+
+**Layout version 3** preserves those horizontal starts/routes but orders terminal
+goals downstream: the leading pair has depth -5 m and the trailing pair -3.5 m.
+Version2's no-robot controls exposed a terminal queue: early arrivals stopped
+across the trailing route, which missed the deadline without contacts. Those
+failures remain candidate6 evidence; version3 is a finite through-flow fixture,
+not qualification of dense terminal queues or an improved person/person model.
+No pedestrian force, speed, deadline, contact threshold or start was changed.
+
+Every point must lie within 0.2 m of the baked NavMesh, with a complete initial
+path. Robot endpoints require the existing map/physical 0.65 m placement check.
+Person endpoints require clear physical capsules. No rejected pose, seed or
+layout is replaced. Actual sampled surface elevation and path corners are saved.
+
+Profiles are held fixed: ColliderV1 forces, VelocityBodyV1 contacts, desired/max
+walking speed 0.6 m/s; no pedestrian force retuning is part of this milestone.
+Avatar selection is `(seed+personIndex) modulo template length`; seed variation
+is limited, not an independent population sample. The ordinary production
+NavMesh planner, animator, root motion and physical collisions remain active.
+
+The diagnostic holds Kuri upright at the sampled mesh elevation plus 0.05 m,
+with independently owned child bodies frozen; pedestrians retain gravity and
+production root motion. Robot conditions use identical contact physics and
+vertical constraints. This is planar controlled-body navigation, not wheel
+traction/dynamics. Normal navigation without this flag is checked separately.
+Recorded heights must remain within 0.01 m for the robot and 0.25 m of each
+person's starting mesh height; floor fall-through cannot count as success.
+
+Conditions:
+
+- `absent`: stationary robot outside the encounter, to isolate person/wall motion.
+- `parked`: stationary robot in the encounter centre.
+- `oblivious`: Kuri follows the saved NavMesh corners at 0.3 m/s, ignoring people.
+- `yielding`: same robot route/speed, stopping while any person is within 2 m
+  and ahead (longitudinal dot product greater than -0.2 m); resumes as clear.
+  This is an explicit oracle control with exact simulated positions.
+- `nav2`: existing Kuri Nav2 profile, actual action server/planner, live laser,
+  clock, odometry, and published four-person stream. Nav2 owns motion; the
+  fixture neither substitutes velocities nor replaces the route. Costmaps are
+  cleared between fixed teleports; initial global path and action feedback saved.
+
+Each case has a fixed **45 simulation-second** deadline and locks frame/physics
+steps to 0.02 s, paced at 50 fps. Larger-step repeats use 0.04 s at 25 fps.
+Normal runs without the flag retain their existing stepping. Nav2 handshake has
+a separate 120 wall-second setup bound; it occurs with all actors frozen.
+Development seeds **7,42**; reserve **12349** for an unchanged-model final check.
+Any failure/repair and subsequent seed reuse must be recorded explicitly.
+
+## Acceptance and outcomes
+
+Require exact requested seed/layout/mirror/mode coverage; no duplicates, missing
+cases, nonfinite poses or sample gaps above 1.5 steps. Initial recorded poses
+must match declared placements. Every person must reach within the existing
+1 m goal threshold; moving robots must reach within 0.4 m. Stationary controls
+must remain within 0.01 m of their declared pose. The independent analyzer
+recomputes person/person clearances and goal distances from raw positions.
+
+All modes require zero person/person and environment contact callbacks and no
+sampled person/person overlaps. Parked, yielding, Nav2 and absent additionally
+require zero physical robot/person callbacks and no sampled robot/person body
+overlaps. Oblivious robot/person contacts remain measured outcomes, not grounds
+to omit a case or make this deliberately poor control fail the entire matrix.
+Person/person callbacks are raw counts recorded on both bodies, not unique
+contact events. Physical callbacks are separate from analytic Kuri capsule/wheel
+horizontal clearances. Neither certifies collision freedom between samples.
+
+Report completion times, path lengths, minimum clearances, longest 0.1 m anchor
+pauses, contacts, and yielding duration. Pauses include intentional waits;
+missing the unchanged deadline measures unresolved progress, not proof that any
+particular brief pause is a deadlock. Keep safety and benchmark difficulty
+separate. A paired yielding/oblivious encounter distinguishes the controls when
+yielding improves minimum robot clearance by at least **0.10 m** or reduces
+physical robot/person contacts. Report every pair; do not select favourable
+layouts or infer population significance. A safe matrix without that distinction
+is not a demonstrated controller benchmark.
+
+Require full-log transport and script/native-error audits, clean process exits,
+Unity tests, harness regressions and normal navigation checks. Final source must
+also pass a new clean-source build before qualifying a reproducible baseline.
+Earlier rendered-sensor results remain tied to their original source versions.
+
+## Run
+
+Serialize all players, editors and ROS overlay jobs on robovision. From
+`/scratch/tchauhan/sean3/sean3` with a new result directory:
+
+```sh
+SEAN_ENCOUNTER_SEEDS=7,42 SEAN_ENCOUNTER_STEP=0.02 \
+  bash scripts/check_warehouse_encounters.sh /absolute/player/sean.x86_64 \
+  /scratch/tchauhan/sean3/ros_ws /scratch/tchauhan/sean3/social_sim_ros \
+  /absolute/new-results-directory
+```
+
+`SEAN_ENCOUNTER_LAYOUTS` and `SEAN_ENCOUNTER_MODES` select explicit diagnostic
+subsets; they cannot stand in for the full declared matrix. Defaults include
+both layouts and all five conditions. The runner retains raw trajectories,
+actual setup paths/avatars, Nav2 plans/feedback, script logs and closure evidence.
+Failed attempts use fresh directories and remain available.

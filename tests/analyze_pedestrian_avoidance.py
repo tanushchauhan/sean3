@@ -35,7 +35,7 @@ def analyze(report):
                                    and all(0 < gap <= step*1.5 for gap in gaps))
         episodes.append(e_summary)
     expected_cases = {(seed,mode,heading,round(offset,2)) for seed in report['seeds']
-                      for mode in ('parked','absent','moving','yielding')
+                      for mode in report.get('modes',('parked','absent','moving','yielding'))
                       for heading in ((0,180) if mode == 'parked' else (0,))
                       for offset in ((-.35,0,.35) if mode == 'parked' else (-.35,.35))}
     actual_cases = {(e['seed'],e['mode'],e['heading'],round(e['offset'],2)) for e in episodes}

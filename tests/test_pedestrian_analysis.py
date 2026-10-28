@@ -53,3 +53,10 @@ class PedestrianAnalysisTests(unittest.TestCase):
         e = next(e for e in data['episodes'] if e['mode']=='moving')
         e['samples'][0]['robot']['z'] = 0
         self.assertFalse(analyze(data)['passed'])
+
+    def test_requested_control_only_matrix_cannot_masquerade_as_full_run(self):
+        data = fixture(); data['episodes'] = [e for e in data['episodes'] if e['mode']=='absent']
+        self.assertFalse(analyze(data)['passed'])
+        data['modes'] = ['absent']
+        self.assertTrue(analyze(data)['passed'])
+        self.assertEqual(analyze(data)['expected'],2)

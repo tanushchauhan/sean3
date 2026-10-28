@@ -185,3 +185,13 @@ The relevant implementation is documented in the upstream
 and [laser projection](https://github.com/ros-perception/laser_geometry/blob/ros2/src/laser_geometry.cpp).
 The direct plugin regression establishes the clearing defect; a new live pilot
 must establish whether this repair resolves these navigation detours.
+
+The final Nav2 checker also counts the laser values actually received over ROS.
+Repaired-profile qualification requires observed positive-infinity free rays
+and no NaN, negative-infinity or unexpected finite ranges. The cached candidate10
+corner pilot had already loaded the earlier checker when this extra telemetry
+was added: both actions completed (36.44/34.56 simulation seconds), with four
+pedestrian completions, fresh streams and zero contacts. Its original criteria
+are retained separately in `pre-wire-summary.json`; it is not counted as final
+wire-telemetry qualification. The full prospective matrix uses the frozen new
+checker from the start.

@@ -133,7 +133,9 @@ def analyze(report, navigation=None):
         and not navigation.get('forced_nav2_kill') and len(nav_episodes)==len(nav_indices)
         and {e['index'] for e in nav_episodes}==nav_indices
         and all(e.get('published_people')==4 and e.get('fresh_sensors') and e.get('plan_status')==4
-                and len(e.get('plan',[]))>=2 and e.get('goal_error',math.inf)<=.4 for e in nav_episodes)))
+                and len(e.get('plan',[]))>=2 and e.get('goal_error',math.inf)<=.4
+                and e.get('scan_statistics',{}).get('positive_infinity_samples',0)>0
+                and not any(e.get('scan_statistics',{}).get(k,0) for k in ('nan_samples','negative_infinity_samples','invalid_finite_samples')) for e in nav_episodes)))
     actual = {(e['seed'],e['layout'],e['mirror'],e['mode']) for e in episodes}
     schema_ok = (report.get('schema') == 2 and report.get('laserNoReturn') == 'PositiveInfinity' and report.get('layoutVersion') == 3 and report.get('model') == 'ColliderV1'
                  and report.get('contactModel') == 'VelocityBodyV1' and any(abs(report['step']-v)<1e-6 for v in (.02,.04))

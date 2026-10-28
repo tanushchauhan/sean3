@@ -28,7 +28,18 @@ def main():
     report={'episodes':[],'passed':False}
     rclpy.init(); node=rclpy.create_node('warehouse_encounter_navigation',parameter_overrides=[Parameter('use_sim_time',value=True)])
     latest,received={},{}
-    def receive(k,msg): latest[k]=msg; received[k]=time.monotonic()
+    scan_totals=dict(messages=0,positive_infinity_samples=0,nan_samples=0,negative_infinity_samples=0,zero_samples=0,finite_hits=0,invalid_finite_samples=0)
+    def receive(k,msg):
+        latest[k]=msg;received[k]=time.monotonic()
+        if k=='scan':
+            scan_totals['messages']+=1
+            for value in msg.ranges:
+                if math.isnan(value):scan_totals['nan_samples']+=1
+                elif value==math.inf:scan_totals['positive_infinity_samples']+=1
+                elif value==-math.inf:scan_totals['negative_infinity_samples']+=1
+                elif value==0:scan_totals['zero_samples']+=1
+                elif msg.range_min<=value<=msg.range_max:scan_totals['finite_hits']+=1
+                else:scan_totals['invalid_finite_samples']+=1
     for key,topic,cls in [('odom','/robot_odom',Odometry),('scan','/laser_raycast',LaserScan),('clock','/clock',Clock),('people','/social_sim/agents',AgentArray)]:
         node.create_subscription(cls,topic,lambda msg,k=key:receive(k,msg),qos_profile_sensor_data)
     node.create_subscription(OccupancyGrid,'/map',lambda msg:receive('map',msg),QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
@@ -90,6 +101,7 @@ def main():
             def on_feedback(msg):feedback.append({'remaining':msg.feedback.distance_remaining,'recoveries':msg.feedback.number_of_recoveries})
             future=client.send_goal_async(goal,feedback_callback=on_feedback);wait(future.done,10,'navigation accepted');active=future.result()
             if not active.accepted:raise RuntimeError('Nav2 rejected route')
+            scan_baseline=scan_totals.copy()
             result=active.get_result_async();(exchange/f'go-{index}').write_text('go\n');started=time.monotonic(); stale=False; stale_samples=[]
             until=started+100
             while not result.done() and time.monotonic()<until and not (exchange/f'ended-{index}').exists():
@@ -104,6 +116,7 @@ def main():
             if not result.done():
                 canceled=active.cancel_goal_async();wait(canceled.done,10,'cancel');wait(result.done,10,'canceled result')
             status=result.result().status;pos=latest['odom'].pose.pose.position
+            episode['scan_statistics']={k:v-scan_baseline[k] for k,v in scan_totals.items()}
             episode.update(status=status,final=[pos.x,pos.y],goal_error=math.dist((pos.x,pos.y),target),fresh_sensors=not stale and fresh(),stale_samples=stale_samples,wall_seconds=time.monotonic()-started,feedback=feedback)
             episode['passed']=status==4 and episode['goal_error']<=.4 and episode['fresh_sensors']
             (exchange/f'done-{index}').write_text(str(status)+'\n');active=None;save()

@@ -26,7 +26,7 @@ def navigation_fixture():
     r=fixture();r['modes']=['nav2'];n=dict(passed=True,episodes=[])
     for e in r['episodes']:
         e['mode']='nav2';e['robotStart']['z']=1;e['samples'][0]['robot']['z']=1;e['samples'][-1]['robot']['z']=9
-        n['episodes'].append(dict(index=e['index'],passed=True,status=4,published_people=4,fresh_sensors=True,plan_status=4,plan=[[1,5],[9,5]],goal_error=0))
+        n['episodes'].append(dict(index=e['index'],passed=True,status=4,published_people=4,fresh_sensors=True,plan_status=4,plan=[[1,5],[9,5]],goal_error=0,scan_statistics=dict(positive_infinity_samples=360,nan_samples=0,negative_infinity_samples=0,invalid_finite_samples=0)))
     return r,n
 
 
@@ -38,7 +38,8 @@ class WarehouseAnalysisTests(unittest.TestCase):
                    lambda n:n['episodes'].pop(),lambda n:n['episodes'].append(copy.deepcopy(n['episodes'][0])),
                    lambda n:n['episodes'][0].update(status=5),lambda n:n['episodes'][0].update(published_people=0),
                    lambda n:n['episodes'][0].update(fresh_sensors=False),lambda n:n['episodes'][0].update(plan_status=5),
-                   lambda n:n['episodes'][0].update(plan=[]),lambda n:n['episodes'][0].update(goal_error=.5)]
+                   lambda n:n['episodes'][0].update(plan=[]),lambda n:n['episodes'][0].update(goal_error=.5),lambda n:n['episodes'][0]['scan_statistics'].update(positive_infinity_samples=0),
+                   lambda n:n['episodes'][0]['scan_statistics'].update(nan_samples=1)]
         for change in mutations:
             r,n=navigation_fixture();change(n)
             with self.subTest(change=change):self.assertFalse(analyze(r,n)['passed'])

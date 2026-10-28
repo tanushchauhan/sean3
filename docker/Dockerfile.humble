@@ -10,10 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ros-humble-navigation2 ros-humble-nav2-bringup \
         ros-humble-slam-toolbox \
         ros-humble-ros2-control ros-humble-ros2-controllers \
-        ros-humble-xacro ros-humble-tf2-ros ros-humble-tf2-tools \
+        ros-humble-xacro ros-humble-tf2 ros-humble-tf2-ros ros-humble-tf2-tools \
         ros-humble-pointcloud-to-laserscan \
         ros-humble-rmw-cyclonedds-cpp \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && test "$(dpkg-query -W -f='${Version}' ros-humble-tf2 | cut -d- -f1)" = \
+            "$(dpkg-query -W -f='${Version}' ros-humble-tf2-ros | cut -d- -f1)"
+# Mismatched tf2/tf2_ros 0.25.22/0.25.24 deadlocked Nav2's TF listener (see Dockerfile.humble-tf2).
 
 # ROS 2 endpoint revision used by the integration checks.
 ARG TCP_ENDPOINT_REF=54c1a64b6d5ef6ffa0a0431570bb74329b79b15b

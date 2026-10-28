@@ -21,7 +21,13 @@ def analyze(report):
                          max_sample_gap=max(gaps,default=0), overlap_frames=sum(s['clearance'] < 0 for s in samples))
         robot_start = tuple(e['expectedRobotStart'][k] for k in ('x','z'))
         robot_positions = [tuple(s['robot'][k] for k in ('x','z')) for s in samples]
-        setup_ok = bool(samples and math.dist(robot_positions[0],robot_start) < .02)
+        setup_ok = bool(samples and 0 < samples[0]['time'] <= step*1.5)
+        if samples and e['mode'] in ('moving','yielding'):
+            # One initialization physics step precedes the recorded episode clock.
+            expected = (robot_start[0],robot_start[1]+.3*(step+samples[0]['time']))
+            setup_ok = setup_ok and math.dist(robot_positions[0],expected) < .002
+        elif samples:
+            setup_ok = setup_ok and math.dist(robot_positions[0],robot_start) < .01
         if e['mode'] in ('parked','absent'):
             setup_ok = setup_ok and all(math.dist(p,robot_start)<.01 for p in robot_positions)
         e_summary['setup_ok'] = setup_ok

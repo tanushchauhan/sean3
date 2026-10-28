@@ -13,6 +13,8 @@ def fixture():
             for offset in ((-.35,0,.35) if mode == 'parked' else (-.35,.35)):
                 samples = [copy.deepcopy(sample),copy.deepcopy(sample)]
                 samples[1]['time'] = .04
+                if mode in ('moving','yielding'):
+                    for s in samples: s['robot']['z'] = .3*(.02+s['time'])
                 episodes.append(dict(seed=7,mode=mode,heading=heading,offset=offset,contacts=0,
                                      reached=True,expectedRobotStart=dict(vector),samples=samples))
     return dict(step=.02,seeds=[7],complete=True,episodes=episodes)
@@ -40,3 +42,14 @@ class PedestrianAnalysisTests(unittest.TestCase):
             with self.subTest(mutation=mutation):
                 data = fixture(); mutation(data)
                 self.assertFalse(analyze(data)['passed'])
+
+    def test_larger_step_accounts_for_moving_initialization_without_accepting_wrong_pose(self):
+        data = fixture(); data['step'] = .04
+        for e in data['episodes']:
+            for i,s in enumerate(e['samples']):
+                s['time'] = (i+1)*.04
+                if e['mode'] in ('moving','yielding'): s['robot']['z'] = .3*(.04+s['time'])
+        self.assertTrue(analyze(data)['passed'])
+        e = next(e for e in data['episodes'] if e['mode']=='moving')
+        e['samples'][0]['robot']['z'] = 0
+        self.assertFalse(analyze(data)['passed'])

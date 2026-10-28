@@ -55,6 +55,38 @@ class EndpointCompatibilityTests(unittest.TestCase):
         self.server.handle_syscommand('__not_supported', b'{}\0')
         self.assertEqual(len(errors), 1)
 
+    def test_removal_waits_for_executor_wait_set_construction(self):
+        import threading
+        commands = self.server.syscommands
+        commands.subscribe('/lifecycle_test', 'std_msgs/Bool')
+        entered, release, removing, removed = (threading.Event() for _ in range(4))
+        class HeldExecutor:
+            def spin_once(self, timeout_sec):
+                entered.set()
+                if not release.wait(2):
+                    raise RuntimeError('test executor was not released')
+        def remove():
+            removing.set()
+            self.server.handle_syscommand('__remove_subscriber', b'{"topic":"/lifecycle_test"}\0')
+            removed.set()
+        spinner = threading.Thread(target=self.server.spin_registered_once, args=(HeldExecutor(),))
+        remover = threading.Thread(target=remove)
+        try:
+            spinner.start()
+            self.assertTrue(entered.wait(1))
+            remover.start()
+            self.assertTrue(removing.wait(1))
+            self.assertFalse(removed.wait(.05), 'Registration was destroyed inside executor spin')
+            self.assertIn('/lifecycle_test', self.server.subscribers_table)
+        finally:
+            release.set()
+            spinner.join(2)
+            if remover.ident is not None:
+                remover.join(2)
+        self.assertFalse(spinner.is_alive())
+        self.assertFalse(remover.is_alive())
+        self.assertTrue(removed.is_set())
+
 
 class EndpointProcessTests(unittest.TestCase):
     def test_interrupt_and_terminate_exit_without_a_forced_kill(self):
@@ -195,6 +227,41 @@ class EndpointTransportTests(unittest.TestCase):
         conn.close()
         self.server.active_client.join(timeout=3)
         self.assertTrue(any('Truncated' in s for s in self.errors))
+
+    def test_active_executor_survives_registration_churn(self):
+        import json
+        import threading
+        failures = []
+        def spin():
+            try:
+                self.server.setup_executor()
+            except Exception as error:
+                failures.append(error)
+        spinner = threading.Thread(target=spin)
+        spinner.start()
+        conn = self.connect()
+        conn.settimeout(15)
+        try:
+            for _ in range(50):
+                payload = json.dumps({'topic': '/churn', 'message_name': 'std_msgs/Bool'}).encode()+b'\0'
+                remove = b'{"topic":"/churn"}\0'
+                for command in ('__publish', '__subscribe'):
+                    conn.sendall(self.wire(command, payload))
+                for command in ('__remove_subscriber', '__remove_publisher'):
+                    conn.sendall(self.wire(command, remove))
+            self.close_gracefully(conn)
+            self.assertTrue(spinner.is_alive())
+            self.assertEqual(failures, [])
+            self.assertEqual(self.errors, [])
+            self.assertEqual(self.server.publishers_table, {})
+            self.assertEqual(self.server.subscribers_table, {})
+            self.assertEqual(self.server.executor.get_nodes(), [self.server])
+        finally:
+            conn.close()
+            self.server.stop()
+            spinner.join(3)
+            self.server.executor.shutdown()
+        self.assertFalse(spinner.is_alive())
 
     def test_unannounced_eof_is_visible(self):
         import socket

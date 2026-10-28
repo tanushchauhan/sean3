@@ -21,7 +21,7 @@ port=${SEAN_TCP_PORT:-10321}
 seed=${SEAN_SEED:-7}
 mode=${SEAN_CHECK_MODE:-navigation}
 check_status=0
-case "$mode" in navigation|lifecycle) ;; *) echo "Unknown check mode: $mode" >&2; exit 2 ;; esac
+case "$mode" in navigation|lifecycle|long-navigation) ;; *) echo "Unknown check mode: $mode" >&2; exit 2 ;; esac
 container="sean3-navigation-$$"
 sampler_pid=
 player_pid=
@@ -59,9 +59,15 @@ docker run -d --stop-signal SIGINT --name "$container" -p "127.0.0.1:$port:10000
 container_started=true
 wait_ros_endpoint "$container" "$results"
 
+task_options=()
+if [ "$mode" = long-navigation ]; then
+    # Nav2 owns completion. A zero distance disables the legacy 1.2 m / 5 s
+    # auto-reset which would teleport the robot before precise goal arrival.
+    task_options=(-completion-distance 0)
+fi
 setsid xvfb-run -a bash "$scripts/run_unity_player.sh" "$player" \
     -batchmode -nographics -scene SEAN/Warehouse -scenario None -task RandomABNav \
-    -seed "$seed" -ros-tcp-port "$port" -task-timeout-seconds 3600 -external-goals \
+    -seed "$seed" -ros-tcp-port "$port" -task-timeout-seconds 3600 -external-goals "${task_options[@]}" \
     -logFile "$results/player.log" > "$results/player-console.log" 2>&1 &
 player_pid=$!
 
@@ -76,6 +82,7 @@ if [ "$mode" = lifecycle ]; then
 else
 strict=()
 if [ "${SEAN_REQUIRE_CLEAR_START:-0}" = 1 ]; then strict=(--require-clear-start); fi
+if [ "$mode" = long-navigation ]; then strict+=(--task-goals --goal-timeout "${SEAN_GOAL_TIMEOUT:-300}"); fi
 docker exec "$container" bash -c \
     'source /opt/ros/humble/setup.bash; source /sean3_ws_overlay/install/setup.bash; python3 /tests/unity_navigation_check.py --cycles 3 --output /results/navigation.json "$@"' \
     bash "${strict[@]}" > "$results/check.log" 2>&1 || check_status=$?
@@ -83,5 +90,9 @@ fi
 cat "$results/check.log"
 cleanup
 trap - EXIT
+if [ "$mode" = long-navigation ] && ! rg -q '^SEAN velocity-controlled robot: Kuri, body:' "$results/player.log"; then
+    echo 'Long navigation requires the identified Kuri fixture.' >&2
+    check_status=1
+fi
 python3 "$scripts/../tests/lifecycle_log_check.py" "$results" || check_status=1
 exit "$check_status"

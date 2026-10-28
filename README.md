@@ -7,22 +7,22 @@ Development entry point for modernizing SEAN 2 and evaluating pedestrian control
 The development branches target ROS 2 Humble and Unity 2022.3.62f3. The ROS
 package builds, all eight Nav2 lifecycle nodes activate, and the velocity
 smoother passes command-routing and timeout checks. The current candidate passes
-33 Unity EditMode tests, 22 harness regressions, and 12 endpoint compatibility,
-socket, and process tests. The earlier transport candidate passed six task resets
+42 Unity EditMode tests and 26 harness regressions. The unchanged endpoint
+previously passed 12 compatibility, socket, and process tests. The earlier transport candidate passed six task resets
 and six scene reloads with fresh sensors, clock continuity, stable graph counts,
 and bounded resource growth. Its headless and NVIDIA rendered sequences also
 passed clean closure and process exit checks; those larger sequences were not
-rerun on the latest navigation candidate. See the [transport result](TRANSPORT_RESULT_2026-10-27.md)
+rerun on the latest pedestrian-response candidate. See the [transport result](TRANSPORT_RESULT_2026-10-27.md)
 and [VALIDATION.md](VALIDATION.md) for exact versions, commands, and limits.
 
 Three live Warehouse navigation checks pass: initial startup, task reset, and
-scene reload, with fresh sensors and a continuous clock. Rendered RGB/depth,
-optical frames, calibration, and measured laser geometry pass at three headings
+scene reload, with fresh sensors and a continuous clock. Earlier rendered RGB/depth,
+optical frames, calibration, and measured laser geometry checks passed at three headings
 on Mesa and NVIDIA OpenGL. See the [sensor result](RENDERED_SENSOR_RESULT_2026-10-27.md)
 and [reproduction guide](RENDERED_SENSORS.md). The bounded Warehouse random-task
 placement checks now pass with ROS-map and live-geometry constraints; see the
 [placement result](PLACEMENT_RESULT_2026-10-27.md) and [guide](PLACEMENT.md).
-The longer-navigation milestone now passes six actual generated routes across
+The earlier longer-navigation milestone passed six actual generated routes across
 seeds 7 and 42 with zero recorded physical object contacts, stalls, or recovery
 actions, and clean shutdown. The configured robot is Kuri; earlier Jackal labels
 came from the ROS profile name. See the [longer-navigation result](LONG_NAVIGATION_RESULT_2026-10-27.md)
@@ -35,6 +35,16 @@ stages pass after fixing the Rocketbox importer. See the
 the recorded environment and do not establish bit-for-bit reproducibility.
 ORCA remains unimplemented. Review Michal's prototype and
 Howard's extensions before adding new sensor, learning, or study interfaces.
+
+The pedestrian-response milestone now passes 60 controlled checks with the
+actual Kuri body and animated pedestrians, covering parked, moving and yielding
+robots, no-robot controls, a fresh seed and a larger time step. ColliderV1 adds
+physical robot geometry, braking and obstacle-aware sidestepping, with an
+independent contact-model correction for animated walking. The Legacy-force
+comparison holds contact physics fixed. These are single-person open-floor checks, not populated
+Warehouse or human-realism validation. See the [pedestrian result](PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md)
+and [protocol](PEDESTRIAN_AVOIDANCE.md). Multi-person encounters and an oblivious
+robot control are next, to check both safety and benchmark difficulty.
 
 ## Repositories
 

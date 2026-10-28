@@ -1,5 +1,25 @@
 # Migration validation
 
+## Pedestrian response to Kuri milestone — October 28
+
+The bounded open-floor diagnostic passes at Unity `aeaa7d247bc99fab12eacc95b22b3ad230d8f207`
+and ROS `d5dd5eecd36c0d4b61a5edbceeba49afdcb2b91c` (unchanged). The final player passes 60 fixed-model checks:
+36 development, twelve on a fresh seed, and twelve at a larger time step. Fifty
+contain a robot and ten are no-robot controls. All complete within the unchanged
+18-simulation-second deadline with no physical callbacks or negative sampled
+body clearance. The matched Legacy comparison and normal three-stage Warehouse
+navigation are recorded separately. All 42 Unity tests, 26 harness tests and
+175 final player payload checksums pass; every accepted run passes clean shutdown.
+
+See [PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md](PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md)
+for exact counts, contact-material ablation, source/build provenance, the failed first independent seed,
+rejected candidates and limitations; [PEDESTRIAN_AVOIDANCE.md](PEDESTRIAN_AVOIDANCE.md)
+gives the protocol. This is a single-person open-floor response check using
+production Kuri, animated SFAgent and physics. It does not qualify populated
+Warehouse navigation or human realism. The player was built incrementally in
+the cached checkout. Earlier milestones below retain their own source pins;
+the earlier six-route, rendered and resource-growth suites were not rerun here.
+
 ## Longer Warehouse navigation milestone
 
 The bounded October 27 Kuri result passes at Unity `99110a72e87d18a26961d832a2d7b47780cb4799`

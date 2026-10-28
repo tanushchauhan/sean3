@@ -22,6 +22,12 @@ seed=${SEAN_SEED:-7}
 mode=${SEAN_CHECK_MODE:-navigation}
 check_status=0
 case "$mode" in navigation|lifecycle|long-navigation) ;; *) echo "Unknown check mode: $mode" >&2; exit 2 ;; esac
+profile_mount=()
+if [ -n "${SEAN_NAV2_PARAMS_FILE:-}" ]; then
+    profile=$(realpath "$SEAN_NAV2_PARAMS_FILE")
+    profile_mount=(-v "$profile:/sean3_ws_overlay/install/social_sim_ros/share/social_sim_ros/params/kuri/nav2_params.yaml:ro")
+fi
+laser=${SEAN_LASER_NO_RETURN:-PositiveInfinity}
 container="sean3-navigation-$$"
 sampler_pid=
 player_pid=
@@ -51,7 +57,7 @@ docker run --rm --network none \
     -v "$repository:/sean3_ws_overlay/src/social_sim_ros:ro" \
     "$image" bash -c 'cd /sean3_ws_overlay && colcon build --packages-select social_sim_ros'
 
-docker run -d --stop-signal SIGINT --name "$container" -p "127.0.0.1:$port:10000" -e ROS_DOMAIN_ID=73 \
+docker run -d --stop-signal SIGINT "${profile_mount[@]}" --name "$container" -p "127.0.0.1:$port:10000" -e ROS_DOMAIN_ID=73 \
     -v "$workspace:/sean3_ws_overlay" \
     -v "$repository:/sean3_ws_overlay/src/social_sim_ros:ro" \
     -v "$scripts/../tests:/tests:ro" -v "$results:/results" \
@@ -65,6 +71,7 @@ if [ "$mode" = long-navigation ]; then
     # auto-reset which would teleport the robot before precise goal arrival.
     task_options=(-completion-distance 0)
 fi
+task_options+=(-laser-no-return "$laser")
 setsid xvfb-run -a bash "$scripts/run_unity_player.sh" "$player" \
     -batchmode -nographics -scene SEAN/Warehouse -scenario None -task RandomABNav \
     -seed "$seed" -ros-tcp-port "$port" -task-timeout-seconds 3600 -external-goals "${task_options[@]}" \
@@ -72,6 +79,8 @@ setsid xvfb-run -a bash "$scripts/run_unity_player.sh" "$player" \
 player_pid=$!
 
 printf 'scene=SEAN/Warehouse\nscenario=None\ntask=RandomABNav\nseed=%s\nmode=%s\n' "$seed" "$mode" > "$results/config.txt"
+printf 'laser_no_return=%s\nnav2_override=%s\n' "$laser" "${SEAN_NAV2_PARAMS_FILE:-default}" >> "$results/config.txt"
+if [ -n "${SEAN_NAV2_PARAMS_FILE:-}" ]; then sha256sum "$profile" > "$results/nav2-profile.sha256"; cp "$profile" "$results/nav2-profile.yaml"; fi
 if [ "$mode" = lifecycle ]; then
     python3 "$scripts/../tests/unity_lifecycle_check.py" --sample-player "$player" \
         --output "$results/player-resources.json" > "$results/resource-sampler.log" 2>&1 &

@@ -2,17 +2,20 @@
 
 Implementation: the standalone `SEAN.Controllers` Unity assembly in the sibling
 Unity checkout, `Assets/Scripts/SEAN/Scenario/Controllers/SceneController.cs`.
-This is a tested boundary core, not a production controller selection. It is
-not attached to existing scenes. Social Forces still uses its existing
-per-avatar `Update`, animation and physics. ORCA still throws. No STARS
-inference or ROS worker transport has been implemented yet.
+The core is now connected to production animated avatars by the opt-in
+`JointAgent` and `JointControllerDriver` path. Social Forces retains its existing
+per-avatar `Update`, animation and physics. ORCA uses this shared path; the
+explicit `joint_test` option supplies a goal-following test double. No STARS
+inference or separate ROS worker transport has been implemented yet. See the
+[controller protocol](pedestrian-controllers.md) for selection and assumptions.
 
 ## State and frames
 
 One immutable `SceneSnapshot` contains a fresh episode ID, sequence, simulation
 time, actors sorted by stable ordinal ID, and obstacle polygons. Each actor has
 position, achieved velocity, heading, active mask, footprint radius, maximum
-speed and optional destination. Exactly one actor is the externally controlled
+speed, optional destination and optional path-derived preferred velocity.
+Exactly one actor is the externally controlled
 robot. Actor identity is independent of array order. An inactive actor remains
 context but receives no target; an active stationary person receives zero
 velocity. Inactive is not another name for standing.
@@ -53,8 +56,11 @@ snapshots/decisions when the ROS bridge is implemented.
 4. The sink replaces all targets without advancing any actor. A production sink
    must implement this operation atomically on Unity's simulation thread. Unity
    owns animation/physics and supplies achieved positions at the next boundary.
-   The fixture sink only performs deterministic planar integration; it does not
-   establish that animated avatars follow these targets.
+   The production sink assigns all targets before animating any actor, then
+   applies them at the shared physics boundary. Joint avatars use
+   `AnimatePhysics` and bypass the legacy per-avatar `Update` path. Tests cover
+   both deterministic planar integration and actual production root motion.
+   Following error remains a measured quantity rather than exact actuation.
 5. Call `Tick` on every physics boundary to enforce expiry and clock ordering.
    Advancing time with a pending response stops motion and faults the episode.
    Worker exceptions or invalid synchronous responses stop motion and require a
@@ -67,9 +73,14 @@ snapshots/decisions when the ROS bridge is implemented.
    and disposes the controller. IDs may change between snapshots in the core;
    a fixed-population STARS adapter must reject unsupported spawn/despawn.
 
-The core is single-threaded. A worker's response must be marshalled to the
-simulation thread. The caller owns simulation pausing, timeout, and reset hooks;
-the core alone does not establish lockstep Unity/ROS stepping.
+The core is single-threaded. The production driver makes one synchronous
+in-process call at its configured integer-physics-step cadence and applies
+zero-order-held velocity targets. It resets on the registered task's new-task
+event and population changes; scene destruction disposes it. Arbitrary task
+switching and separate worker transport still require lifecycle qualification.
+A remote worker's response must be marshalled to the simulation thread with a
+bounded wall timeout. The core alone does not establish lockstep Unity/ROS
+stepping; Nav2 remains an asynchronous external robot controller.
 
 For STARS, derive decision cadence and observation/prediction lengths from the
 checkpoint configuration. Collect actual history while holding the actors at
@@ -99,8 +110,11 @@ arbitration. Do not run a learned robot publisher alongside Nav2.
 
 `SceneControllerTests` exercises joint ordering, executed-state feedback, reset,
 stale packets, malformed batches, worker failure, expiry, shutdown and coordinate
-conversion. This is interface evidence. Production capture/sink wiring, reset
-hooks, synchronous physics/animation, ROS transport, command arbitration and an
-animated end-to-end fake encounter are still required for Phase B acceptance.
-Implement that opt-in path before replacing ORCA's placeholder. Preserve the
-existing SF+Nav2 path and its regression fixtures.
+conversion. `JointAvatarTests` executes two production animated avatars through
+the driver and checks achieved feedback, reset and worker-loss stopping.
+`OrcaControllerTests` adds crossing, robot, standing-person, wall/corner/doorway,
+order and lifecycle cases; geometry tests validate the boundary convention.
+The matched runtime encounter protocol extends these checks with actual Kuri
+and physical contact/goal measurements. Separate worker transport, full ROS
+lockstep, additional robot-policy arbitration and trained-model validation remain
+future gates. Preserve the default SF+Nav2 regression fixtures.

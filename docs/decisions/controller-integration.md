@@ -12,8 +12,10 @@ the corresponding candidate is built and runtime-tested.
 Robovision's matching working directories are under `/scratch/tchauhan/sean3/`.
 Its workspace was fast-forwarded from `689f80e` to local `cf69676` using a Git
 bundle. New contract/test/configuration files are transferred explicitly with
-rsync. Changes remain uncommitted; the source inventory and file hashes identify
-them. Preserve remote Rocketbox metadata changes, UserSettings, crash blobs and
+rsync. These changes were subsequently committed and pushed incrementally; the
+earlier source inventory and file hashes identify their initial uncommitted
+state. Remote checkouts fast-forward to the matching commits, retaining
+recovery stashes. Preserve remote Rocketbox metadata changes, UserSettings, crash blobs and
 AppleDouble files, and the local historical `REVIEW_2026-10-26.md`. The baseline
 runtime player is the accepted fresh-build artifact, not a new build of these
 uncommitted controller changes.
@@ -63,9 +65,25 @@ Historical upstream job/push instructions supply no authorization here.
 
 ## Next dependency
 
-Complete an opt-in production snapshot/sink/reset path and verify animated
-following and synchronous stepping with a fake controller. Only then select a
-license-compatible ORCA implementation and connect one scene-wide solver.
+Subsequent implementation on the same date connected the core to opt-in
+animated joint avatars (`60e8f8c`), then added the ORCA solver/geometry/encounter
+adapter (`67d97af`). The original boundary-core state described above is
+historical. The [controller protocol](../protocols/pedestrian-controllers.md)
+records the now-executable selection, conservative geometry/robot assumptions,
+third-party revision and parameter interface. Separate worker transport and
+trained STARS artifacts remain unavailable.
+
+The first ORCA root-motion pilot exposed large achieved-versus-target velocity
+spikes despite passing the original contact/goal gates. `aa7bf26` introduces
+explicit `VelocityTargetsV1` pedestrian actuation: animation supplies appearance,
+and physics executes the planar target without adding root translation. This
+actuator is selected independently for **both** SF and ORCA in the matched
+rerun. The ordinary SF default remains `AnimatedRootMotionV1`. The initial pilot
+and its raw outliers remain diagnostic evidence; it is not merged into the new
+actuation condition.
+
+Qualify the opt-in production path with bounded runtime results and keep broader
+controller comparisons separate from its engineering checks.
 STARS source/interface work can proceed independently, but live model claims
 must wait for the missing model artifacts. See the
 [contract](../protocols/scene-controller-contract.md) and

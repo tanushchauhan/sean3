@@ -1,0 +1,605 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "runtime_source_commits": {
+    "workspace": "9878c7d243c81b01249df9832c0de2da3149f0ca",
+    "unity": "aa7bf262fd977ddfa2bde04b15e867a0cf289173",
+    "ros": "234262d28f7f426020fa198aa3f0dedefb04e117"
+  },
+  "source_branches": {
+    "workspace": "feature/ros2-environment",
+    "unity": "feature/unity-2022-upgrade",
+    "ros": "feature/ros2-port"
+  },
+  "implementation_status": "experimental ORCA and shared physical actuator implemented; bounded pilot complete",
+  "scientific_status": "SF 4/4, ORCA 3/4; one ORCA/Nav2 goal failure retained",
+  "remote_evidence_directory": "/scratch/tchauhan/sean3/validation/velocity-actuator-final-20261029",
+  "local_evidence_directory": "/Users/tanushchauhan/Documents/Research/sean_3/sean3/.sean3/evidence/velocity-actuator-final-20261029",
+  "player": "/scratch/tchauhan/sean3/sean3/builds/aa7bf26-20261029-154253/sean.x86_64",
+  "solver": {
+    "repository": "https://github.com/snape/RVO2-CS",
+    "tag": "v2.0.1",
+    "revision": "5b7147d36d5cc6310c8e74c6955145c0fdc5fe06",
+    "modifications": "serial step; full pedestrian responsibility versus external robot/context actors"
+  },
+  "checks": {
+    "unity_passed": 77,
+    "harness_passed": 60,
+    "default_navigation_passed": 3,
+    "verified_player_payloads": 177
+  },
+  "conditions": {
+    "social_forces": {
+      "strict_passes": 4,
+      "expected": 4,
+      "overall_passed": true,
+      "pedestrian_goal_completions": 16,
+      "nav2_actions_passed": 2,
+      "nav2_actions_expected": 2,
+      "minimum_robot_clearance_m": 0.3425692915916443,
+      "minimum_person_clearance_m": 0.6875742673873901,
+      "maximum_body_speed_mps": 0.6000000924117278,
+      "maximum_moving_velocity_error_mps": 0.00014772025161666427,
+      "inference_latency_ms": null,
+      "actuation": "VelocityTargetsV1",
+      "episodes": [
+        {
+          "index": 0,
+          "seed": 7,
+          "layout": "aisle",
+          "mirror": -1,
+          "mode": "parked",
+          "passed": true,
+          "safe": true,
+          "errors": [],
+          "duration": 13.419999122619629,
+          "min_robot_clearance_m": 0.48284250497817993,
+          "min_person_clearance_m": 0.7949532270431519,
+          "robot_goal_error_m": 4.0,
+          "robot_person_contacts": 0,
+          "person_person_callbacks": 0,
+          "person_object_contacts": 0,
+          "robot_object_contacts": 0,
+          "person_completion_seconds": [
+            13.019999504089355,
+            12.980000495910645,
+            13.40000057220459,
+            13.419999122619629
+          ],
+          "robot_path_m": 0.0,
+          "person_paths_m": [
+            7.562679077541114,
+            7.575665992086881,
+            7.555710714252109,
+            7.581833837798521
+          ],
+          "longest_robot_pause_s": 13.419999122619629,
+          "longest_person_pauses_s": [
+            0.5,
+            0.5,
+            0.48000049591064453,
+            0.48000049591064453
+          ],
+          "yielding_seconds": 0,
+          "inference_latency_ms": null,
+          "achieved_target_velocity_error_mps": {
+            "p50": 1.6175044738636325e-05,
+            "p95": 4.397228437579874e-05,
+            "maximum": 5.5619626987172234e-05
+          },
+          "moving_velocity_error_mps": {
+            "p50": 1.629806849961609e-05,
+            "p95": 4.402249603774123e-05,
+            "maximum": 5.5619626987172234e-05
+          },
+          "stationary_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          },
+          "achieved_speed_mps": {
+            "p50": 0.5999799638293446,
+            "p95": 0.600041126401754,
+            "maximum": 0.6000553425383809
+          }
+        },
+        {
+          "index": 1,
+          "seed": 7,
+          "layout": "aisle",
+          "mirror": 1,
+          "mode": "parked",
+          "passed": true,
+          "safe": true,
+          "errors": [],
+          "duration": 13.420000076293945,
+          "min_robot_clearance_m": 0.48284250497817993,
+          "min_person_clearance_m": 0.7949532270431519,
+          "robot_goal_error_m": 4.0,
+          "robot_person_contacts": 0,
+          "person_person_callbacks": 0,
+          "person_object_contacts": 0,
+          "robot_object_contacts": 0,
+          "person_completion_seconds": [
+            12.980001449584961,
+            13.019998550415039,
+            13.420000076293945,
+            13.399999618530273
+          ],
+          "robot_path_m": 0.0,
+          "person_paths_m": [
+            7.575665819350468,
+            7.562679077541114,
+            7.58182180942217,
+            7.555708940318475
+          ],
+          "longest_robot_pause_s": 13.420000076293945,
+          "longest_person_pauses_s": [
+            0.5,
+            0.5,
+            0.4799995422363281,
+            0.4799995422363281
+          ],
+          "yielding_seconds": 0,
+          "inference_latency_ms": null,
+          "achieved_target_velocity_error_mps": {
+            "p50": 1.7227488216008765e-05,
+            "p95": 5.184104439015144e-05,
+            "maximum": 0.00011164300165666726
+          },
+          "moving_velocity_error_mps": {
+            "p50": 1.7409444246751428e-05,
+            "p95": 5.2122191294899456e-05,
+            "maximum": 0.00011164300165666726
+          },
+          "stationary_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          },
+          "achieved_speed_mps": {
+            "p50": 0.59997894202146,
+            "p95": 0.6000466327455717,
+            "maximum": 0.6001116630404711
+          }
+        },
+        {
+          "index": 2,
+          "seed": 7,
+          "layout": "aisle",
+          "mirror": -1,
+          "mode": "nav2",
+          "passed": true,
+          "safe": true,
+          "errors": [],
+          "duration": 36.2599983215332,
+          "min_robot_clearance_m": 0.3447408080101013,
+          "min_person_clearance_m": 0.6886721849441528,
+          "robot_goal_error_m": 0.3361029333178005,
+          "robot_person_contacts": 0,
+          "person_person_callbacks": 0,
+          "person_object_contacts": 0,
+          "robot_object_contacts": 0,
+          "person_completion_seconds": [
+            13.619998931884766,
+            12.959999084472656,
+            13.680000305175781,
+            13.420001983642578
+          ],
+          "robot_path_m": 7.837193393382522,
+          "person_paths_m": [
+            7.759156204429864,
+            7.564482638769835,
+            7.705234746721774,
+            7.5596228118308195
+          ],
+          "longest_robot_pause_s": 9.5,
+          "longest_person_pauses_s": [
+            22.71999740600586,
+            23.339996337890625,
+            22.71999740600586,
+            22.89999771118164
+          ],
+          "yielding_seconds": 0,
+          "inference_latency_ms": null,
+          "achieved_target_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 3.129673340924389e-05,
+            "maximum": 0.00011985283881397011
+          },
+          "moving_velocity_error_mps": {
+            "p50": 1.584735372425459e-05,
+            "p95": 0.00010110617840415193,
+            "maximum": 0.00011985283881397011
+          },
+          "stationary_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0,
+            "p95": 0.599992109555783,
+            "maximum": 0.6001126124668709
+          }
+        },
+        {
+          "index": 3,
+          "seed": 7,
+          "layout": "aisle",
+          "mirror": 1,
+          "mode": "nav2",
+          "passed": true,
+          "safe": true,
+          "errors": [],
+          "duration": 36.86000061035156,
+          "min_robot_clearance_m": 0.3425692915916443,
+          "min_person_clearance_m": 0.6875742673873901,
+          "robot_goal_error_m": 0.3328215974876041,
+          "robot_person_contacts": 0,
+          "person_person_callbacks": 0,
+          "person_object_contacts": 0,
+          "robot_object_contacts": 0,
+          "person_completion_seconds": [
+            12.959999084472656,
+            13.639999389648438,
+            13.419998168945312,
+            13.680000305175781
+          ],
+          "robot_path_m": 7.848549806928639,
+          "person_paths_m": [
+            7.564481341429741,
+            7.76580823190509,
+            7.5592467912030825,
+            7.701314537727218
+          ],
+          "longest_robot_pause_s": 6.279998779296875,
+          "longest_person_pauses_s": [
+            23.94000244140625,
+            23.31999969482422,
+            23.5,
+            23.31999969482422
+          ],
+          "yielding_seconds": 0,
+          "inference_latency_ms": null,
+          "achieved_target_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.0001296194016290135,
+            "maximum": 0.00014772025161666427
+          },
+          "moving_velocity_error_mps": {
+            "p50": 0.00010546634443022052,
+            "p95": 0.00013524594800578074,
+            "maximum": 0.00014772025161666427
+          },
+          "stationary_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0,
+            "p95": 0.6001017390329245,
+            "maximum": 0.6001128343074286
+          }
+        }
+      ]
+    },
+    "orca": {
+      "strict_passes": 3,
+      "expected": 4,
+      "overall_passed": false,
+      "pedestrian_goal_completions": 16,
+      "nav2_actions_passed": 1,
+      "nav2_actions_expected": 2,
+      "minimum_robot_clearance_m": 0.0664697140455246,
+      "minimum_person_clearance_m": 0.6933164596557617,
+      "maximum_body_speed_mps": 0.6000000620864601,
+      "maximum_moving_velocity_error_mps": 0.00013824643210979515,
+      "inference_latency_ms": {
+        "p50": 18.9604,
+        "p95": 21.65318,
+        "maximum": 29.8763
+      },
+      "actuation": "VelocityTargetsV1",
+      "episodes": [
+        {
+          "index": 0,
+          "seed": 7,
+          "layout": "aisle",
+          "mirror": -1,
+          "mode": "parked",
+          "passed": true,
+          "safe": true,
+          "errors": [],
+          "duration": 12.579999923706055,
+          "min_robot_clearance_m": 0.29000329971313477,
+          "min_person_clearance_m": 0.9000002145767212,
+          "robot_goal_error_m": 4.0,
+          "robot_person_contacts": 0,
+          "person_person_callbacks": 0,
+          "person_object_contacts": 0,
+          "robot_object_contacts": 0,
+          "person_completion_seconds": [
+            12.5,
+            12.5,
+            12.579999923706055,
+            12.579999923706055
+          ],
+          "robot_path_m": 0.0,
+          "person_paths_m": [
+            7.529834568500519,
+            7.529834568500519,
+            7.510053634643555,
+            7.510053634643555
+          ],
+          "longest_robot_pause_s": 12.579999923706055,
+          "longest_person_pauses_s": [
+            0.1600017547607422,
+            0.1600017547607422,
+            0.2199993133544922,
+            0.2199993133544922
+          ],
+          "yielding_seconds": 0,
+          "inference_latency_ms": {
+            "p50": 18.7295,
+            "p95": 21.812675,
+            "maximum": 25.133300000000002
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 9.560366748262439e-06,
+            "p95": 4.766333029282421e-05,
+            "maximum": 4.766333029282421e-05
+          },
+          "moving_velocity_error_mps": {
+            "p50": 9.560366748262439e-06,
+            "p95": 4.766333029282421e-05,
+            "maximum": 4.766333029282421e-05
+          },
+          "stationary_velocity_error_mps": null,
+          "achieved_speed_mps": {
+            "p50": 0.5999904634751096,
+            "p95": 0.6000476871721507,
+            "maximum": 0.6000476871721507
+          }
+        },
+        {
+          "index": 1,
+          "seed": 7,
+          "layout": "aisle",
+          "mirror": 1,
+          "mode": "parked",
+          "passed": true,
+          "safe": true,
+          "errors": [],
+          "duration": 12.579999923706055,
+          "min_robot_clearance_m": 0.29000329971313477,
+          "min_person_clearance_m": 0.9000002145767212,
+          "robot_goal_error_m": 4.0,
+          "robot_person_contacts": 0,
+          "person_person_callbacks": 0,
+          "person_object_contacts": 0,
+          "robot_object_contacts": 0,
+          "person_completion_seconds": [
+            12.500001907348633,
+            12.500001907348633,
+            12.579999923706055,
+            12.579999923706055
+          ],
+          "robot_path_m": 0.0,
+          "person_paths_m": [
+            7.529834568500519,
+            7.529834568500519,
+            7.510053634643555,
+            7.510053634643555
+          ],
+          "longest_robot_pause_s": 12.579999923706055,
+          "longest_person_pauses_s": [
+            0.160003662109375,
+            0.160003662109375,
+            0.220001220703125,
+            0.220001220703125
+          ],
+          "yielding_seconds": 0,
+          "inference_latency_ms": {
+            "p50": 18.019750000000002,
+            "p95": 21.396700000000003,
+            "maximum": 23.6708
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 9.560366748262439e-06,
+            "p95": 4.766333029282421e-05,
+            "maximum": 0.00010489794372015027
+          },
+          "moving_velocity_error_mps": {
+            "p50": 9.560366748262439e-06,
+            "p95": 4.766333029282421e-05,
+            "maximum": 0.00010489794372015027
+          },
+          "stationary_velocity_error_mps": null,
+          "achieved_speed_mps": {
+            "p50": 0.5999904634751096,
+            "p95": 0.6000476871721507,
+            "maximum": 0.6001049217855781
+          }
+        },
+        {
+          "index": 2,
+          "seed": 7,
+          "layout": "aisle",
+          "mirror": -1,
+          "mode": "nav2",
+          "passed": true,
+          "safe": true,
+          "errors": [],
+          "duration": 34.41999816894531,
+          "min_robot_clearance_m": 0.15159972012043,
+          "min_person_clearance_m": 0.9000002145767212,
+          "robot_goal_error_m": 0.34102533441383126,
+          "robot_person_contacts": 0,
+          "person_person_callbacks": 0,
+          "person_object_contacts": 0,
+          "robot_object_contacts": 0,
+          "person_completion_seconds": [
+            12.520000457763672,
+            12.5,
+            12.579998016357422,
+            12.579998016357422
+          ],
+          "robot_path_m": 7.724675276040378,
+          "person_paths_m": [
+            7.597317769336826,
+            7.563598036766052,
+            7.5220537185668945,
+            7.5220537185668945
+          ],
+          "longest_robot_pause_s": 7.560001373291016,
+          "longest_person_pauses_s": [
+            21.81999969482422,
+            21.759998321533203,
+            21.939998626708984,
+            21.939998626708984
+          ],
+          "yielding_seconds": 0,
+          "inference_latency_ms": {
+            "p50": 18.959400000000002,
+            "p95": 21.76934,
+            "maximum": 29.8763
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 1.6443456982490814e-05,
+            "maximum": 0.00011182310904643695
+          },
+          "moving_velocity_error_mps": {
+            "p50": 9.560366748262439e-06,
+            "p95": 0.00010489794372015027,
+            "maximum": 0.00011182310904643695
+          },
+          "stationary_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "maximum": 0.0
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0,
+            "p95": 0.5999904634751096,
+            "maximum": 0.6001117440544591
+          }
+        },
+        {
+          "index": 3,
+          "seed": 7,
+          "layout": "aisle",
+          "mirror": 1,
+          "mode": "nav2",
+          "passed": false,
+          "safe": true,
+          "errors": [
+            "Nav2 did not qualify",
+            "robot missed goal"
+          ],
+          "duration": 44.99999237060547,
+          "min_robot_clearance_m": 0.0664697140455246,
+          "min_person_clearance_m": 0.6933164596557617,
+          "robot_goal_error_m": 6.710538900962174,
+          "robot_person_contacts": 0,
+          "person_person_callbacks": 0,
+          "person_object_contacts": 0,
+          "robot_object_contacts": 0,
+          "person_completion_seconds": [
+            12.55999755859375,
+            12.499992370605469,
+            12.579994201660156,
+            12.579994201660156
+          ],
+          "robot_path_m": 3.6181413709420975,
+          "person_paths_m": [
+            7.595939616555571,
+            7.563598036766052,
+            7.999772498972354,
+            7.5220537185668945
+          ],
+          "longest_robot_pause_s": 26.93999481201172,
+          "longest_person_pauses_s": [
+            32.399993896484375,
+            32.339996337890625,
+            30.099998474121094,
+            32.519996643066406
+          ],
+          "yielding_seconds": 0,
+          "inference_latency_ms": {
+            "p50": 18.9964,
+            "p95": 21.46435,
+            "maximum": 26.023400000000002
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.00012397502416150452,
+            "maximum": 0.00013824643210979515
+          },
+          "moving_velocity_error_mps": {
+            "p50": 0.00010489794372015027,
+            "p95": 0.00012408043275165275,
+            "maximum": 0.00013824643210979515
+          },
+          "stationary_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.0,
+            "maximum": 8.536802162763298e-06
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0,
+            "p95": 0.6001049217855781,
+            "maximum": 0.6001104009264048
+          }
+        }
+      ]
+    }
+  },
+  "evidence_sha256": {
+    "unity.xml": "7a3c4c7f0a3a18e7c121aea563383513f586989ade47f0cebd211a526757eef9",
+    "source-inventory.json": "6beb93acb457985505e045695d9ee9b2d042a2b6f402e11d1b30384071696ecf",
+    "player-manifest.txt": "8682a38000af942fa5c91eeacfb2e8641d19f825057a2709d6f0811a4a1ddc6f",
+    "payload-verification.log": "159c0e68dfbaf5bdd23a133cb51365c74411a3394c5a72fd08e3cda62ccf76d2",
+    "progress.log": "1b3e8a6c84675118d1d1429c0a6f3ab7c4bea6e4b7d81532d5cf8edf6e1ebf28",
+    "navigation/navigation.json": "e2800f352a47133e95431b1a412ed62886f4ff6d16c4178ce561b2a430249e34",
+    "navigation/lifecycle-logs.json": "382547709a03c0b208c34a1dcf7fedb335c892ca7b782d200883e7f4e7700a0a",
+    "social_forces/summary.json": "2b0e73e25723552cd42daf6887a85654fb398bffc35d1636c9958903e0011da8",
+    "social_forces/encounters.json": "4083b8275d69b5d47b6d30efc22969cb6d4be7735c0910372907d0e856ebc636",
+    "social_forces/encounters.json.geometry.json": "7472f492895a178728ec3c1ed557f1e4a6b1f02bff3e5682bdf19b484924d6fe",
+    "social_forces/warehouse-navigation.json": "305e0e4d32f3792cd97763a79cfc8ab86529510db65f55382ad410ee8be0642a",
+    "social_forces/lifecycle-logs.json": "40a277e3d13c4be8742d7d7d952b8c65fa6e0b85ae2819b54c9d86f312eb4e0f",
+    "social_forces/script-log-audit.json": "76aa3b58148d89cc797ae408eba304f008308b708476e2db124fcf4e5d1c7a2e",
+    "orca/summary.json": "53f94c01c151d6b3280fdba75329bb92e49d7ac04c87ae000c226b9ac7334c90",
+    "orca/encounters.json": "f7dc662adfd1e25624ce49bf191835801729b7e40dc677ba4158e246e61d43e8",
+    "orca/encounters.json.geometry.json": "7472f492895a178728ec3c1ed557f1e4a6b1f02bff3e5682bdf19b484924d6fe",
+    "orca/warehouse-navigation.json": "c44c5b756db7bb3c1e403eeb55b7dd4c253cf954b4668decb6c3434fffd3f27d",
+    "orca/lifecycle-logs.json": "40a277e3d13c4be8742d7d7d952b8c65fa6e0b85ae2819b54c9d86f312eb4e0f",
+    "orca/script-log-audit.json": "76aa3b58148d89cc797ae408eba304f008308b708476e2db124fcf4e5d1c7a2e",
+    "social_forces-image-id.txt": "1e481dbd82dfa109424256c8ccf4fc9565835186cf03687e555c49fb2c76502f"
+  },
+  "initial_root_motion_pilot": {
+    "source_commit": "67d97afb0017467a1a3b5a963190a837c383c237",
+    "remote_evidence_directory": "/scratch/tchauhan/sean3/validation/orca-committed-20261029",
+    "status": "diagnostic; root-motion target-following spikes up to 7.386 m/s; superseded actuator condition"
+  },
+  "stars": {
+    "source_commit": "d72eb2295c3336f0674932796cf41b60636cde3e",
+    "forecast_checkpoint_available": false,
+    "checkpoint_format": {
+      "model": "stars_ma",
+      "phase": "forecast"
+    },
+    "reference_submodule_populated": false,
+    "live_adapter_implemented": false
+  },
+  "limitations": [
+    "One development seed and four aisle encounters per controller; no superiority or human-realism claim.",
+    "One ORCA/Nav2 case fails unchanged robot goal gates; no rerun or threshold relaxation.",
+    "Cached Unity build with preserved pre-existing Rocketbox metadata; not clean-source asset import.",
+    "No trained STARS checkpoint in inspected checkout; training outputs and datasets are Git-ignored.",
+    "Nav2 is asynchronous; dense crowds, runtime doorways, held-out seeds, video and episode wall-time coverage remain incomplete."
+  ],
+  "observed_sf_container_image_id": "17c76881dfafd5b587cd12e5c28f712b172ec714d930f7b7e689f296f9687afd"
+}

@@ -1,5 +1,22 @@
 # Migration validation
 
+## Experimental ORCA and matched actuation: October 29
+
+Unity `aa7bf26` and workspace runner `9878c7d` implement joint ORCA decisions and
+the independently selected `VelocityTargetsV1` actuator. Both SF and ORCA use it
+in a matched seed-7 aisle pilot: SF passes 4/4 cases and two actual Nav2 actions;
+ORCA passes 3/4 cases and one of two Nav2 actions. All 32 person routes complete,
+with zero physical contacts. One mirrored ORCA/Nav2 action aborts and misses its
+goal; its failed result is retained. All expected episodes are attributable and
+clean up normally. No superiority or replacement claim is supported.
+
+The final candidate passes 77 Unity tests, 60 harness tests, three ordinary
+default-actuator navigation stages and 177 payload checksums. An earlier
+root-motion ORCA pilot is preserved because it showed large uncommanded motion
+spikes despite strict encounter passes; the shared physical actuator removes
+them in this pilot. See [the result](results/2026-10-29-orca-controller.md) for
+exact versions, assumptions, commands, metrics, failures and remaining gates.
+
 ## Controller integration baseline: October 29
 
 On robovision, the accepted fresh `537ec00` player passes three navigation

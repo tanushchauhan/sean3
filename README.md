@@ -30,10 +30,11 @@ NVIDIA GPU, rootless Podman):
   between first-person, third-person, overhead and top views.
 - In a dense crowd of 65 random pedestrians, Kuri completes only some routes.
   This is open work.
-- Controller integration has a tested scene-level boundary core (66 Unity
-  tests pass). A fresh bounded SF+Nav2 baseline passes 3 navigation stages and
-  4 encounter cases. Production wiring, ORCA and STARS remain pending; see
-  [the integration result](docs/results/2026-10-29-controller-integration.md).
+- Experimental ORCA and shared physical pedestrian actuation are implemented
+  (77 Unity tests and 60 harness tests pass). A matched four-case aisle pilot
+  passes 4/4 with SF and 3/4 with ORCA, with zero contacts on both; one ORCA/Nav2
+  robot goal fails. STARS still needs trained weights and a live adapter. See
+  [the controller result](docs/results/2026-10-29-orca-controller.md).
 
 See [docs/validation.md](docs/validation.md) for the full history and the dated
 reports in [docs/results](docs/results).

@@ -57,6 +57,13 @@ class HoldTestDouble:
         return {a['id']: [0., 0.] for a in history[-1]['actors'] if a['active'] and not a['robot']}
 
 
+class PreferredVelocityTestDouble(HoldTestDouble):
+    """For animated transport tests only; no inference or learned avoidance."""
+    def predict(self, history):
+        return {a['id']: a['preferred_velocity'] for a in history[-1]['actors']
+                if a['active'] and not a['robot']}
+
+
 class Session:
     def __init__(self, predictor, observation_steps, dt):
         require(type(observation_steps) is int and observation_steps >= 2, 'Need at least two observation instants')
@@ -126,17 +133,18 @@ class Session:
                     targets=[dict(id=k, velocity=velocities[k]) for k in sorted(expected)])
 
 
-def serve(port, observation_steps, dt, timeout):
+def serve(port, observation_steps, dt, timeout, moving_test_double=False):
     # Intentionally loopback only: this boundary has no authentication.
     with socket.socket() as listener:
         listener.bind(('127.0.0.1', port))
         listener.listen(1)
         print(json.dumps(dict(event='listening', port=listener.getsockname()[1],
-                              model='hold_test_double', observation_steps=observation_steps, dt=dt)), flush=True)
+                              model='preferred_velocity_test_double' if moving_test_double else 'hold_test_double',
+                              observation_steps=observation_steps, dt=dt)), flush=True)
         connection, _ = listener.accept()
         with connection:
             connection.settimeout(timeout)
-            session = Session(HoldTestDouble(), observation_steps, dt)
+            session = Session(PreferredVelocityTestDouble() if moving_test_double else HoldTestDouble(), observation_steps, dt)
             while True:
                 try:
                     request = receive(connection)
@@ -152,6 +160,7 @@ if __name__ == '__main__':
     p.add_argument('--dt', type=float, required=True)
     p.add_argument('--timeout', type=float, default=30)
     p.add_argument('--test-double', action='store_true', required=True)
+    p.add_argument('--moving-test-double', action='store_true', help='Echo preferred velocities after warm-up; no learned inference')
     a = p.parse_args()
     require(math.isfinite(a.timeout) and a.timeout > 0, 'Positive wall timeout required')
-    serve(a.port, a.observation_steps, a.dt, a.timeout)
+    serve(a.port, a.observation_steps, a.dt, a.timeout, a.moving_test_double)

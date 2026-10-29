@@ -13,13 +13,18 @@ This autonomous fixture does not require Michal's prototype or Howard's extensio
 See the [multi-person result](WAREHOUSE_ENCOUNTERS_RESULT_2026-10-28.md) and
 [protocol](WAREHOUSE_ENCOUNTERS.md) for exact source pins, geometry and limits.
 
-**Longer normal navigation remains unqualified.** The prospective follow-up failed;
-the earlier accepted executable also failed a repeated historical route with its
-old profile. All failures are retained. The 80 encounter cases use controlled
-stepping and do not establish broad reliability. All robot conditions, including
-oblivious motion, had zero contacts, and the declared clearance-benefit threshold
-was not met in the aisle. This is a development baseline, not a generally reliable
-release or a validated controller benchmark.
+**Longer normal navigation now passes a bounded prospective campaign.** With
+Unity `1fec526` (one `/tf` message per frame) and the tf2-matched ROS image
+`localhost/sean3-humble:tf2-0.25.24`, 12 of 12 startup/task-reset/scene-reload
+sequences (36 routes, eight seeds) completed with zero recoveries and contacts.
+Two causes were found: a TCP endpoint backlog that fed Nav2 stale state, and a
+tf2/tf2_ros version mismatch that deadlocked Nav2's TF listener. See the
+[reliability result](LONG_NAVIGATION_RELIABILITY_RESULT_2026-10-28.md). That
+player is not a clean-source build, and pedestrian scenes were not retested
+with these changes. The 80 encounter cases use controlled stepping at Unity
+`3033ba1`. All robot conditions, including oblivious motion, had zero contacts,
+and the declared clearance-benefit threshold was not met in the aisle. This is a
+development baseline, not a release or a validated controller benchmark.
 
 The earlier [single-person pedestrian result](PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md)
 passes 60 open-floor checks and explains ColliderV1's body geometry, braking and

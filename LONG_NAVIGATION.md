@@ -38,7 +38,9 @@ this measure is not proof of deadlock. A separate bounded-motion stall is at
 least 15 simulation seconds without leaving a 0.5 m radius around an anchor.
 It detects small circles that can keep resetting the 0.05 m translation anchor.
 Both measures include turns and intentional waits; the accepted routes must
-satisfy both. Odometry is sampled approximately every
+satisfy both. Routes must also keep wall receipt minus `/clock` stamp from
+growing by more than 1.0 s, which detects a delivery backlog that `fresh()`
+cannot see. Odometry is sampled approximately every
 0.2 simulation seconds; sampling gaps are reported. Path length includes
 odometry noise; planned and actual turn totals depend on sampling resolution.
 Nav2 feedback records remaining distance and the maximum reported recovery
@@ -117,17 +119,22 @@ separate failed evidence. See the dated result for live acceptance.
 
 ## Run on robovision
 
-From `/scratch/tchauhan/sean3/sean3`, with no other run sharing the overlay:
+From `/scratch/tchauhan/sean3/sean3`, with no other run sharing the overlay.
+Use the tf2-matched image and its own overlay workspace; the earlier `:dev`
+image pairs tf2 0.25.22 with tf2_ros 0.25.24, which can deadlock Nav2's TF
+listener (see [LONG_NAVIGATION_RELIABILITY.md](LONG_NAVIGATION_RELIABILITY.md)):
 
 ```sh
-SEAN_ROS_IMAGE=localhost/sean3-humble:dev SEAN_CHECK_MODE=long-navigation \
+SEAN_ROS_IMAGE=localhost/sean3-humble:tf2-0.25.24 SEAN_CHECK_MODE=long-navigation \
   SEAN_SEED=7 SEAN_TCP_PORT=10327 \
   bash scripts/check_unity_navigation.sh \
-  /scratch/tchauhan/sean3/builds/long-navigation-20261027-candidate9/sean.x86_64 \
-  /scratch/tchauhan/sean3/ros_ws /scratch/tchauhan/sean3/social_sim_ros \
+  /scratch/tchauhan/sean3/builds/long-reliability-c01-20261028/sean.x86_64 \
+  /scratch/tchauhan/sean3/ros_ws_tf2 /scratch/tchauhan/sean3/social_sim_ros \
   /scratch/tchauhan/sean3/validation/long-navigation/NEW/seed7
 ```
 
+Build the image with
+`docker build -f docker/Dockerfile.humble-tf2 -t localhost/sean3-humble:tf2-0.25.24 docker`.
 Repeat serially with seed 42, a fresh output directory, and an available TCP
 port. `SEAN_GOAL_TIMEOUT` overrides the declared goal wall-time limit; record
 the value and keep runs with different budgets distinct. Run the Python harness

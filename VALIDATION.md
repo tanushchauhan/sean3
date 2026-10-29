@@ -1,6 +1,18 @@
 # Migration validation
 
-## Multi-person Warehouse candidate — October 28
+## Long-route reliability: October 28
+
+Unity `1fec526`, ROS `cceff5b`, tooling `e6320a2` and image
+`localhost/sean3-humble:tf2-0.25.24` pass 12 of 12 long-route sequences (36
+routes, seeds 7 and 42 three times each plus 1001, 2002, 3003, 4004, 5005 and
+6006). All routes had zero recoveries and contacts, goal error at most 0.342 m
+and receipt-lag growth at most 0.059 s. Unity EditMode (46), harness (54),
+endpoint (12), Nav2 lifecycle and five laser-clearing controls pass on this
+image. The player is a cached, not clean-source, build. Earlier failures and
+diagnostic runs are retained. See
+[the result](LONG_NAVIGATION_RELIABILITY_RESULT_2026-10-28.md).
+
+## Multi-person Warehouse candidate: October 28
 
 At Unity `3033ba1fb63a01698d543c16f6b21a0e210db85e`, ROS
 `cceff5bd54ce52787fa47595fdff8b9c9775527f` and executed encounter tooling
@@ -22,7 +34,7 @@ for all outcomes, rejected attempts, source/build provenance and remaining work;
 [WAREHOUSE_ENCOUNTERS.md](WAREHOUSE_ENCOUNTERS.md) gives the protocol. Historical
 results below retain their own versions and must not be read as later coverage.
 
-## Pedestrian response to Kuri milestone — October 28
+## Pedestrian response to Kuri milestone: October 28
 
 The bounded open-floor diagnostic passes at Unity `aeaa7d247bc99fab12eacc95b22b3ad230d8f207`
 and ROS `d5dd5eecd36c0d4b61a5edbceeba49afdcb2b91c` (unchanged). The final player passes 60 fixed-model checks:

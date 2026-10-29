@@ -80,9 +80,10 @@ if [ "$mode" = long-navigation ]; then
     task_options=(-completion-distance 0)
 fi
 task_options+=(-laser-no-return "$laser")
+read -r -a extra_args <<< "${SEAN_PLAYER_ARGS:-}"
 player_args=(-scene SEAN/Warehouse -scenario "$scenario" -task RandomABNav \
     -seed "$seed" -ros-tcp-port "$port" -task-timeout-seconds 3600 -external-goals "${task_options[@]}" \
-    -logFile "$results/player.log")
+    "${extra_args[@]}" -logFile "$results/player.log")
 if [ "$visible" = 1 ]; then
     # Rendered window under Xvfb, recorded from the display. The recorder stops
     # after Unity exits so the video is finalized before display cleanup.
@@ -118,7 +119,7 @@ fi
 load_pid=$!
 
 printf 'scene=SEAN/Warehouse\nscenario=%s\ntask=RandomABNav\nseed=%s\nmode=%s\n' "$scenario" "$seed" "$mode" > "$results/config.txt"
-printf 'visible=%s\nvgl_device=%s\nframe_rate_target=%s\n' "$visible" "${SEAN_VGL_DEVICE:-none}" "${SEAN_FRAME_RATE:-30}" >> "$results/config.txt"
+printf 'visible=%s\nvgl_device=%s\nframe_rate_target=%s\nplayer_args=%s\n' "$visible" "${SEAN_VGL_DEVICE:-none}" "${SEAN_FRAME_RATE:-30}" "${SEAN_PLAYER_ARGS:-}" >> "$results/config.txt"
 printf 'laser_no_return=%s\nnav2_override=%s\n' "$laser" "${SEAN_NAV2_PARAMS_FILE:-default}" >> "$results/config.txt"
 if [ -n "${SEAN_NAV2_PARAMS_FILE:-}" ]; then sha256sum "$profile" > "$results/nav2-profile.sha256"; cp "$profile" "$results/nav2-profile.yaml"; fi
 if [ "$mode" = lifecycle ]; then

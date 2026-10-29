@@ -46,17 +46,24 @@ if [ -n "${SEAN_SENSOR_HEADING:-}" ]; then
     capture=(--fixture /results/fixture.json)
 fi
 # WaitForEndOfFrame publishers need rendered frames: omit -batchmode/-nographics.
+# SEAN_VIEW_CYCLE=1 presses the view key on the player's display during capture.
+cycle=
+if [ "${SEAN_VIEW_CYCLE:-0}" = 1 ]; then
+    cycle="$scripts/../tests/cycle_views.sh ${SEAN_XDOTOOL_ROOT:?set SEAN_XDOTOOL_ROOT} $results ${SEAN_VIEW_PRESSES:-5} ${SEAN_VIEW_INTERVAL:-6}"
+fi
+read -r -a extra_args <<< "${SEAN_PLAYER_ARGS:-}"
 LP_NUM_THREADS=${SEAN_RENDER_THREADS:-4} setsid xvfb-run -a -s '-screen 0 1024x768x24' bash -c \
-    'device=$1; log=$2; shift 2; if [ -n "$device" ]; then vglrun -d "$device" glxinfo -B > "$log"; exec vglrun -d "$device" bash "$@"; else glxinfo -B > "$log"; exec bash "$@"; fi' \
-    bash "${SEAN_VGL_DEVICE:-}" "$results/glxinfo.txt" \
+    'device=$1; log=$2; cycle=$3; shift 3; [ -z "$cycle" ] || bash $cycle &
+     if [ -n "$device" ]; then vglrun -d "$device" glxinfo -B > "$log"; exec vglrun -d "$device" bash "$@"; else glxinfo -B > "$log"; exec bash "$@"; fi' \
+    bash "${SEAN_VGL_DEVICE:-}" "$results/glxinfo.txt" "$cycle" \
     "$scripts/run_unity_player.sh" "$player" -force-glcore \
     -screen-width 640 -screen-height 480 -screen-fullscreen 0 -job-worker-count 4 -frame-rate "${SEAN_FRAME_RATE:-30}" \
     -scene SEAN/Warehouse -scenario None -task RandomABNav -seed "${SEAN_SEED:-7}" \
     -ros-tcp-port "$port" -task-timeout-seconds 3600 -external-goals \
-    "${fixture[@]}" "${placement[@]}" -logFile "$results/player.log" > "$results/player-console.log" 2>&1 &
+    "${fixture[@]}" "${placement[@]}" "${extra_args[@]}" -logFile "$results/player.log" > "$results/player-console.log" 2>&1 &
 player_pid=$!
 printf '%s\n' "$player_pid" > "$results/player.pid"
-printf 'seed=%s\nheading=%s\nport=%s\nrenderer=OpenGL under Xvfb\nvgl_device=%s\nframe_rate_target=%s\n' "${SEAN_SEED:-7}" "${SEAN_SENSOR_HEADING:-warehouse}" "$port" "${SEAN_VGL_DEVICE:-none}" "${SEAN_FRAME_RATE:-30}" > "$results/config.txt"
+printf 'seed=%s\nheading=%s\nport=%s\nrenderer=OpenGL under Xvfb\nvgl_device=%s\nframe_rate_target=%s\nview_cycle=%s\nplayer_args=%s\n' "${SEAN_SEED:-7}" "${SEAN_SENSOR_HEADING:-warehouse}" "$port" "${SEAN_VGL_DEVICE:-none}" "${SEAN_FRAME_RATE:-30}" "${SEAN_VIEW_CYCLE:-0}" "${SEAN_PLAYER_ARGS:-}" > "$results/config.txt"
 # Measured-target runs already wait for their fixture, which moves the robot.
 if [ -z "${SEAN_SENSOR_HEADING:-}" ]; then
 docker exec "$container" bash -c \

@@ -1,5 +1,18 @@
 # Migration validation
 
+## Controller integration baseline: October 29
+
+On robovision, the accepted fresh `537ec00` player passes three navigation
+stages and a four-case, seed-7 aisle subset (both mirrors, parked and Nav2):
+16 person goals and two actual Nav2 actions complete with zero contacts and
+clean transport/process shutdown. All 175 player payload hashes verify. The
+uncommitted scene-level controller core passes the final 66-test Unity suite
+(19 new tests); the existing Python harness passes 54 tests locally and remotely.
+The live checks use the existing baseline player. Production contract wiring,
+ORCA, STARS and three-controller comparison remain pending. See
+[the result](results/2026-10-29-controller-integration.md) for source hashes,
+exact commands, diagnostic evidence and limits.
+
 ## Launcher and fresh setup: October 29
 
 `./sean3` sets up, checks and runs SEAN 3, with a task driver that sends each

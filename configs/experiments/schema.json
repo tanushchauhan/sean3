@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:sean3:experiment:1",
+  "title": "SEAN3 controller experiment (design schema; launcher wiring pending)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "scene", "pedestrian_controller", "robot_policy", "seeds", "timing", "evaluation_split", "actors"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "scene": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "geometry_version", "frame"],
+      "properties": {
+        "name": {"const": "SEAN/Warehouse"},
+        "geometry_version": {"type": "string", "minLength": 1},
+        "frame": {"const": "map_ros_flu"}
+      }
+    },
+    "pedestrian_controller": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "parameters"],
+      "properties": {
+        "name": {"enum": ["social_forces", "orca", "stars", "test_double"]},
+        "parameters": {"type": "object"},
+        "model": {
+          "type": "object", "additionalProperties": false,
+          "required": ["source_commit", "checkpoint_sha256", "preprocessing_sha256", "sample_period_seconds", "observed_steps", "predicted_steps"],
+          "properties": {
+            "source_commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+            "checkpoint_sha256": {"$ref": "#/$defs/hash"},
+            "preprocessing_sha256": {"$ref": "#/$defs/hash"},
+            "sample_period_seconds": {"type": "number", "exclusiveMinimum": 0},
+            "observed_steps": {"type": "integer", "minimum": 2},
+            "predicted_steps": {"type": "integer", "minimum": 1}
+          }
+        }
+      },
+      "allOf": [{"if": {"properties": {"name": {"const": "stars"}}}, "then": {"required": ["model"]}}]
+    },
+    "robot_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "command_owner", "parameters_sha256"],
+      "properties": {
+        "name": {"enum": ["nav2", "stars_robot", "ppo", "stationary"]},
+        "command_owner": {"type": "string", "minLength": 1},
+        "parameters_sha256": {"$ref": "#/$defs/hash"}
+      }
+    },
+    "seeds": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scenario", "model"],
+      "properties": {"scenario": {"type": "integer", "minimum": 0}, "model": {"type": "integer", "minimum": 0}}
+    },
+    "timing": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "physics_step_seconds", "decision_period_seconds", "episode_limit_seconds", "worker_timeout_wall_seconds"],
+      "properties": {
+        "mode": {"const": "synchronous"},
+        "physics_step_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "decision_period_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "episode_limit_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "worker_timeout_wall_seconds": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "evaluation_split": {"enum": ["development", "validation", "held_out", "diagnostic"]},
+    "actors": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "role", "start", "goal", "footprint"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "role": {"enum": ["pedestrian", "robot"]},
+          "start": {"$ref": "#/$defs/pose"},
+          "goal": {"$ref": "#/$defs/pose"},
+          "footprint": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "pose": {
+      "type": "array", "prefixItems": [{"type": "number"}, {"type": "number"}, {"type": "number"}],
+      "minItems": 3, "maxItems": 3
+    }
+  }
+}

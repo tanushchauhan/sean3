@@ -30,6 +30,10 @@ NVIDIA GPU, rootless Podman):
   between first-person, third-person, overhead and top views.
 - In a dense crowd of 65 random pedestrians, Kuri completes only some routes.
   This is open work.
+- Controller integration has a tested scene-level boundary core (66 Unity
+  tests pass). A fresh bounded SF+Nav2 baseline passes 3 navigation stages and
+  4 encounter cases. Production wiring, ORCA and STARS remain pending; see
+  [the integration result](docs/results/2026-10-29-controller-integration.md).
 
 See [docs/validation.md](docs/validation.md) for the full history and the dated
 reports in [docs/results](docs/results).

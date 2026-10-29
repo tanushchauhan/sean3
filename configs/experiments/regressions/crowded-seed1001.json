@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "kind": "historical_diagnostic_reference",
+  "evaluation_split": "diagnostic",
+  "source_directory": "/scratch/tchauhan/sean3/validation/nav2-tolerance-20261029/pedestrians/t-seed1001",
+  "artifact_sha256": {
+    "config.txt": "838cd76a7bb6b6f2a990c335af8746d7154371454080038da317212ffb21acf3",
+    "navigation.json": "1b247bbc37e45896bf1d72b36f0e4215bd3e1a8a989950ce623dc94525d830d5",
+    "player.log": "66c45465c874b0193d37968c5c3af67b2e73893325569fe0aba358cae9195eea",
+    "screen.mkv": "e9336f722271703b7a5de54c220f9a57330518695d5e9a207ed298313f80ddd5"
+  },
+  "contact_log_lines": [
+    "SEAN person contact: stamp=1793284469.912400960 agent=Agent_10 robot_at_fault=False distance_m=0.166 robot_speed_mps=0.000 robot_unity=(2.01,-9.66) person_unity=(1.95,-9.30)"
+  ],
+  "config": "scene=SEAN/Warehouse\nscenario=Random\ntask=RandomABNav\nseed=1001\nmode=long-navigation\nvisible=1\nvgl_device=egl4\nframe_rate_target=30\nplayer_args=-view overhead\nlaser_no_return=PositiveInfinity\nnav2_override=default\n",
+  "navigation_passed": false,
+  "episodes": [
+    {
+      "cycle": 0,
+      "kind": "startup",
+      "trial": 1,
+      "start": [
+        -13.816733360290527,
+        0.6562199592590332
+      ],
+      "goal": [
+        12.122659683227539,
+        -15.376811981201172
+      ],
+      "passed": false,
+      "status": 6,
+      "final": [
+        -14.19729995727539,
+        -3.4997718334198
+      ],
+      "goal_error": 28.875670696101825,
+      "fresh_sensors": true,
+      "wall_seconds": 283.85883648414165,
+      "failure": null,
+      "collision_start": {
+        "obj_collisions": 0,
+        "robot_on_person_collisions": 0,
+        "person_on_robot_collisions": 0
+      },
+      "collision_max": {
+        "obj_collisions": 0,
+        "robot_on_person_collisions": 0,
+        "person_on_robot_collisions": 1
+      },
+      "max_recoveries": 19
+    },
+    {
+      "cycle": 1,
+      "kind": "task",
+      "trial": 2,
+      "start": [
+        7.917500972747803,
+        -15.715522766113281
+      ],
+      "goal": [
+        -15.55357551574707,
+        10.843667984008789
+      ],
+      "passed": false,
+      "status": 6,
+      "final": [
+        -12.003459930419922,
+        -2.4748082160949707
+      ],
+      "goal_error": 13.783509312287382,
+      "fresh_sensors": true,
+      "wall_seconds": 292.65357802063227,
+      "failure": null,
+      "collision_start": {
+        "obj_collisions": 0,
+        "robot_on_person_collisions": 0,
+        "person_on_robot_collisions": 0
+      },
+      "collision_max": {
+        "obj_collisions": 0,
+        "robot_on_person_collisions": 0,
+        "person_on_robot_collisions": 0
+      },
+      "max_recoveries": 17
+    },
+    {
+      "cycle": 2,
+      "kind": "scene",
+      "trial": 1,
+      "start": [
+        -7.634517669677734,
+        10.459062576293945
+      ],
+      "goal": [
+        4.177553176879883,
+        5.359470367431641
+      ],
+      "passed": true,
+      "status": 4,
+      "final": [
+        3.8855485916137695,
+        5.499984264373779
+      ],
+      "goal_error": 0.32405375024878325,
+      "fresh_sensors": true,
+      "wall_seconds": 77.77960486058146,
+      "failure": null,
+      "collision_start": {
+        "obj_collisions": 0,
+        "robot_on_person_collisions": 0,
+        "person_on_robot_collisions": 0
+      },
+      "collision_max": {
+        "obj_collisions": 0,
+        "robot_on_person_collisions": 0,
+        "person_on_robot_collisions": 0
+      },
+      "max_recoveries": 0
+    }
+  ],
+  "limitations": [
+    "Historical observed failure, not a new run or held-out scenario.",
+    "Seed does not establish identical pedestrian trajectories across replays.",
+    "No cause inferred from the frozen artifact alone."
+  ]
+}

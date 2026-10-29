@@ -34,26 +34,28 @@ NVIDIA GPU, rootless Podman):
 See [docs/validation.md](docs/validation.md) for the full history and the dated
 reports in [docs/results](docs/results).
 
-## Getting the sources
+## Quick start
 
 ```sh
-gh repo clone tanushchauhan/sean3
+git clone https://github.com/tanushchauhan/sean3.git
 cd sean3
 git switch feature/ros2-environment
-mkdir -p sources
-vcs import sources < sean3-candidate.repos
-git -C sources/social_sim_unity submodule update --init --recursive
-git -C sources/social_sim_ros submodule update --init --recursive
+./sean3 setup
+./sean3 build-player --unity /path/to/Unity-2022.3.62f3/Editor/Unity
+./sean3 run
 ```
 
-This needs [vcstool](https://github.com/dirk-thomas/vcstool). The components land
-in the ignored `sources/` directory. Create a branch in a component before
-editing it, since the pins leave it at a detached HEAD.
+`setup` fetches the components into `sources/` and builds the ROS image.
+`run` starts ROS, Nav2 and the simulator; Ctrl+C stops all of them. See
+[docs/getting-started.md](docs/getting-started.md) for requirements, options,
+controls and troubleshooting. To change a component, create a branch in its
+`sources/` checkout first, since the pins leave it at a detached HEAD.
 
 ## Documentation
 
 | Folder | Contents |
 | --- | --- |
+| [docs/getting-started.md](docs/getting-started.md) | Setup, running, controls and troubleshooting |
 | [docs/roadmap.md](docs/roadmap.md) | Milestones |
 | [docs/validation.md](docs/validation.md) | Validation history and how to run the checks |
 | [docs/protocols](docs/protocols) | How each test is defined and run |

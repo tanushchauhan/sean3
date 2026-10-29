@@ -27,3 +27,8 @@ __pycache__/
 
 # ROS validation overlay
 /ros_ws/
+
+# Launcher state, simulator builds and run logs
+/.sean3/
+/builds/
+/logs/

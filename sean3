@@ -109,6 +109,11 @@ def check_port(port):
 
 def controller_player_args(args):
     result = ['-pedestrian-controller', args.pedestrian_controller]
+    actuation = getattr(args, 'pedestrian_actuation', None) or (
+        'root_motion' if args.pedestrian_controller == 'social_forces' else 'velocity_body')
+    if args.pedestrian_controller != 'social_forces' and actuation != 'velocity_body':
+        raise Failure('Joint pedestrian controllers require velocity_body actuation.')
+    result += ['-pedestrian-actuation', actuation]
     if args.pedestrian_controller == 'orca':
         for name in ('decision_period', 'neighbor_distance', 'max_neighbors', 'agent_horizon', 'obstacle_horizon'):
             value = getattr(args, 'orca_' + name)
@@ -121,6 +126,11 @@ def controller_player_args(args):
 def controller_announced(log, requested):
     names = {'orca': 'ORCA', 'joint_test': 'JointTest', 'social_forces': 'SF'}
     return log.is_file() and f'SEAN pedestrian controller: {names[requested]}' in log.read_text(errors='replace').splitlines()
+
+
+def actuation_announced(log, requested):
+    names = {'root_motion': 'AnimatedRootMotionV1', 'velocity_body': 'VelocityTargetsV1'}
+    return log.is_file() and f'SEAN pedestrian actuation: {names[requested]}' in log.read_text(errors='replace').splitlines()
 
 
 def display_mode(args):
@@ -276,9 +286,11 @@ class Run:
                       f'The simulator did not connect to ROS within {args.connect_timeout} s. '
                       f'See {self.logs / "player.log"}.')
 
-        if args.pedestrian_controller != 'social_forces':
-            self.wait_for(lambda: controller_announced(self.logs / 'player.log', args.pedestrian_controller), 10,
-                          'The player did not confirm the requested pedestrian controller. '
+        actuation = dict(zip(pedestrian_options[::2], pedestrian_options[1::2]))['-pedestrian-actuation']
+        if args.pedestrian_controller != 'social_forces' or actuation != 'root_motion':
+            self.wait_for(lambda: controller_announced(self.logs / 'player.log', args.pedestrian_controller)
+                          and actuation_announced(self.logs / 'player.log', actuation), 10,
+                          'The player did not confirm the requested pedestrian controller and actuator. '
                           'Build a player with this controller; see player.log.')
 
         if not args.no_nav2:
@@ -406,6 +418,8 @@ def main():
             command.add_argument('--scenario', default='None', help='pedestrians: None, Random, HandcraftedSocialSituations')
             command.add_argument('--pedestrian-controller', choices=('social_forces', 'orca', 'joint_test'),
                                  default='social_forces', help='pedestrian motion controller (joint_test has no avoidance)')
+            command.add_argument('--pedestrian-actuation', choices=('root_motion', 'velocity_body'),
+                                 help='default root_motion for Social Forces, velocity_body for joint controllers')
             command.add_argument('--orca-decision-period', type=float, default=.1)
             command.add_argument('--orca-neighbor-distance', type=float, default=5)
             command.add_argument('--orca-max-neighbors', type=int, default=64)

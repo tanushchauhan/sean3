@@ -32,7 +32,7 @@ def navigation_fixture():
 
 def orca_fixture():
     r=fixture()
-    r.update(pedestrianController='orca',model='ORCA-RVO2-v2.0.1',geometryModel='NavMeshBoundaryV1',
+    r.update(pedestrianController='orca',actuationModel='VelocityTargetsV1',model='ORCA-RVO2-v2.0.1',geometryModel='NavMeshBoundaryV1',
              orcaSourceRevision='5b7147d36d5cc6310c8e74c6955145c0fdc5fe06',controllerRobotRadius=.5,
              controllerObstacleCount=1,orcaSettings=dict(decisionPeriod=.1,neighborDistance=5,maxNeighbors=64,agentHorizon=2.5,obstacleHorizon=2.5))
     for e in r['episodes']:
@@ -51,6 +51,7 @@ class WarehouseAnalysisTests(unittest.TestCase):
         self.assertEqual(result['episodes'][0]['inference_latency_ms']['maximum'],1)
     def test_orca_cannot_hide_wrong_model_geometry_or_worker_failure(self):
         mutations=[lambda r:r.update(model='ColliderV1'),lambda r:r.update(geometryModel=''),
+                   lambda r:r.update(actuationModel='AnimatedRootMotionV1'),
                    lambda r:r.update(orcaSourceRevision='unknown'),lambda r:r.update(controllerObstacleCount=0),
                    lambda r:r['episodes'][0].update(controllerFaulted=True),
                    lambda r:r['episodes'][0].update(inferenceMilliseconds=[]),

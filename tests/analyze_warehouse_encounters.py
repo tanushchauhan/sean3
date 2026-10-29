@@ -139,15 +139,23 @@ def analyze(report, navigation=None):
         safe = e.get('robotPersonContacts', 0) == 0 and min_robot >= 0
         if e['mode'] != 'oblivious' and not safe:
             errors.append('robot/person contact')
-        following_errors = []
+        following_errors, moving_errors, stationary_errors, achieved_speeds = [], [], [], []
         if shape_ok:
             for a,b in zip(samples,samples[1:]):
                 dt = b['time']-a['time']
-                if dt <= 0 or len(a.get('personTargetVelocities',[])) != 4:
+                if dt <= 0:
                     continue
                 for i in range(4):
                     actual = tuple((v-u)/dt for u,v in zip(xy(a['people'][i]),xy(b['people'][i])))
-                    following_errors.append(math.dist(actual,xy(a['personTargetVelocities'][i])))
+                    speed = math.hypot(*actual)
+                    achieved_speeds.append(speed)
+                    # Samples are captured after physics; the interval-ending
+                    # sample carries the target applied for that physics tick.
+                    if len(b.get('personTargetVelocities',[])) == 4:
+                        target = xy(b['personTargetVelocities'][i])
+                        error = math.dist(actual,target)
+                        following_errors.append(error)
+                        (moving_errors if max(speed,math.hypot(*target))>.01 else stationary_errors).append(error)
         episodes.append(dict(index=e['index'], seed=e['seed'], layout=e['layout'], mirror=e['mirror'], mode=e['mode'],
             passed=not errors, safe=safe, errors=sorted(set(errors)), duration=e.get('duration'),
             min_robot_clearance_m=min_robot, min_person_clearance_m=min_person,
@@ -161,7 +169,10 @@ def analyze(report, navigation=None):
             longest_person_pauses_s=[longest_stop(samples,'people',i) for i in range(4)] if shape_ok else [],
             yielding_seconds=sum(b['time']-a['time'] for a,b in zip(samples,samples[1:]) if a['yielding']),
             inference_latency_ms=distribution([v for v in e.get('inferenceMilliseconds',[]) if isinstance(v,(int,float)) and math.isfinite(v)]),
-            achieved_target_velocity_error_mps=distribution(following_errors)))
+            achieved_target_velocity_error_mps=distribution(following_errors),
+            moving_velocity_error_mps=distribution(moving_errors),
+            stationary_velocity_error_mps=distribution(stationary_errors),
+            achieved_speed_mps=distribution(achieved_speeds)))
     nav_indices = {e['index'] for e in episodes if e['mode']=='nav2'}
     nav_episodes = (navigation or {}).get('episodes',[])
     navigation_ok = (not nav_indices or bool(navigation and navigation.get('passed') and not navigation.get('error')
@@ -173,9 +184,12 @@ def analyze(report, navigation=None):
                 and not any(e.get('scan_statistics',{}).get(k,0) for k in ('nan_samples','negative_infinity_samples','invalid_finite_samples')) for e in nav_episodes)))
     actual = {(e['seed'],e['layout'],e['mirror'],e['mode']) for e in episodes}
     controller_schema_ok = (controller == 'social_forces' and report.get('model') == 'ColliderV1')
+    actuation = report.get('actuationModel','AnimatedRootMotionV1')
+    controller_schema_ok = controller_schema_ok and actuation in ('AnimatedRootMotionV1','VelocityTargetsV1')
     if controller == 'orca':
         settings = report.get('orcaSettings') or {}
         controller_schema_ok = (report.get('model') == 'ORCA-RVO2-v2.0.1' and
+            actuation == 'VelocityTargetsV1' and
             report.get('orcaSourceRevision') == '5b7147d36d5cc6310c8e74c6955145c0fdc5fe06' and
             report.get('geometryModel') == 'NavMeshBoundaryV1' and report.get('controllerRobotRadius',0) > 0 and
             report.get('controllerObstacleCount',0) > 0 and finite(settings) and
@@ -200,7 +214,7 @@ def analyze(report, navigation=None):
                               contact_reduction=o['robot_person_contacts']-y['robot_person_contacts'],
                               yielding_delay_s=y['duration']-o['duration'],
                               distinguishes=benefit >= .1 or o['robot_person_contacts'] > y['robot_person_contacts']))
-    return dict(complete=report['complete'], pedestrian_controller=controller, expected=len(expected),
+    return dict(complete=report['complete'], pedestrian_controller=controller, pedestrian_actuation=actuation, expected=len(expected),
                 passed=bool(report['complete'] and not report.get('error') and schema_ok and expected
                             and navigation_ok and len(episodes)==len(expected) and actual==expected and all(e['passed'] for e in episodes)),
                 headroom_demonstrated=bool(pairs and all(p['distinguishes'] for p in pairs)),

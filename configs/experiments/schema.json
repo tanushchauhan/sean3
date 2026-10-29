@@ -4,9 +4,10 @@
   "title": "SEAN3 controller experiment (design schema; launcher wiring pending)",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "scene", "pedestrian_controller", "robot_policy", "seeds", "timing", "evaluation_split", "actors"],
+  "required": ["schema_version", "scene", "pedestrian_controller", "pedestrian_actuation", "robot_policy", "seeds", "timing", "evaluation_split", "actors"],
   "properties": {
     "schema_version": {"const": 1},
+    "pedestrian_actuation": {"enum": ["root_motion", "velocity_body"]},
     "scene": {
       "type": "object", "additionalProperties": false,
       "required": ["name", "geometry_version", "frame"],

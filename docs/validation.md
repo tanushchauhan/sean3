@@ -1,5 +1,14 @@
 # Migration validation
 
+## Launcher and fresh setup: October 29
+
+`./sean3` sets up, checks and runs SEAN 3, with a task driver that sends each
+task goal to Nav2 once. A fresh clone on robovision went through `setup` (including
+the first from-scratch ROS image build), `build-player`, `doctor` and a 5-minute
+`run` with no manual steps: three tasks succeeded and Ctrl+C stopped everything
+cleanly. Controls, crash handling and startup errors were also checked. See
+[the result](results/2026-10-29-launcher.md).
+
 ## Visual experience: October 28
 
 On the long-route stack (Unity `1fec526` c01 player, image

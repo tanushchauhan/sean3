@@ -1,67 +1,81 @@
-# SEAN 3 development workspace
+# SEAN 3
 
-Development entry point for modernizing SEAN 2 and evaluating pedestrian controllers. This repository coordinates component versions, setup, and experiments; simulator and ROS code remain in their respective forks.
+SEAN 3 is the modernized Social Environment for Autonomous Navigation: a Unity
+simulator of people and a mobile robot, driven through ROS 2. It updates SEAN 2
+to Unity 2022.3 and ROS 2 Humble.
 
-## Current status
-
-Repository setup only. The component forks currently contain the upstream SEAN 2 baseline. ROS 2 migration, a Unity upgrade, and ORCA integration have not been implemented or tested. Review Michal's prototype and Howard's extensions before choosing implementation starting points.
+This repository is the workspace. It pins the two component repositories, holds
+the Docker setup, run and test scripts, and documents every validation result.
 
 ## Repositories
 
-| Component | Development fork | Upstream |
+| Component | Fork | Upstream |
 | --- | --- | --- |
 | Unity simulator | [social_sim_unity](https://github.com/tanushchauhan/social_sim_unity) | [yale-sean/social_sim_unity](https://github.com/yale-sean/social_sim_unity) |
-| ROS integration | [social_sim_ros](https://github.com/tanushchauhan/social_sim_ros) | [yale-sean/social_sim_ros](https://github.com/yale-sean/social_sim_ros) |
-| Workspace and roadmap | This repository | New coordination repository |
+| ROS 2 integration | [social_sim_ros](https://github.com/tanushchauhan/social_sim_ros) | [yale-sean/social_sim_ros](https://github.com/yale-sean/social_sim_ros) |
+| Workspace | this repository | |
 
-The dependency manifest `sean3.repos` pins exact component revisions. Update it only when a new combination has been checked together. These initial pins record provenance; they do not indicate that the baseline has been validated on current hardware.
+The two components are git submodules under `sources/`, pinned to the versions
+this workspace was tested with. `sean3.repos` records the original SEAN 2 revisions.
 
-## Get the workspace
+## Status
 
-Clone this entry-point repository first:
+Development baseline, not yet a release. On the reference machine (Linux,
+NVIDIA GPU, rootless Podman):
+
+- Kuri navigates the Warehouse with Nav2 across startup, task resets and scene
+  reloads: 36 of 36 qualification routes.
+- 80 controlled four-person encounters pass with no contacts.
+- Camera, depth and laser output match a measured target; the window can switch
+  between first-person, third-person, overhead and top views.
+- In a dense crowd of 65 random pedestrians, Kuri completes only some routes.
+  This is open work.
+- Experimental ORCA and shared physical pedestrian actuation are implemented
+  (77 Unity tests and 60 harness tests pass). A matched four-case aisle pilot
+  passes 4/4 with SF and 3/4 with ORCA, with zero contacts on both; one ORCA/Nav2
+  robot goal fails. STARS still needs trained weights and a live adapter. See
+  [the controller result](docs/results/2026-10-29-orca-controller.md).
+
+See [docs/validation.md](docs/validation.md) for the full history and the dated
+reports in [docs/results](docs/results).
+
+## Quick start
 
 ```sh
-gh repo clone tanushchauhan/sean3
+git clone --recursive -b feature/ros2-environment https://github.com/tanushchauhan/sean3.git
 cd sean3
+./sean3 setup
+./sean3 build-player --unity /path/to/Unity-2022.3.62f3/Editor/Unity
+./sean3 run
 ```
 
-With `vcstool` installed and `vcs` available, import the pinned components:
+`setup` builds the ROS image, and fetches the components if the clone was not
+recursive. `run` starts ROS, Nav2 and the simulator; Ctrl+C stops all of them.
+See [docs/getting-started.md](docs/getting-started.md) for requirements,
+options, controls and troubleshooting.
 
-```sh
-mkdir -p sources
-vcs import sources < sean3.repos
-git -C sources/social_sim_unity submodule update --init --recursive
-git -C sources/social_sim_ros submodule update --init --recursive
-```
+## Documentation
 
-The imported repositories live under the ignored `sources/` directory. The Unity project is `sources/social_sim_unity`; the ROS repository is `sources/social_sim_ros`.
+| Folder | Contents |
+| --- | --- |
+| [docs/getting-started.md](docs/getting-started.md) | Setup, running, controls and troubleshooting |
+| [docs/roadmap.md](docs/roadmap.md) | Milestones |
+| [docs/validation.md](docs/validation.md) | Validation history and how to run the checks |
+| [docs/protocols](docs/protocols) | How each test is defined and run |
+| [docs/results](docs/results) | Dated result reports |
+| [docs/baseline.md](docs/baseline.md) | SEAN 2 starting revisions |
 
-Importing commit pins can leave component repositories at detached HEAD. Before editing, create a descriptive branch in the component you are changing, for example:
+## Contributing
 
-```sh
-git -C sources/social_sim_unity switch -c feature/orca-controller
-```
+Simulator changes go to the Unity fork and ROS changes to the ROS fork, on
+focused branches. Inside `sources/<component>`, check out a branch before
+editing (submodules start at a detached commit) and push it to the fork. Then
+commit the updated submodule in this repository, so the workspace pins the
+version that was tested. Record seeds, component commits and platform versions
+with any result. Keep recordings, scans, builds and credentials out of Git.
 
-Add upstream remotes once per component checkout:
+## License
 
-```sh
-git -C sources/social_sim_unity remote add upstream https://github.com/yale-sean/social_sim_unity.git
-git -C sources/social_sim_ros remote add upstream https://github.com/yale-sean/social_sim_ros.git
-```
-
-Installation of ROS, Unity, sensors, and navigation dependencies will be documented after the prototype review and platform selection. The legacy `sim_ws` remains a [reference](https://github.com/yale-sean/sim_ws), rather than a dependency of the new workspace.
-
-## Development workflow
-
-- Implement simulator changes in the Unity fork and ROS changes in the ROS fork.
-- Use focused branches and pull requests against the development forks.
-- Keep migration changes separate from pedestrian-controller changes so their effects can be evaluated independently.
-- Submit suitable fixes upstream; coordinate the ROS 2 migration with the upstream maintainers.
-- Record experiment configuration, random seeds, component commits, platform versions, and results when validating a combination.
-- Keep STEPS recordings, scan assets, generated builds, and local credentials outside Git. Document access and asset terms separately.
-
-See [ROADMAP.md](ROADMAP.md) for milestones and acceptance criteria and [BASELINE.md](BASELINE.md) for initial source revisions. The initial dependency pins are also tagged `sean2-baseline` in each development fork.
-
-## Attribution
-
-The two core SEAN repositories declare BSD-3-Clause licenses. Preserve their license files and attribution when modifying or redistributing them. Third-party code, Unity assets, avatars, and reconstructed environments may have separate terms; their availability is not implied by this workspace.
+The SEAN components are BSD-3-Clause; keep their license files and attribution.
+Third-party code, Unity assets, avatars and environments may have their own terms.
+SEAN was created by the Interactive Machines Group at Yale.

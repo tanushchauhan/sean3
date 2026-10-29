@@ -1,0 +1,11 @@
+# Derived from the recorded localhost/sean3-humble:dev image (ID 1f928d87...).
+# It installed tf2_ros 0.25.24 beside tf2 0.25.22. That pair deadlocks: waitForTransform
+# holds its timer lock while requesting tf2's request lock, and tf2 0.25.22 calls ready
+# callbacks under the request lock (fixed together upstream in 0.25.24, geometry2 #990).
+ARG BASE=localhost/sean3-humble:dev
+FROM ${BASE}
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ros-humble-tf2=0.25.24-1jammy.20260915.203746 \
+    && rm -rf /var/lib/apt/lists/* \
+    && test "$(dpkg-query -W -f='${Version}' ros-humble-tf2 | cut -d- -f1)" = \
+            "$(dpkg-query -W -f='${Version}' ros-humble-tf2-ros | cut -d- -f1)"

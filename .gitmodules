@@ -1,0 +1,8 @@
+[submodule "sources/social_sim_unity"]
+	path = sources/social_sim_unity
+	url = https://github.com/tanushchauhan/social_sim_unity.git
+	branch = feature/unity-2022-upgrade
+[submodule "sources/social_sim_ros"]
+	path = sources/social_sim_ros
+	url = https://github.com/tanushchauhan/social_sim_ros.git
+	branch = feature/ros2-port

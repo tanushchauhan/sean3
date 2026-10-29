@@ -1,6 +1,3 @@
-# Component checkouts are versioned independently and pinned in sean3.repos.
-/sources/
-
 # Local configuration and credentials
 .env
 .env.*
@@ -20,3 +17,15 @@
 /install/
 /log/
 .DS_Store
+
+# Python test output
+__pycache__/
+*.pyc
+
+# ROS validation overlay
+/ros_ws/
+
+# Launcher state, simulator builds and run logs
+/.sean3/
+/builds/
+/logs/

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-29",
+  "phase_a": "runtime_validated_bounded_baseline",
+  "phase_b": "core_implemented_production_wiring_pending",
+  "phase_c": "not_started",
+  "phase_d": "trained_checkpoint_not_designated",
+  "remote_evidence_directory": "/scratch/tchauhan/sean3/validation/controller-integration-20261029",
+  "local_evidence_directory": "/Users/tanushchauhan/Documents/Research/sean_3/sean3/.sean3/evidence/controller-integration-20261029",
+  "source_heads": {
+    "workspace": "cf69676f9e7f3183ba464498fcd27456cd8b7704",
+    "unity": "537ec00d06864e15611c804daf01437c11aa85e9",
+    "ros": "234262d28f7f426020fa198aa3f0dedefb04e117"
+  },
+  "changes_committed": false,
+  "changed_source_sha256": {
+    "../social_sim_unity/Assets/Scripts/SEAN/Scenario/Controllers/SceneController.cs": "203733ac9bf72ca9335bf27b8185ff821a3bfed44ebe8806c9b926024a23c0bd",
+    "../social_sim_unity/Assets/Scripts/SEAN/Scenario/Controllers/SEAN.Controllers.asmdef": "65b1a24c3bc3c594ccdaac345dd0162604caba84bc619c96a18bba5ccea546db",
+    "../social_sim_unity/Assets/Tests/Editor/SceneControllerTests.cs": "fc28936be390ec6effc6638ebc6aa3ecf6a783ed25ba5804217ebb21065241c4",
+    "../social_sim_unity/Assets/Tests/Editor/SEAN.Editor.Tests.asmdef": "7c2e2b1ddae662c6c0e5c9d6c904cdc4793e4262cc411ecd239e1d57cecc287b",
+    "configs/experiments/schema.json": "f04b61a19d6b9216e561c0a27998586ca0ee29e01824ff7bbcaef43e87eeb0a9",
+    "scripts/capture_source_inventory.py": "9b4f8285921f494d3be5036b838d57eef3df2214cff91978ad5d8fd75ebbc3bb"
+  },
+  "evidence_sha256": {
+    "unity-final.xml": "650df50a696bdb4a1dfb2768c243d628f6da6a4b1875c866ad6b0bab596ffb17",
+    "payload-verification.log": "33d9571986e6ee39ac19f25a4b33564cbb38ee00f907e4b2680ac03498d78a4f",
+    "baseline-player-manifest.txt": "beca66a1bc25e9cd08674caeb3f4c66d8602dc3b8350dd123979924178854a0a",
+    "navigation/navigation.json": "369a285f0d53128e04f725f1133e7ea4878b10d5df8e826fd9c539b08f49590c",
+    "navigation/lifecycle-logs.json": "382547709a03c0b208c34a1dcf7fedb335c892ca7b782d200883e7f4e7700a0a",
+    "encounters/summary.json": "63fc0213d51d7237944c90085552a6c6e2d25ab4d15447493dcfe164af2edadc",
+    "encounters/warehouse-navigation.json": "31f6c99f4f6ce48b6baff3c2f999f9e546ecf18168e2dfaa51b6c41c696464d7",
+    "encounters/lifecycle-logs.json": "40a277e3d13c4be8742d7d7d952b8c65fa6e0b85ae2819b54c9d86f312eb4e0f",
+    "encounters/script-log-audit.json": "76aa3b58148d89cc797ae408eba304f008308b708476e2db124fcf4e5d1c7a2e",
+    "source-inventory.json": "af9c4aa3215f8a2443a9ded7572f29f11b0bc9e34b3c76d5a6321ec8606cbfe5"
+  },
+  "checks": {
+    "unity": {
+      "passed": 66,
+      "new_contract_tests": 19
+    },
+    "python_harness": {
+      "local_passed": 54,
+      "remote_passed": 54
+    },
+    "baseline_navigation": {
+      "passed": 3,
+      "expected": 3
+    },
+    "baseline_encounters": {
+      "passed": 4,
+      "expected": 4,
+      "person_goals_completed": 16,
+      "nav2_actions_completed": 2,
+      "contacts": 0,
+      "headroom_demonstrated": false
+    },
+    "accepted_player_payloads": {
+      "verified": 175
+    }
+  },
+  "limits": [
+    "Runtime baseline uses previously accepted player, not a build of the new controller core.",
+    "Core tests use a planar fixture sink; no production avatar/transport/physics acceptance.",
+    "Remote pre-existing Rocketbox metadata dirtiness retained and inventoried.",
+    "No trained STARS checkpoint, calibrated STEPS transform or compatible inference environment established.",
+    "Experiment schema is not consumed by the launcher."
+  ]
+}

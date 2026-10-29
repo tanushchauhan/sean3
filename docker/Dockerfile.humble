@@ -1,0 +1,38 @@
+# ROS 2 Humble environment for the SEAN 3 ROS side (Ubuntu 22.04).
+# The Unity simulator runs on the host and connects over the ROS-TCP-Endpoint port.
+FROM osrf/ros:humble-desktop
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential git python3-colcon-common-extensions python3-rosdep python3-vcstool \
+        python3-pip xvfb \
+        ros-humble-navigation2 ros-humble-nav2-bringup \
+        ros-humble-slam-toolbox \
+        ros-humble-ros2-control ros-humble-ros2-controllers \
+        ros-humble-xacro ros-humble-tf2 ros-humble-tf2-ros ros-humble-tf2-tools \
+        ros-humble-pointcloud-to-laserscan \
+        ros-humble-rmw-cyclonedds-cpp \
+    && rm -rf /var/lib/apt/lists/* \
+    && test "$(dpkg-query -W -f='${Version}' ros-humble-tf2 | cut -d- -f1)" = \
+            "$(dpkg-query -W -f='${Version}' ros-humble-tf2-ros | cut -d- -f1)"
+# Mismatched tf2/tf2_ros 0.25.22/0.25.24 deadlocked Nav2's TF listener (see Dockerfile.humble-tf2).
+
+# ROS 2 endpoint revision used by the integration checks.
+ARG TCP_ENDPOINT_REF=54c1a64b6d5ef6ffa0a0431570bb74329b79b15b
+RUN mkdir -p /opt/sean3_ws/src && cd /opt/sean3_ws/src \
+    && git init ROS-TCP-Endpoint && cd ROS-TCP-Endpoint \
+    && git remote add origin https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git \
+    && git fetch --depth 1 origin ${TCP_ENDPOINT_REF} \
+    && git checkout --detach FETCH_HEAD
+
+# Loopback-only DDS: keeps traffic off the shared lab network and avoids multicast-less interface failures.
+COPY cyclonedds.xml /etc/cyclonedds.xml
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV CYCLONEDDS_URI=file:///etc/cyclonedds.xml
+WORKDIR /opt/sean3_ws
+RUN . /opt/ros/humble/setup.sh && colcon build --symlink-install
+
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bash"]

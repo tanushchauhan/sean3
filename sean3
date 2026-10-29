@@ -1,0 +1,450 @@
+#!/usr/bin/env python3
+"""Set up, check and run SEAN 3.
+
+  ./sean3 setup                 fetch sources, build the ROS image and overlay
+  ./sean3 build-player --unity /path/to/Editor/Unity
+  ./sean3 doctor                check that everything needed to run is present
+  ./sean3 run [options]         start ROS, Nav2 and the simulator; Ctrl+C stops all
+  ./sean3 next-task | reload-scene   control a running simulation
+"""
+
+import argparse
+import datetime
+import json
+import math
+import os
+import shutil
+import signal
+import socket
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+STATE = ROOT / '.sean3'
+OVERLAY = STATE / 'ros_ws'
+RUN_FILE = STATE / 'run.json'
+DEFAULT_IMAGE = 'sean3-humble:local'
+DEFAULT_PLAYER = ROOT / 'builds' / 'latest' / 'sean.x86_64'
+SCENES = {'warehouse': ('SEAN/Warehouse', True), 'lab': ('SEAN/Lab', False), 'outdoor': ('SEAN/Outdoor', False)}
+VIEWS = ('auto', 'first-person', 'third-person', 'overhead', 'top')
+ROS_SETUP = ('source /opt/ros/humble/setup.bash; source /opt/sean3_ws/install/setup.bash; '
+             'source /sean3_ws_overlay/install/setup.bash; ')
+
+
+class Failure(Exception):
+    """A problem the user can fix; printed without a traceback."""
+
+
+def say(message):
+    print(f'sean3: {message}', flush=True)
+
+
+def engine():
+    for name in ('docker', 'podman'):
+        if shutil.which(name):
+            return name
+    raise Failure('Neither docker nor podman is installed. Install one (rootless Podman works).')
+
+
+def capture(command, **kwargs):
+    return subprocess.run(command, capture_output=True, text=True, **kwargs)
+
+
+def ros_source(args):
+    path = Path(args.ros_source or ROOT / 'sources' / 'social_sim_ros').resolve()
+    if not (path / 'social_sim_ros' / 'package.xml').exists():
+        raise Failure(f'ROS sources not found at {path}. Run ./sean3 setup, or pass --ros-source.')
+    return path
+
+
+def check_image(args):
+    if capture([engine(), 'image', 'inspect', args.image]).returncode != 0:
+        raise Failure(f'ROS image {args.image} is missing. Run ./sean3 setup, or pass --image.')
+    versions = capture([engine(), 'run', '--rm', '--network', 'none', '--entrypoint', 'dpkg-query', args.image,
+                        '-W', '-f=${Version} ', 'ros-humble-tf2', 'ros-humble-tf2-ros'])
+    found = [v.split('-')[0] for v in versions.stdout.split()]
+    if len(found) != 2 or found[0] != found[1]:
+        raise Failure(f'ROS image {args.image} has tf2 and tf2_ros versions {found}; mismatched versions '
+                      'deadlock Nav2. Rebuild it with ./sean3 setup.')
+
+
+def check_overlay(args, build=True):
+    if (OVERLAY / 'install' / 'social_sim_ros').exists():
+        return
+    if not build:
+        raise Failure('The ROS overlay is not built. Run ./sean3 setup.')
+    build_overlay(args)
+
+
+def build_overlay(args):
+    OVERLAY.mkdir(parents=True, exist_ok=True)
+    say('Building social_sim_ros in the ROS image')
+    result = subprocess.run([engine(), 'run', '--rm', '--network', 'none',
+                             '-v', f'{OVERLAY}:/sean3_ws_overlay',
+                             '-v', f'{ros_source(args)}:/sean3_ws_overlay/src/social_sim_ros:ro', args.image,
+                             'bash', '-c', 'cd /sean3_ws_overlay && colcon build --packages-select social_sim_ros'])
+    if result.returncode != 0:
+        raise Failure('Building social_sim_ros failed; see the output above.')
+
+
+def check_player(args):
+    player = Path(args.player).resolve()
+    if not player.exists():
+        raise Failure(f'No simulator build at {player}. Build one with ./sean3 build-player --unity PATH, '
+                      'or pass --player.')
+    if not os.access(player, os.X_OK):
+        raise Failure(f'{player} is not executable.')
+    return player
+
+
+def check_port(port):
+    with socket.socket() as probe:
+        try:
+            probe.bind(('127.0.0.1', port))
+        except OSError:
+            raise Failure(f'Port {port} is in use, perhaps by another SEAN run. Pass --port.')
+
+
+def controller_player_args(args):
+    result = ['-pedestrian-controller', args.pedestrian_controller]
+    actuation = getattr(args, 'pedestrian_actuation', None) or (
+        'root_motion' if args.pedestrian_controller == 'social_forces' else 'velocity_body')
+    if args.pedestrian_controller != 'social_forces' and actuation != 'velocity_body':
+        raise Failure('Joint pedestrian controllers require velocity_body actuation.')
+    result += ['-pedestrian-actuation', actuation]
+    if args.pedestrian_controller == 'orca':
+        for name in ('decision_period', 'neighbor_distance', 'max_neighbors', 'agent_horizon', 'obstacle_horizon'):
+            value = getattr(args, 'orca_' + name)
+            if not math.isfinite(value) or value <= 0:
+                raise Failure(f'ORCA {name.replace("_", " ")} must be positive and finite.')
+            result += ['-orca-' + name.replace('_', '-'), str(value)]
+    return result
+
+
+def controller_announced(log, requested):
+    names = {'orca': 'ORCA', 'joint_test': 'JointTest', 'social_forces': 'SF'}
+    return log.is_file() and f'SEAN pedestrian controller: {names[requested]}' in log.read_text(errors='replace').splitlines()
+
+
+def actuation_announced(log, requested):
+    names = {'root_motion': 'AnimatedRootMotionV1', 'velocity_body': 'VelocityTargetsV1'}
+    return log.is_file() and f'SEAN pedestrian actuation: {names[requested]}' in log.read_text(errors='replace').splitlines()
+
+
+def display_mode(args):
+    if args.headless:
+        return 'headless'
+    if args.record or not os.environ.get('DISPLAY'):
+        if not shutil.which('xvfb-run'):
+            raise Failure('No display is available and xvfb-run is not installed. '
+                          'Install xvfb, run on a desktop, or pass --headless.')
+        return 'virtual'
+    return 'window'
+
+
+def setup(args):
+    if not (ROOT / 'sources' / 'social_sim_ros' / 'social_sim_ros').exists() and not args.ros_source:
+        say('Fetching the Unity and ROS components (git submodules) into sources/')
+        if subprocess.run(['git', '-C', str(ROOT), 'submodule', 'update', '--init', '--recursive']).returncode != 0:
+            raise Failure('Fetching the components failed; see the output above.')
+    if args.rebuild_image or capture([engine(), 'image', 'inspect', args.image]).returncode != 0:
+        say(f'Building ROS image {args.image} (this takes a while the first time)')
+        if subprocess.run([engine(), 'build', '-f', str(ROOT / 'docker' / 'Dockerfile.humble'),
+                           '-t', args.image, str(ROOT / 'docker')]).returncode != 0:
+            raise Failure('Building the ROS image failed; see the output above.')
+    check_image(args)
+    build_overlay(args)
+    say('Setup complete. Next: ./sean3 build-player --unity PATH, then ./sean3 run')
+
+
+def build_player(args):
+    unity = Path(args.unity)
+    if not unity.exists():
+        raise Failure(f'Unity editor not found at {unity}. SEAN 3 needs Unity 2022.3.62f3.')
+    project = Path(args.unity_source or ROOT / 'sources' / 'social_sim_unity').resolve()
+    if not (project / 'Assets').exists():
+        raise Failure(f'Unity project not found at {project}. Run ./sean3 setup, or pass --unity-source.')
+    commit = capture(['git', '-C', str(project), 'rev-parse', '--short', 'HEAD']).stdout.strip() or 'unknown'
+    out = ROOT / 'builds' / f'{commit}-{datetime.datetime.now():%Y%m%d-%H%M%S}'
+    say(f'Building the simulator into {out}')
+    if subprocess.run(['bash', str(ROOT / 'scripts' / 'build_unity_player.sh'), str(unity), str(project),
+                       str(out)]).returncode != 0:
+        raise Failure(f'The Unity build failed; see {out}.')
+    latest = ROOT / 'builds' / 'latest'
+    if latest.is_symlink() or latest.exists():
+        latest.unlink()
+    latest.symlink_to(out.name)
+    say(f'Built. builds/latest now points to {out.name}')
+
+
+def doctor(args):
+    checks = [('container engine', engine), ('ROS sources', lambda: ros_source(args)),
+              ('ROS image and tf2 versions', lambda: check_image(args)),
+              ('ROS overlay', lambda: check_overlay(args, build=False)), ('simulator build', lambda: check_player(args)),
+              ('TCP port', lambda: check_port(args.port)), ('display', lambda: display_mode(args))]
+    failed = 0
+    for label, check in checks:
+        try:
+            result = check()
+            print(f'  ok    {label}' + (f': {result}' if isinstance(result, str) else ''))
+        except Failure as error:
+            failed += 1
+            print(f'  FAIL  {label}: {error}')
+    if args.gpu and not shutil.which('vglrun'):
+        failed += 1
+        print('  FAIL  GPU: --gpu needs VirtualGL (vglrun)')
+    if failed:
+        raise Failure(f'{failed} check(s) failed.')
+    say('Ready to run.')
+
+
+class Run:
+    def __init__(self, args):
+        self.args = args
+        self.engine = engine()
+        stamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+        self.logs = Path(args.logs or ROOT / 'logs' / stamp).resolve()
+        self.container = f'sean3-run-{stamp}'
+        self.started = False
+        self.player = None
+        self.helpers = []
+
+    def exec_in_ros(self, name, command):
+        with open(self.logs / f'{name}.log', 'w') as handle:
+            process = subprocess.Popen([self.engine, 'exec', self.container, 'bash', '-c', ROS_SETUP + 'exec ' + command],
+                                       stdout=handle, stderr=subprocess.STDOUT)
+        self.helpers.append((name, process))
+
+    def endpoint_log(self):
+        result = capture([self.engine, 'logs', self.container])
+        return result.stdout + result.stderr
+
+    def wait_for(self, condition, seconds, failure):
+        deadline = time.monotonic() + seconds
+        while time.monotonic() < deadline:
+            if condition():
+                return
+            if self.player is not None and self.player.poll() is not None:
+                raise Failure(f'The simulator exited during startup (code {self.player.returncode}). '
+                              f'See {self.logs / "player.log"}.')
+            time.sleep(0.5)
+        raise Failure(failure)
+
+    def start(self):
+        args = self.args
+        scene, supported = SCENES[args.scene]
+        mode = display_mode(args)
+        player = check_player(args)
+        pedestrian_options = controller_player_args(args)
+        check_port(args.port)
+        check_image(args)
+        check_overlay(args)
+        if args.gpu and not shutil.which('vglrun'):
+            raise Failure('--gpu needs VirtualGL (vglrun).')
+        if not supported:
+            say(f'Warning: the {args.scene} scene has not been validated with SEAN 3 yet.')
+        self.logs.mkdir(parents=True, exist_ok=True)
+        say(f'Logs: {self.logs}')
+
+        source = ros_source(args)
+        result = capture([self.engine, 'run', '-d', '--stop-signal', 'SIGINT', '--name', self.container,
+                          '-p', f'127.0.0.1:{args.port}:10000', '-e', f'ROS_DOMAIN_ID={args.domain}',
+                          '-v', f'{OVERLAY}:/sean3_ws_overlay', '-v', f'{source}:/sean3_ws_overlay/src/social_sim_ros:ro',
+                          args.image, 'ros2', 'launch', 'social_sim_ros', 'sim_tcp_bridge.launch.py'])
+        if result.returncode != 0:
+            raise Failure(f'Could not start the ROS container: {result.stderr.strip()}')
+        self.started = True
+        STATE.mkdir(exist_ok=True)
+        RUN_FILE.write_text(json.dumps({'container': self.container, 'engine': self.engine, 'pid': os.getpid()}))
+        self.wait_for(lambda: 'Starting server on' in self.endpoint_log(), 60,
+                      'The ROS endpoint did not start within 60 s. See the container log.')
+
+        command = ['bash', str(ROOT / 'scripts' / 'run_unity_player.sh'), str(player),
+                   '-scene', scene, '-scenario', args.scenario, '-task', 'RandomABNav', '-seed', str(args.seed),
+                   '-ros-tcp-port', str(args.port), '-external-goals', '-completion-distance', '0',
+                   '-task-timeout-seconds', str(args.task_timeout), '-logFile', str(self.logs / 'player.log')]
+        command += pedestrian_options
+        if mode == 'headless':
+            command += ['-batchmode', '-nographics']
+        else:
+            command += ['-view', args.view, '-screen-fullscreen', '0', '-screen-width', '1280', '-screen-height', '720']
+            if args.gpu:
+                command = ['vglrun', '-d', args.gpu] + command
+        if mode in ('headless', 'virtual'):
+            wrapper = 'exec "$@"'
+            if args.record:
+                wrapper = ('ffmpeg -nostdin -loglevel error -f x11grab -framerate 10 -video_size 1280x720 '
+                           f'-i "$DISPLAY" -c:v libx264 -preset veryfast -pix_fmt yuv420p "{Path(args.record).resolve()}" '
+                           '& recorder=$!; "$@"; status=$?; kill -INT $recorder; wait $recorder; exit $status')
+            command = ['xvfb-run', '-a', '-s', '-screen 0 1280x720x24', 'bash', '-c', wrapper, 'bash'] + command
+        with open(self.logs / 'player-console.log', 'w') as console:
+            self.player = subprocess.Popen(command, stdout=console, stderr=subprocess.STDOUT, start_new_session=True)
+        say(f'Starting the simulator ({mode}, {args.scene}, scenario {args.scenario}, seed {args.seed})')
+        self.wait_for(lambda: 'Connection from' in self.endpoint_log(), args.connect_timeout,
+                      f'The simulator did not connect to ROS within {args.connect_timeout} s. '
+                      f'See {self.logs / "player.log"}.')
+
+        actuation = dict(zip(pedestrian_options[::2], pedestrian_options[1::2]))['-pedestrian-actuation']
+        if args.pedestrian_controller != 'social_forces' or actuation != 'root_motion':
+            self.wait_for(lambda: controller_announced(self.logs / 'player.log', args.pedestrian_controller)
+                          and actuation_announced(self.logs / 'player.log', actuation), 10,
+                          'The player did not confirm the requested pedestrian controller and actuator. '
+                          'Build a player with this controller; see player.log.')
+
+        if not args.no_nav2:
+            self.exec_in_ros('nav2', f'ros2 launch social_sim_ros nav2_kuri.launch.py scene:={args.scene}')
+            self.exec_in_ros('task-driver', 'ros2 run social_sim_ros sean_task_driver --ros-args '
+                             f'-p loop:={str(not args.no_loop).lower()}')
+        say('Running. ' + ('Press C in the window to switch views. ' if mode == 'window' else '')
+            + 'In another terminal: ./sean3 next-task or ./sean3 reload-scene. Ctrl+C stops everything.')
+
+    def watch(self):
+        while True:
+            if self.player.poll() is not None:
+                if self.player.returncode != 0:
+                    raise Failure(f'The simulator exited unexpectedly (code {self.player.returncode}). '
+                                  f'See {self.logs / "player.log"}.')
+                say('The simulator exited.')
+                return
+            if capture([self.engine, 'inspect', '-f', '{{.State.Running}}', self.container]).stdout.strip() != 'true':
+                raise Failure('The ROS container stopped unexpectedly. See endpoint.log in the logs directory.')
+            for name, process in self.helpers:
+                if process.poll() is not None:
+                    raise Failure(f'{name} stopped unexpectedly. See the logs directory.')
+            time.sleep(1)
+
+    def stop(self):
+        if not self.started and self.player is None:
+            return True
+        say('Stopping')
+        problems = []
+        if self.started:
+            # Interrupt the driver and Nav2 inside the container so they shut down cleanly.
+            for pattern in ('sean_task_driver', 'nav2_kuri.launch.py'):
+                capture([self.engine, 'exec', self.container, 'pkill', '-INT', '-f', pattern])
+            deadline = time.monotonic() + 20
+            for name, process in self.helpers:
+                try:
+                    process.wait(timeout=max(0.1, deadline - time.monotonic()))
+                except subprocess.TimeoutExpired:
+                    problems.append(f'{name} did not stop within 20 s')
+                    process.kill()
+        if self.player is not None and self.player.poll() is None:
+            group = os.getpgid(self.player.pid)
+            app = capture(['pgrep', '-g', str(group), '-x', Path(self.args.player).name]).stdout.split()
+            for pid in app or [str(self.player.pid)]:
+                os.kill(int(pid), signal.SIGTERM)
+            try:
+                self.player.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                problems.append('the simulator did not stop within 15 s')
+                os.killpg(group, signal.SIGKILL)
+                self.player.wait()
+        if self.started:
+            capture([self.engine, 'stop', '--time', '10', self.container])
+            (self.logs / 'endpoint.log').write_text(self.endpoint_log())
+            capture([self.engine, 'rm', self.container])
+            self.started = False
+        if RUN_FILE.exists():
+            RUN_FILE.unlink()
+        for problem in problems:
+            say(f'Warning: {problem}; it was forced to stop.')
+        say(f'Stopped. Logs: {self.logs}')
+        return not problems
+
+
+def run(args):
+    session = Run(args)
+    interrupted = []
+
+    def interrupt(signum, frame):
+        interrupted.append(signum)
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGTERM, interrupt)
+    # Ctrl+C must stop everything even when started from a script that ignores it.
+    signal.signal(signal.SIGINT, signal.default_int_handler)
+    try:
+        session.start()
+        session.watch()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        clean = session.stop()
+    return 0 if clean else 1
+
+
+def control(topic):
+    def send(args):
+        if not RUN_FILE.exists():
+            raise Failure('No SEAN 3 run is active.')
+        state = json.loads(RUN_FILE.read_text())
+        result = capture([state['engine'], 'exec', state['container'], 'bash', '-c', ROS_SETUP +
+                          f'ros2 topic pub --once {topic} std_msgs/msg/Bool "{{data: true}}"'])
+        if result.returncode != 0:
+            raise Failure(f'Could not reach the running simulation: {result.stderr.strip()}')
+        say('Sent.')
+    return send
+
+
+def main():
+    parser = argparse.ArgumentParser(prog='sean3', description=__doc__.splitlines()[0])
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument('--image', default=os.environ.get('SEAN3_IMAGE', DEFAULT_IMAGE), help='ROS image tag')
+    common.add_argument('--ros-source', help='social_sim_ros checkout (default sources/social_sim_ros)')
+    commands = parser.add_subparsers(dest='command', required=True)
+
+    command = commands.add_parser('setup', parents=[common], help='fetch sources, build the ROS image and overlay')
+    command.add_argument('--rebuild-image', action='store_true')
+    command.set_defaults(func=setup)
+
+    command = commands.add_parser('build-player', parents=[common], help='build the Unity simulator')
+    command.add_argument('--unity', required=True, help='Unity 2022.3.62f3 editor binary')
+    command.add_argument('--unity-source', help='Unity project (default sources/social_sim_unity)')
+    command.set_defaults(func=build_player)
+
+    for name, func in (('doctor', doctor), ('run', run)):
+        command = commands.add_parser(name, parents=[common], help='check prerequisites' if name == 'doctor' else 'run SEAN 3')
+        command.add_argument('--player', default=os.environ.get('SEAN3_PLAYER', str(DEFAULT_PLAYER)))
+        command.add_argument('--port', type=int, default=10000)
+        command.add_argument('--headless', action='store_true', help='no rendering (cameras do not publish)')
+        command.add_argument('--record', help='render on a virtual display and save a video to this file')
+        command.add_argument('--gpu', help='VirtualGL device for rendering, for example egl0')
+        command.set_defaults(func=func)
+        if name == 'run':
+            command.add_argument('--scene', choices=SCENES, default='warehouse')
+            command.add_argument('--scenario', choices=('None', 'Random'), default='None',
+                                 help='pedestrian scenarios validated with this launcher')
+            command.add_argument('--pedestrian-controller', choices=('social_forces', 'orca', 'joint_test'),
+                                 default='social_forces', help='pedestrian motion controller (joint_test has no avoidance)')
+            command.add_argument('--pedestrian-actuation', choices=('root_motion', 'velocity_body'),
+                                 help='default root_motion for Social Forces, velocity_body for joint controllers')
+            command.add_argument('--orca-decision-period', type=float, default=.1)
+            command.add_argument('--orca-neighbor-distance', type=float, default=5)
+            command.add_argument('--orca-max-neighbors', type=int, default=64)
+            command.add_argument('--orca-agent-horizon', type=float, default=2.5)
+            command.add_argument('--orca-obstacle-horizon', type=float, default=2.5)
+            command.add_argument('--seed', type=int, default=7)
+            command.add_argument('--view', choices=VIEWS, default='auto')
+            command.add_argument('--no-nav2', action='store_true', help='start ROS and the simulator only')
+            command.add_argument('--no-loop', action='store_true', help='stop after the first task')
+            command.add_argument('--task-timeout', type=float, default=3600)
+            command.add_argument('--connect-timeout', type=float, default=180)
+            command.add_argument('--domain', type=int, default=0, help='ROS_DOMAIN_ID inside the container')
+            command.add_argument('--logs', help='log directory (default logs/<time>)')
+
+    for name, topic in (('next-task', '/social_sim/control/task/new'), ('reload-scene', '/social_sim/control/scene/reload')):
+        commands.add_parser(name, help=f'publish {topic} in the running simulation').set_defaults(func=control(topic))
+
+    args = parser.parse_args()
+    try:
+        sys.exit(args.func(args) or 0)
+    except Failure as error:
+        say(f'error: {error}')
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

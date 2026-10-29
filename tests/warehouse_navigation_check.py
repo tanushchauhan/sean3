@@ -43,6 +43,8 @@ def main():
     for key,topic,cls in [('odom','/robot_odom',Odometry),('scan','/laser_raycast',LaserScan),('clock','/clock',Clock),('people','/social_sim/agents',AgentArray)]:
         node.create_subscription(cls,topic,lambda msg,k=key:receive(k,msg),qos_profile_sensor_data)
     node.create_subscription(OccupancyGrid,'/map',lambda msg:receive('map',msg),QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
+    node.create_subscription(OccupancyGrid,'/local_costmap/costmap',lambda msg:receive('local_costmap',msg),
+                             QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
     client=ActionClient(node,NavigateToPose,'/navigate_to_pose'); planner=ActionClient(node,ComputePathToPose,'/compute_path_to_pose')
     process=None; active=None
     def save(): output.write_text(json.dumps(report,indent=2)+'\n')
@@ -98,7 +100,10 @@ def main():
             episode['plan']=[[v.pose.position.x,v.pose.position.y] for v in planned.result.path.poses];episode['plan_status']=planned.status
             if planned.status!=4 or len(episode['plan'])<2:raise RuntimeError('No global plan')
             feedback=[]
-            def on_feedback(msg):feedback.append({'remaining':msg.feedback.distance_remaining,'recoveries':msg.feedback.number_of_recoveries})
+            def on_feedback(msg):
+                pos=latest['odom'].pose.pose.position
+                feedback.append({'remaining':msg.feedback.distance_remaining,'recoveries':msg.feedback.number_of_recoveries,
+                                 'simulation_time':node.get_clock().now().nanoseconds*1e-9,'robot':[pos.x,pos.y]})
             future=client.send_goal_async(goal,feedback_callback=on_feedback);wait(future.done,10,'navigation accepted');active=future.result()
             if not active.accepted:raise RuntimeError('Nav2 rejected route')
             scan_baseline=scan_totals.copy()
@@ -118,6 +123,23 @@ def main():
             status=result.result().status;pos=latest['odom'].pose.pose.position
             episode['scan_statistics']={k:v-scan_baseline[k] for k,v in scan_totals.items()}
             episode.update(status=status,final=[pos.x,pos.y],goal_error=math.dist((pos.x,pos.y),target),fresh_sensors=not stale and fresh(),stale_samples=stale_samples,wall_seconds=time.monotonic()-started,feedback=feedback)
+            # Preserve the latest received map before actors/container disappear.
+            # This is diagnostic evidence; it does not affect pass/fail gates.
+            costmap=latest.get('local_costmap')
+            if costmap is not None:
+                info=costmap.info; origin=info.origin
+                snapshot={'episode':index,'frame':costmap.header.frame_id,
+                          'stamp':costmap.header.stamp.sec+costmap.header.stamp.nanosec*1e-9,
+                          'captured_simulation_time':node.get_clock().now().nanoseconds*1e-9,
+                          'received_age_wall_seconds':time.monotonic()-received['local_costmap'],
+                          'robot':[pos.x,pos.y],'resolution':info.resolution,'width':info.width,'height':info.height,
+                          'origin':[origin.position.x,origin.position.y,origin.orientation.z,origin.orientation.w],
+                          'data':list(costmap.data)}
+                map_file=output.with_name(f'nav2-costmap-{index}.json')
+                map_file.write_text(json.dumps(snapshot,separators=(',',':'))+'\n')
+                episode['final_costmap']=map_file.name
+            else:
+                episode['final_costmap_missing']=True
             episode['passed']=status==4 and episode['goal_error']<=.4 and episode['fresh_sensors']
             (exchange/f'done-{index}').write_text(str(status)+'\n');active=None;save()
             print({k:v for k,v in episode.items() if k not in ('plan','feedback')},flush=True)

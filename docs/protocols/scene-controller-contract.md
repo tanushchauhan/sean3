@@ -6,7 +6,9 @@ The core is now connected to production animated avatars by the opt-in
 `JointAgent` and `JointControllerDriver` path. Social Forces retains its existing
 per-avatar `Update`, animation and physics. ORCA uses this shared path; the
 explicit `joint_test` option supplies a goal-following test double. No STARS
-inference or separate ROS worker transport has been implemented yet. See the
+inference has been implemented yet. A bounded local TCP worker and history
+buffer are available; see the [worker protocol](stars-worker.md). This does not
+provide full ROS lockstep. See the
 [controller protocol](pedestrian-controllers.md) for selection and assumptions.
 
 ## State and frames
@@ -64,8 +66,8 @@ snapshots/decisions when the ROS bridge is implemented.
 5. Call `Tick` on every physics boundary to enforce expiry and clock ordering.
    Advancing time with a pending response stops motion and faults the episode.
    Worker exceptions or invalid synchronous responses stop motion and require a
-   fresh reset. The eventual transport must enforce a bounded wall timeout and
-   call `Fail` on worker loss. Stop must clear pedestrian animation targets and
+   fresh reset. The socket transport bounds wall time; the driver calls `Fail`
+   on worker loss. Stop must clear pedestrian animation targets and
    rigidbody velocities, without touching the Nav2-owned robot.
 6. Reset uses a never-reused episode ID even though the simulator's ROS clock
    can remain continuous. Stop the sink before clearing controller history and
@@ -74,21 +76,20 @@ snapshots/decisions when the ROS bridge is implemented.
    a fixed-population STARS adapter must reject unsupported spawn/despawn.
 
 The core is single-threaded. The production driver makes one synchronous
-in-process call at its configured integer-physics-step cadence and applies
+controller call at its configured integer-physics-step cadence and applies
 zero-order-held velocity targets. It resets on the registered task's new-task
 event and population changes; scene destruction disposes it. Arbitrary task
-switching and separate worker transport still require lifecycle qualification.
-A remote worker's response must be marshalled to the simulation thread with a
-bounded wall timeout. The core alone does not establish lockstep Unity/ROS
-stepping; Nav2 remains an asynchronous external robot controller.
+switching still requires lifecycle qualification. The local socket adapter
+returns on the simulation thread with a bounded wall timeout. The core alone
+does not establish lockstep Unity/ROS stepping; Nav2 remains an asynchronous external robot controller.
 
 For STARS, derive decision cadence and observation/prediction lengths from the
 checkpoint configuration. Collect actual history while holding the actors at
 their declared starts during warm-up, label this initialization, and do not
 invent missing observations or move actors with another controller. Eight
 sample instants span seven sample intervals. Match supported preprocessing and
-masks before enabling inference. Warm-up and physical animation remain adapter
-work; no learned-model acceptance is claimed here.
+masks before enabling inference. The model-independent worker tests warm-up and
+physical animation; no learned-model acceptance is claimed here.
 
 ## Experiment configuration
 
@@ -115,6 +116,5 @@ the driver and checks achieved feedback, reset and worker-loss stopping.
 `OrcaControllerTests` adds crossing, robot, standing-person, wall/corner/doorway,
 order and lifecycle cases; geometry tests validate the boundary convention.
 The matched runtime encounter protocol extends these checks with actual Kuri
-and physical contact/goal measurements. Separate worker transport, full ROS
-lockstep, additional robot-policy arbitration and trained-model validation remain
-future gates. Preserve the default SF+Nav2 regression fixtures.
+and physical contact/goal measurements. Full ROS lockstep, additional robot-policy
+arbitration and trained-model validation remain future gates. Preserve the default SF+Nav2 regression fixtures.

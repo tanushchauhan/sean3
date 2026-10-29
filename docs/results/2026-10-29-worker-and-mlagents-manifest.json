@@ -1,0 +1,276 @@
+{
+  "date": "2026-10-29",
+  "sources": {
+    "worker_unity": "688d0e0b9086c65468987662aa945ae2a8d77e6c",
+    "worker_workspace_runtime": "8d39b246f3b91389605eb3102d7e922168b83169",
+    "diagnostic_fixture_runner": "3ab1626",
+    "navigation_player_unity": "aa7bf262fd977ddfa2bde04b15e867a0cf289173",
+    "ros": "234262d28f7f426020fa198aa3f0dedefb04e117"
+  },
+  "unity_tests": {
+    "id": "2",
+    "testcasecount": "84",
+    "result": "Passed",
+    "total": "84",
+    "passed": "84",
+    "failed": "0",
+    "inconclusive": "0",
+    "skipped": "0",
+    "asserts": "0",
+    "engine-version": "3.5.0.0",
+    "clr-version": "4.0.30319.42000",
+    "start-time": "2026-10-29 22:31:38Z",
+    "end-time": "2026-10-29 22:31:39Z",
+    "duration": "0.5601617",
+    "sha256": "34a3c0ce7c63c259e9bd4a698915f46d255200759dbb0536166fad4523dd9cad",
+    "assembly": "SEAN.Editor.Tests",
+    "python_worker_enabled": true
+  },
+  "workspace_tests": {
+    "passed": 69,
+    "failed": 0
+  },
+  "source_sha256": {
+    "runtime/stars_bridge.py": "cf980d12c363448eb72faa4e88a4e1eaee68756331d73542e2dc873afc478c77",
+    "tests/test_stars_bridge.py": "d123cf8dfef161af7d74c53236b4e5d5e691e35e8f1827bca8c14132807ae298",
+    "tests/warehouse_navigation_check.py": "2b301119b56671062769708ecc95e8046b5f4010715a6383be001f52f429acf0",
+    "tests/diagnose_warehouse_navigation.py": "dde5b6ef39816a23ca60a92e660193d15fc102e898630d201f746f9dfd30349a",
+    "experiments/mlagents/Assets/ProbeAgent.cs": "71449ef78e688c0fb7afe6b0499f24aa46bda34e03fda9231a701799fd6236be",
+    "experiments/mlagents/Assets/Editor/BuildProbe.cs": "26e221d530c20f52aae5135b927ef5f5b57b4431e7043eb9c8b05927d464ad46",
+    "experiments/mlagents/prepare.py": "7a4bc9a358d021129189d686e15ed8ff6863b763fc9d8cd526f1ddaec75f0687",
+    "experiments/mlagents/probe.yaml": "0a6c3a30b7083c423afe983823b4f25c01eb7c2a738ef33ff976a132a99061de",
+    "experiments/mlagents/requirements-tested.txt": "cbe9bf615c9795648b54b8b9c939f66efac19ad09e7bfd212debdcd65ff6ed63"
+  },
+  "mlagents": {
+    "host": "robovision.csres.utexas.edu",
+    "python": "3.10.12",
+    "unity": "2022.3.62f3",
+    "upstream": "7a03145ae48ad354821bd89e0243d99332149ace",
+    "unity_package": "3.0.0-exp.1",
+    "sentis": "1.2.0-exp.2",
+    "packages": {
+      "mlagents": "1.0.0",
+      "mlagents-envs": "1.0.0",
+      "torch": "2.1.1+cpu",
+      "numpy": "1.23.5",
+      "setuptools": "75.6.0"
+    },
+    "results": {
+      "initial_dependency_resolution": "failed: NumPy pin conflict",
+      "initial_trainer_startup": "failed: missing pkg_resources",
+      "training": "passed: 1032 steps, configured 1024",
+      "resume": "passed: 2064 steps, configured 2048",
+      "embedded_inference": "passed: 128 finite actions, no communicator"
+    },
+    "hashes": {
+      "build.log": "75619b575a457c9143278f7dcce54fa93938f3a6ed20ba3a7df5421edf3f4985",
+      "inference-build.log": "3e57c63fa4a3e8bb49e2e3b027b1a0e185ad393fdc18829cbbcd0862c2d73f58",
+      "train.log": "b270abd3db73c27a00e480de8bcdd6ad636b64533fac05a23a95cd292fd41a9a",
+      "train-02.log": "849a45eab507988d73f09c543352e1ea927269bcbb3f86d90656623fd365c24c",
+      "resume.log": "575b6ecc8e4b0b8fa6947929ec3cee57971f4b191f09175a2a6cd0f03efd6b1f",
+      "inference.log": "03700fdf3a41604405a0df69d0027a53150d5191c5da130caf3415a2622ac053",
+      "install.log": "95b82cef75dd0e379f5789cd188601acbeb5179cc5518318eeb54bc3b18b63cb",
+      "install-override.log": "924bd0303608b442ee8c1208f0daabaf3b027b52eeb3623783d20254502eb365",
+      "python-freeze.txt": "f8669eea37a466842260c8699fcb316850466efa16cc2dbbda94ff035fbbb0b8",
+      "project/Packages/packages-lock.json": "0d0573c3560d019af2032338892e96addba0dac198f7ae32e695d0fcab219190",
+      "source/Assets/ProbeAgent.cs": "cadfdadc5ae046e2d83a63c8a03fd2ed5fc850245407ddf9b1fd886bfee9d706",
+      "project/Assets/ProbeAgent.cs": "71449ef78e688c0fb7afe6b0499f24aa46bda34e03fda9231a701799fd6236be",
+      "source/Assets/Editor/BuildProbe.cs": "26e221d530c20f52aae5135b927ef5f5b57b4431e7043eb9c8b05927d464ad46",
+      "source/probe.yaml": "0a6c3a30b7083c423afe983823b4f25c01eb7c2a738ef33ff976a132a99061de",
+      "resume.yaml": "160933b6b4e41f324198fbf8b0e23029eb813fddf0ff6932bff856e210dfa28f",
+      "project/Assets/CompatibilityProbe.onnx": "153bad459b3fb375db24baf9eb2e066d2f3feb7ef2de035620348f4f68243110",
+      "results/compatibility-02/CompatibilityProbe.onnx": "31cc442bd938bd24d14febcb50bb569b2dc033333f056a1ac1117f694472ba5d",
+      "uv.tar.gz": "ccf643248118d5ed85698161e4456f384ff3ec1f20a9f89e4daa9f4de1b4ab6f",
+      "results/compatibility-02/CompatibilityProbe/CompatibilityProbe-1032.pt": "57c5063e7cc9c52d75d9412a4dc7c39fdfac8ce4043a1b3c005e51c085945c8c",
+      "results/compatibility-02/CompatibilityProbe/CompatibilityProbe-2032.pt": "d23ad258db450196793a060cc30b619feb7c5a98167d3617169a18a56664a7bf",
+      "results/compatibility-02/CompatibilityProbe/CompatibilityProbe-1532.pt": "811611ab5aa6ff4ed4b09b028d9fdc34043ac9c17b90d7274a7102292bb2e123",
+      "results/compatibility-02/CompatibilityProbe/CompatibilityProbe-2064.pt": "948b35dbf85f35c81ed250359b567c2900776a3c0ac6951d245980aa30bda59b",
+      "results/compatibility-02/CompatibilityProbe/checkpoint.pt": "e97cd5dd156f5c70410ad44805ee35a25db9ba06d982b066e07f5263283726d8",
+      "results/compatibility-02/CompatibilityProbe/CompatibilityProbe-1000.pt": "2789a0e0cb39d20d6cf3c4908474c9b984e0bd6f05efb4c515199982bd7c5830"
+    }
+  },
+  "original_orca": {
+    "navigation_radius_m": 0.6,
+    "inputs": {
+      "encounters.json": "f7dc662adfd1e25624ce49bf191835801729b7e40dc677ba4158e246e61d43e8",
+      "warehouse-navigation.json": "c44c5b756db7bb3c1e403eeb55b7dd4c253cf954b4668decb6c3434fffd3f27d",
+      "nav2.log": "d480d88cf7cd6f59c0120231e027147b5fb60d045d568d2ae0bbc3cd7ccd773a"
+    },
+    "episodes": [
+      {
+        "index": 2,
+        "status": 4,
+        "passed": true,
+        "goal_error_m": 0.3481824068210672,
+        "fresh_sensors": true,
+        "log_events": {
+          "detected collision ahead": 39,
+          "Controller patience exceeded": 4,
+          "spin failed": 1,
+          "Goal succeeded": 1
+        },
+        "max_reported_recoveries": 6,
+        "terminal_pose_start_seconds": 34.41999816894531,
+        "terminal_pose_duration_seconds": 0.0,
+        "final_physical_clearances_m": [
+          7.425284385681152,
+          7.405843257904053,
+          5.856454372406006,
+          5.872765064239502
+        ],
+        "final_navigation_circle_margins_m": [
+          6.985284245859765,
+          6.965842638877548,
+          5.416454093960235,
+          5.432764505834411
+        ],
+        "navigation_circle_is_approximation": true,
+        "physical_contacts": {
+          "robotPersonContacts": 0,
+          "robotObjectContacts": 0,
+          "personPersonContacts": 0,
+          "personObjectContacts": 0
+        }
+      },
+      {
+        "index": 3,
+        "status": 6,
+        "passed": false,
+        "goal_error_m": 6.710538900962174,
+        "fresh_sensors": true,
+        "log_events": {
+          "detected collision ahead": 146,
+          "Controller patience exceeded": 14,
+          "backup failed": 3,
+          "spin failed": 3,
+          "Goal failed": 1
+        },
+        "max_reported_recoveries": 22,
+        "terminal_pose_start_seconds": 18.419998168945312,
+        "terminal_pose_duration_seconds": 26.579994201660156,
+        "final_physical_clearances_m": [
+          1.186432123184204,
+          1.9796459674835205,
+          0.3662615418434143,
+          1.472014307975769
+        ],
+        "final_navigation_circle_margins_m": [
+          0.7464321676151283,
+          1.5396460028431043,
+          -0.07373841688170824,
+          1.0320144411403986
+        ],
+        "navigation_circle_is_approximation": true,
+        "physical_contacts": {
+          "robotPersonContacts": 0,
+          "robotObjectContacts": 0,
+          "personPersonContacts": 0,
+          "personObjectContacts": 0
+        }
+      }
+    ]
+  },
+  "diagnostic_repeat_orca": {
+    "navigation_radius_m": 0.6,
+    "inputs": {
+      "encounters.json": "e3995635c01cac6888a470670f38f5b12aa3b127535fa479ccbab8dccb615de7",
+      "warehouse-navigation.json": "02a9382ac247ece4f530ac5e4d39d5cb9a54f608b0e2e3e330aabd2dcfdbc10c",
+      "nav2.log": "031b2018e6d39edda5eb4bd227731ca8d4def44db10be83994f562617c3f063b"
+    },
+    "episodes": [
+      {
+        "index": 2,
+        "status": 4,
+        "passed": true,
+        "goal_error_m": 0.33312077694998354,
+        "fresh_sensors": true,
+        "log_events": {
+          "detected collision ahead": 49,
+          "Controller patience exceeded": 4,
+          "spin failed": 1,
+          "Goal succeeded": 1
+        },
+        "max_reported_recoveries": 6,
+        "terminal_pose_start_seconds": 42.79999542236328,
+        "terminal_pose_duration_seconds": 0.42000579833984375,
+        "final_physical_clearances_m": [
+          7.448332786560059,
+          7.481636047363281,
+          5.916932582855225,
+          6.177326679229736
+        ],
+        "final_navigation_circle_margins_m": [
+          7.00833228573762,
+          7.041635568075818,
+          5.4769322546321915,
+          5.737326760821367
+        ],
+        "navigation_circle_is_approximation": true,
+        "physical_contacts": {
+          "robotPersonContacts": 0,
+          "robotObjectContacts": 0,
+          "personPersonContacts": 0,
+          "personObjectContacts": 0
+        },
+        "final_costmap": {
+          "sha256": "52ac988e8687ef6ebb953ba69f7d99c0e81b2aab87aa347af7575add9923b26c",
+          "simulation_stamp_age_seconds": 2.384185791015625e-07,
+          "received_age_wall_seconds": 0.04122616536915302,
+          "nearest_lethal_cell_center_m": 2.273331072746937,
+          "lethal_cell_centers_inside_navigation_circle": 0,
+          "resolution_m": 0.05000000074505806
+        }
+      },
+      {
+        "index": 3,
+        "status": 4,
+        "passed": true,
+        "goal_error_m": 0.33486573586514634,
+        "fresh_sensors": true,
+        "log_events": {
+          "detected collision ahead": 40,
+          "Controller patience exceeded": 3,
+          "backup failed": 1,
+          "Goal succeeded": 1
+        },
+        "max_reported_recoveries": 5,
+        "terminal_pose_start_seconds": 39.980003356933594,
+        "terminal_pose_duration_seconds": 0.40000152587890625,
+        "final_physical_clearances_m": [
+          7.451273441314697,
+          7.446002006530762,
+          6.368999481201172,
+          5.914592266082764
+        ],
+        "final_navigation_circle_margins_m": [
+          7.011273176641351,
+          7.0060013309963285,
+          5.9289988682558015,
+          5.474592139036101
+        ],
+        "navigation_circle_is_approximation": true,
+        "physical_contacts": {
+          "robotPersonContacts": 0,
+          "robotObjectContacts": 0,
+          "personPersonContacts": 0,
+          "personObjectContacts": 0
+        },
+        "final_costmap": {
+          "sha256": "6f038ee52df17d26e2e59e21157876b520809605b34b0230cc90620186653706",
+          "simulation_stamp_age_seconds": 0.18000030517578125,
+          "received_age_wall_seconds": 0.2915894780308008,
+          "nearest_lethal_cell_center_m": 2.2739836673976215,
+          "lethal_cell_centers_inside_navigation_circle": 0,
+          "resolution_m": 0.05000000074505806
+        }
+      }
+    ]
+  },
+  "limitations": [
+    "No trained STARS model loaded or redistributed",
+    "No full ROS lockstep or new robot-policy owner",
+    "ML-Agents tested in isolated project, not installed in SEAN",
+    "ORCA repeat passed; original abort remains a failure with no deterministic reproduction",
+    "Original failing costmap was not captured; circular-envelope explanation is an inference"
+  ]
+}

@@ -17,7 +17,7 @@ def reset(episode='e'):
 
 
 def step(index, episode='e', position=0):
-    return dict(version=1, kind='step', episode=episode, sequence=index, time=index * .4,
+    return dict(version=1, kind='step', episode=episode, sequence=index, time=index * .4, time_token=repr(index * .4),
                 actors=[dict(id='robot', robot=True, active=True, position=[1, 2], velocity=[0, 0], max_speed=1),
                         dict(id='person', robot=False, active=True, position=[position, 0], velocity=[0, 0], max_speed=.6)])
 
@@ -71,7 +71,7 @@ class BridgeTests(unittest.TestCase):
                      lambda r: r['actors'][1].update(robot=True),
                      lambda r: r['actors'][1].update(position=[float('nan'), 0]),
                      lambda r: r['actors'][1].update(max_speed=-1),
-                     lambda r: r['actors'][1].update(id='robot')]
+                     lambda r: r['actors'][1].update(id='robot'), lambda r: r.update(time_token='NaN')]
         for mutate in mutations:
             with self.subTest(mutate=mutate):
                 session = Session(HoldTestDouble(), 3, .4)

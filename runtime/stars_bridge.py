@@ -97,8 +97,11 @@ class Session:
             return dict(version=VERSION, kind='reset', episode=episode)
         require(request.get('kind') == 'step' and episode == self.episode, 'Reset required before matching step')
         require(type(request.get('sequence')) is int and request['sequence'] == self.sequence + 1, 'Nonconsecutive sequence')
-        t = request.get('time')
-        require(finite(t) and t >= 0, 'Invalid simulation time')
+        token = request.get('time_token')
+        require(isinstance(token, str), 'Round-trip simulation timestamp required')
+        t = float(token)
+        require(finite(t) and t >= 0 and finite(request.get('time')) and abs(t-request['time']) <= 1e-6,
+                'Invalid simulation time')
         if self.history:
             require(abs(t - self.history[-1]['time'] - self.dt) < 1e-4, 'Missing/off-cadence actual observation')
         actors = request.get('actors')
@@ -129,7 +132,8 @@ class Session:
                 require(pair(velocity) and math.hypot(*velocity) <= a['max_speed'] + 1e-6,
                         'Invalid or excessive predictor velocity; clipping is forbidden')
         return dict(version=VERSION, kind='decision', episode=episode, sequence=self.sequence,
-                    time=t, valid_until=t + self.dt, ready=ready,
+                    time=t, time_token=token, valid_until=t + self.dt,
+                    valid_until_token=repr(t + self.dt), ready=ready,
                     targets=[dict(id=k, velocity=velocities[k]) for k in sorted(expected)])
 
 

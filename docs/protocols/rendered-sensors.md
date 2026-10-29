@@ -110,5 +110,5 @@ These checks do not establish camera throughput, physical photometric
 accuracy, the synchronous readback fallback, all image sizes/scenes, all
 depths/angles, moving-camera timing, camera survival through repeated resets,
 or participant recording quality. Navigation and transport lifecycle evidence
-remain separate. See [the October 27 sensor result](RENDERED_SENSOR_RESULT_2026-10-27.md)
+remain separate. See [the October 27 sensor result](../results/2026-10-27-rendered-sensors.md)
 for the tested revisions and bounded results.

@@ -6,7 +6,7 @@ in each sequence). The sequences cover seeds 7 and 42 three times each, seed
 1001, and five seeds not used before. Every route completed with zero Nav2
 recoveries, zero recorded contacts and at most 0.059 s of receipt-lag growth.
 No Nav2 process needed SIGTERM or SIGKILL at shutdown. See
-[LONG_NAVIGATION_RELIABILITY.md](LONG_NAVIGATION_RELIABILITY.md) for the
+[long-navigation reliability protocol](../protocols/long-navigation-reliability.md) for the
 diagnosis and the protocol, which was written before this campaign.
 
 This is a bounded result: one machine, one static scene without pedestrians,

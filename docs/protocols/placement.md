@@ -56,7 +56,7 @@ constrains navigation compatibility without asserting map/collider accuracy.
 
 Run Unity EditMode assembly `SEAN.Editor.Tests` with the pinned Linux editor.
 Build the committed candidate using `scripts/build_unity_player.sh` and verify
-its `player-tree.sha256`. See [VALIDATION.md](VALIDATION.md) for editor commands.
+its `player-tree.sha256`. See [validation history](../validation.md) for editor commands.
 On robovision, from `/scratch/tchauhan/sean3/sean3`:
 
 ```sh
@@ -89,7 +89,7 @@ It captures all four image streams, then optionally runs:
   Nav2 global plan to that task's goal. No placement is silently replaced.
 
 Run `tests/analyze_rendered_sensors.py RESULT/capture` separately, using the
-existing [sensor criteria](RENDERED_SENSORS.md). Inspect saved views as well as
+existing [sensor criteria](rendered-sensors.md). Inspect saved views as well as
 JSON. The navigation runner's strict mode fails on the first rejected placement
 instead of requesting a substitute; it drives short one-metre clear-path goals
 at startup, after a task reset, and after a scene reload.

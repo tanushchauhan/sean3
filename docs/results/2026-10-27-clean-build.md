@@ -67,7 +67,7 @@ Remote output: `/scratch/tchauhan/sean3/builds/clean-source-20261027T182807Z/`.
 | --- | --- |
 | Fresh committed checkout, clean recursive submodule, no Library/UserSettings | Passed |
 | Build provenance regressions / Python harness | Passed / 14 passed |
-| Unity build, 18:29:41–18:36:24 UTC | Exit 0; `Build Finished, Result: Success.` |
+| Unity build, 18:29:41-18:36:24 UTC | Exit 0; `Build Finished, Result: Success.` |
 | Linux executable / payload verification | Present and executable / all 175 hashes matched |
 | EditMode suite | 11 passed; XML checked; exit 0 |
 | Startup / task reset / scene reload navigation | All passed; runner exit 0 |
@@ -98,7 +98,7 @@ Remote output: `/scratch/tchauhan/sean3/builds/clean-source-20261027T184537Z/`.
 | Fresh checkout / recursive submodule | Clean, pinned to `7ae54ba` / `8aa27b9` |
 | Library / UserSettings before import | Both absent |
 | Build provenance regressions / Python harness | Passed / 14 passed |
-| Unity build, 18:47:26–18:53:42 UTC | Exit 0; `Build Finished, Result: Success.` |
+| Unity build, 18:47:26-18:53:42 UTC | Exit 0; `Build Finished, Result: Success.` |
 | Linux player / payload verification | Executable present / all 175 hashes matched |
 | Rocketbox callback exceptions / C# compilation errors | 0 / 0 observed |
 | EditMode XML | 12 passed, 0 failed/skipped/inconclusive; editor and XML-check exit 0 |
@@ -203,7 +203,7 @@ resumed run and the corrected-source run use separate new directories.
 The current resume point is the accepted corrected-source output at
 `20261027T184537Z`, pinned in `sean3-candidate.repos`. Keep all three attempts
 and their manifests. To repeat this milestone, use the commands in
-[CLEAN_BUILD.md](CLEAN_BUILD.md) and another new output directory, then run the
+[clean-build protocol](../protocols/clean-build.md) and another new output directory, then run the
 12-case `SEAN.Editor.Tests` assembly and the existing three-stage navigation
 runner. Further work on unused prefabs, rendering, animation, or transport
 requires separate validation; do not relabel those as covered here.

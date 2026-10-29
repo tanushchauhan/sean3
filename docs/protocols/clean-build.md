@@ -14,7 +14,7 @@ corrected candidate built from fresh committed source, verified all 175 payload
 hashes, passed 12 EditMode tests and all three navigation stages, and eliminated
 the 544 Rocketbox callback exceptions found in the first resumed run. Remaining
 unused-asset and editor diagnostics are classified in
-[CLEAN_BUILD_RESULT_2026-10-27.md](CLEAN_BUILD_RESULT_2026-10-27.md). This is not
+[clean-build result (2026-10-27)](../results/2026-10-27-clean-build.md). This is not
 an all-asset or all-scenario validation. Rendering remains unvalidated and
 transport teardown remains unclean.
 

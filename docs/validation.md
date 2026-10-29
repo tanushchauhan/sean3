@@ -11,7 +11,7 @@ routes: crowd blockage, Nav2 success beyond the 0.4 m gate, and two contacts.
 Receipt lag stayed below 0.17 s and transport was clean throughout. Unity
 `da6edb0` adds view switching and contact logging (47 EditMode tests pass) and
 ROS `fe9bd37` tightens the Kuri planner tolerance; campaign q03 passes 36 of 36
-routes on both. See [the result](VISUAL_EXPERIENCE_RESULT_2026-10-28.md).
+routes on both. See [the result](results/2026-10-28-visual-experience.md).
 
 ## Long-route reliability: October 28
 
@@ -23,7 +23,7 @@ and receipt-lag growth at most 0.059 s. Unity EditMode (46), harness (54),
 endpoint (12), Nav2 lifecycle and five laser-clearing controls pass on this
 image. The player is a cached, not clean-source, build. Earlier failures and
 diagnostic runs are retained. See
-[the result](LONG_NAVIGATION_RELIABILITY_RESULT_2026-10-28.md).
+[the result](results/2026-10-28-long-navigation-reliability.md).
 
 ## Multi-person Warehouse candidate: October 28
 
@@ -42,9 +42,9 @@ profile. No deadline or stall gate was relaxed. The controlled population result
 is valid separately; it does not establish broad reliability. Yielding clearance
 headroom is layout-dependent and fails the declared threshold in the aisle;
 no contact-rate advantage is demonstrated. See
-[WAREHOUSE_ENCOUNTERS_RESULT_2026-10-28.md](WAREHOUSE_ENCOUNTERS_RESULT_2026-10-28.md)
+[warehouse-encounter result (2026-10-28)](results/2026-10-28-warehouse-encounters.md)
 for all outcomes, rejected attempts, source/build provenance and remaining work;
-[WAREHOUSE_ENCOUNTERS.md](WAREHOUSE_ENCOUNTERS.md) gives the protocol. Historical
+[warehouse-encounter protocol](protocols/warehouse-encounters.md) gives the protocol. Historical
 results below retain their own versions and must not be read as later coverage.
 
 ## Pedestrian response to Kuri milestone: October 28
@@ -58,9 +58,9 @@ body clearance. The matched Legacy comparison and normal three-stage Warehouse
 navigation are recorded separately. All 42 Unity tests, 26 harness tests and
 175 final player payload checksums pass; every accepted run passes clean shutdown.
 
-See [PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md](PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md)
+See [pedestrian-avoidance result (2026-10-28)](results/2026-10-28-pedestrian-avoidance.md)
 for exact counts, contact-material ablation, source/build provenance, the failed first independent seed,
-rejected candidates and limitations; [PEDESTRIAN_AVOIDANCE.md](PEDESTRIAN_AVOIDANCE.md)
+rejected candidates and limitations; [pedestrian-avoidance protocol](protocols/pedestrian-avoidance.md)
 gives the protocol. This is a single-person open-floor response check using
 production Kuri, animated SFAgent and physics. It does not qualify populated
 Warehouse navigation or human realism. The player was built incrementally in
@@ -76,9 +76,9 @@ zero recovery actions, and no translation or bounded-motion stalls. Both runs
 passed clean shutdown. The final source passes 33 Unity, 22 harness, and 12
 endpoint tests; all 175 player payload checksums verified.
 
-See [LONG_NAVIGATION_RESULT_2026-10-27.md](LONG_NAVIGATION_RESULT_2026-10-27.md)
+See [long-navigation result (2026-10-27)](results/2026-10-27-long-navigation.md)
 for exact metrics, source/build provenance, failed attempts, and limitations;
-[LONG_NAVIGATION.md](LONG_NAVIGATION.md) gives the protocol. The actual robot is
+[long-navigation protocol](protocols/long-navigation.md) gives the protocol. The actual robot is
 Kuri; previous Jackal labels came from the ROS profile name. This candidate uses
 an ideal velocity body, physical object-contact counting, a dedicated RPP
 profile, full finite laser observations, and endpoint executor synchronization.
@@ -98,8 +98,8 @@ and no forced player kills. Six task resets and six scene reloads also pass the
 recorded graph, clock, drift, and resource-growth limits. Twenty further task
 resets and two scene reloads pass in the rendered placement sequence.
 
-See [TRANSPORT_RESULT_2026-10-27.md](TRANSPORT_RESULT_2026-10-27.md) and
-[TRANSPORT_LIFECYCLE.md](TRANSPORT_LIFECYCLE.md) for evidence and reproduction.
+See [transport result (2026-10-27)](results/2026-10-27-transport.md) and
+[transport-lifecycle protocol](protocols/transport-lifecycle.md) for evidence and reproduction.
 This resolves the earlier expected reload/exit transport diagnostics for the
 new paired pins. Historical reports below retain their original outcomes.
 General network-fault recovery, overload, full RPC interoperability, GPU resource
@@ -115,8 +115,8 @@ sequences, 46 real starts and goals pass independent ROS-map, height, freshness,
 and global-planning checks. Nine short driving episodes pass with zero fallback
 placement resets. Normal startup image capture now waits for task initialization.
 
-See [PLACEMENT_RESULT_2026-10-27.md](PLACEMENT_RESULT_2026-10-27.md) for source,
-results, preserved failures, and limits; [PLACEMENT.md](PLACEMENT.md) documents
+See [placement result (2026-10-27)](results/2026-10-27-placement.md) for source,
+results, preserved failures, and limits; [placement protocol](protocols/placement.md) documents
 reproduction and the pinned ROS-map constraint. Transport reload/exit errors,
 map/collider accuracy, arbitrary camera-boom clearance, long-task driving,
 populated scenarios, and participant workflows remain open.
@@ -131,8 +131,8 @@ payloads decoded; optical frames, calibration/timestamp pairing, depth, and five
 laser bearings met the recorded limits. All 16 Unity tests, 14 Python harness
 tests, 175 payload hashes, and three navigation stages pass.
 
-See [RENDERED_SENSOR_RESULT_2026-10-27.md](RENDERED_SENSOR_RESULT_2026-10-27.md)
-for evidence and limits and [RENDERED_SENSORS.md](RENDERED_SENSORS.md) for commands.
+See [rendered-sensor result (2026-10-27)](results/2026-10-27-rendered-sensors.md)
+for evidence and limits and [rendered-sensor protocol](protocols/rendered-sensors.md) for commands.
 This candidate was built from verified source diffs in the existing cached
 checkout; the clean-source result below remains specific to its earlier commit.
 The placement follow-up above corrects pre-task image sampling and constrains
@@ -155,7 +155,7 @@ checks passed. All 175 recorded player payload hashes verified. The complete
 log has zero Rocketbox callback exceptions after the guarded importer fix;
 the first resumed run had 544, including callbacks on required models.
 
-See [CLEAN_BUILD_RESULT_2026-10-27.md](CLEAN_BUILD_RESULT_2026-10-27.md) for the
+See [clean-build result (2026-10-27)](results/2026-10-27-clean-build.md) for the
 source/environment record, diagnostic classification, generated metadata review,
 functional results, and resume procedure. Authoritative accepted evidence:
 

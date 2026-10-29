@@ -1,4 +1,4 @@
-# Longer Warehouse navigation result — October 27, 2026
+# Longer Warehouse navigation result: October 27, 2026
 
 The bounded Kuri Warehouse milestone passes: six generated routes across seeds
 7 and 42 completed at startup, after task reset, and after scene reload. All six
@@ -55,7 +55,7 @@ The earlier clean-source milestone remains specific to its earlier source pins.
 
 ## Behavior changes and acceptance
 
-See [LONG_NAVIGATION.md](LONG_NAVIGATION.md) for the complete protocol and run
+See [long-navigation protocol](../protocols/long-navigation.md) for the complete protocol and run
 command. The player uses Warehouse / None / RandomABNav with Nav2 owning the
 actual generated goal. `-completion-distance 0` disables the legacy 1.2 m /
 five-second automatic reset; the task timeout remains 3,600 seconds and each
@@ -132,7 +132,7 @@ interrupted or relabelled from a partial result.
 | Player payload checksums | 175 / 175 matched |
 | Final component/tooling source comparison | 22 / 22 matched |
 
-The Unity suite ran 00:44:38–00:44:42 UTC October 28. Its runtime physics source
+The Unity suite ran 00:44:38-00:44:42 UTC October 28. Its runtime physics source
 matches the player; the geometry audit is test-only. The twelve endpoint tests
 ran before the final profile adjustment, with unchanged endpoint/test source.
 The six-pair resource-growth and rendered sensor suites were not rerun on this
@@ -150,10 +150,10 @@ run contributes to the six accepted cases above.
 | candidate2 | Reduced DWB rollout/horizon timed out with 14 recoveries; stopped. Old interruption JSON/log-checker weakness retained in evidence. |
 | candidate4 | Rotation shim first route timed out with 14 recoveries; subsequent task completed; run stopped, clean transport. |
 | candidate7 | Material applied to the wrong standalone Jackal asset; live Kuri small-command deadzone remained. Stopped; unrelated Jackal asset change reverted. |
-| candidate9 | Active Kuri material fixed. Seed7 passed 3/3; seed42 aborted all three after 263–288 seconds and 15 recoveries each. Build retained for later profile trials. |
+| candidate9 | Active Kuri material fixed. Seed7 passed 3/3; seed42 aborted all three after 263-288 seconds and 15 recoveries each. Build retained for later profile trials. |
 | candidate10 | RPP with the mismatched Jackal rectangle/old inflation failed all three seed42 routes through collision prediction. Initial path clearance about 0.495 m versus padded rectangle corner radius 0.690 m. |
 | candidate11 | Increased inflation: startup/scene passed, task timed out at 301 seconds. |
-| candidates12–13 | Audited Kuri circle: startup passed; task timed out with approximately 180-degree path-heading alternation. Scene reset exposed endpoint QoS-handle destruction race. |
+| candidates12-13 | Audited Kuri circle: startup passed; task timed out with approximately 180-degree path-heading alternation. Scene reset exposed endpoint QoS-handle destruction race. |
 | candidate14 | Lock-only endpoint fix starved registration; 15-second stress timeout. Replaced by registration-ready gate. |
 | candidate15 | All three seed42 actions completed with stock consistent replanning, but task had 46 seconds of bounded circling and correctly failed strict acceptance. Clean transport. |
 | candidate16 | Custom goal/failure-only route retention passed startup/task, then scene aborted with 12 recoveries and bounded-motion stalls. Custom tree removed from final source. |

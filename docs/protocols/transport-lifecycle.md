@@ -64,7 +64,7 @@ Run navigation separately with `SEAN_CHECK_MODE=navigation` and
 `SEAN_REQUIRE_CLEAR_START=1`. For rendered operation use
 `scripts/check_rendered_sensors.sh` with `SEAN_VGL_DEVICE=egl4`; adding
 `SEAN_PLACEMENT_RESETS=1` also exercises twenty task resets and two scene reloads.
-See [PLACEMENT.md](PLACEMENT.md) and [RENDERED_SENSORS.md](RENDERED_SENSORS.md).
+See [placement protocol](placement.md) and [rendered-sensor protocol](rendered-sensors.md).
 Use fresh result directories and only the owned player/container.
 
 Both runners now execute `tests/lifecycle_log_check.py` after shutdown. Acceptance

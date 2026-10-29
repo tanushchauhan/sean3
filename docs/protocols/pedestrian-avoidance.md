@@ -5,7 +5,7 @@ on an open floor outside the Warehouse geometry, within the Warehouse player.
 It isolates robot response from wall geometry and robot planning. It does not
 reproduce the outside-in project's multi-person Jackal benchmark.
 
-Use the paired source versions in the [dated result](PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md).
+Use the paired source versions in the [dated result](../results/2026-10-28-pedestrian-avoidance.md).
 The final combined-profile qualification uses the revision10 player and keeps every earlier
 attempt separate. See the result for outcomes, source/build provenance and limits.
 
@@ -177,7 +177,7 @@ attempts. The dated result retains outcomes and exact source/build provenance.
 | --- | --- |
 | Initial baseline | Invalid robot pose and queue overflow; stopped/excluded. |
 | Baseline2 | Valid original Legacy forces/contacts: 17/24 strict passes, two physics callbacks in one case, clean transport. |
-| Candidates1–5 | Partial force-model experiments rejected for wide or slow centred passes under the unchanged deadline. |
+| Candidates 1-5 | Partial force-model experiments rejected for wide or slow centred passes under the unchanged deadline. |
 | Candidate6 | Development24/24; first held-out12345 only10/12. Kept as a failed independent check. |
 | Candidate7 | All36 behavioral cases passed, but 6,083 queue warnings failed the full audit. |
 | Revision8 | Guard/pacing repaired. All48 cases at0.02 passed; larger-step only2/12 (no-robot controls), with no contacts. Later stages gated off. |

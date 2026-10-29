@@ -1,4 +1,4 @@
-# Rendered sensor result — October 27, 2026
+# Rendered sensor result: October 27, 2026
 
 The bounded rendered-camera and sensor-geometry baseline passes on robovision.
 This covers the configured Warehouse robot and a controlled measured target,
@@ -46,7 +46,7 @@ import; the earlier clean-source result remains evidence for `7ae54ba` only.
 
 Unity 2022.3.62f3 editor SHA256:
 `1ab357c16a84816ec7d4399d174f1e40769964879fa813a5c1139f63349f1f96`.
-The final build ran 19:31:43–19:32:30 UTC, exited zero, and reported success.
+The final build ran 19:31:43-19:32:30 UTC, exited zero, and reported success.
 All 175 payload hashes verified. Package manifest/lock hashes remained
 `ae9c2b53760a9b9e0e17d7721ef6757ada6aff2082878551207e9284a5a36e97` and
 `47744304bf01af280ab2f94f29f5a5913d231fa6d68ebac68ea0b99012a412ed`.
@@ -74,13 +74,13 @@ expected central depth about 2.0700 m and forward laser distance about 2.1200 m.
 The laser comparison also covers ±15° and ±30°. These small numerical errors
 compare simulated data with analytical target geometry; they are not evidence
 of physical sensor accuracy. Acceptance thresholds and decoding conventions are
-documented in [RENDERED_SENSORS.md](RENDERED_SENSORS.md).
+documented in [rendered-sensor protocol](../protocols/rendered-sensors.md).
 
 Each capture checks all four streams for valid 640×480 images, matching
 calibration dimensions/frames, paired timestamps, advancing time, no timestamp
 regressions, and freshness relative to the clock. Three images per stream are
 saved, and every subsequent received image is decoded. Software rendering
-yielded nine images per stream per measured capture; NVIDIA yielded 134–144.
+yielded nine images per stream per measured capture; NVIDIA yielded 134-144.
 The GPU runner caps the application at 30 fps, while publishers request 15 fps;
 these checks do not certify an achieved frame rate or real-time performance.
 
@@ -96,7 +96,7 @@ laser-frame or transform-filter failure was found in the final navigation logs.
 report were collected before the first task was initialized. Their occlusion
 does not establish that the subsequently sampled task start was inside shelving.
 The navigation runner did independently reject that start against the ROS map.
-See [the placement follow-up](PLACEMENT_RESULT_2026-10-27.md), which waits for a
+See [the placement follow-up](2026-10-27-placement.md), which waits for a
 settled initial task before saving camera samples and constrains both endpoints
 to the supported ROS map. The historical captures below remain unchanged.
 
@@ -135,7 +135,7 @@ synchronous readback fallback, arbitrary image sizes at runtime, changing poses,
 repeated camera resets, all depths/angles, Warehouse map/collider accuracy,
 photometric accuracy, throughput, participant control/recording, and ORCA remain
 outside this result. Earlier import/legacy asset findings remain recorded in
-[the clean-source report](CLEAN_BUILD_RESULT_2026-10-27.md).
+[the clean-source report](2026-10-27-clean-build.md).
 
 ## Evidence and reproduction
 
@@ -156,6 +156,6 @@ findings. They are not accepted runs. The final fixture uses an explicit shader
 resource, a two-metre target within the laser's 3.5 m range, and frozen physics
 without kinematic-body warnings.
 
-Use [RENDERED_SENSORS.md](RENDERED_SENSORS.md) to reproduce captures and analysis.
+Use [rendered-sensor protocol](../protocols/rendered-sensors.md) to reproduce captures and analysis.
 Set `SEAN_CAPTURE_RESET=1` for the additional post-reset Warehouse view. Use the
 existing navigation runner separately to repeat all three navigation stages.

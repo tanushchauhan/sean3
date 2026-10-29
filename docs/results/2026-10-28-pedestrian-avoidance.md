@@ -1,4 +1,4 @@
-# Pedestrian response to Kuri — October 28, 2026
+# Pedestrian response to Kuri: October 28, 2026
 
 The bounded open-floor Kuri response check passes: 60 checks completed
 within the unchanged 18-simulation-second deadline, with zero physical contact
@@ -118,7 +118,7 @@ pace improvements to the robot-force changes alone.
 
 ## Protocol and results
 
-See [PEDESTRIAN_AVOIDANCE.md](PEDESTRIAN_AVOIDANCE.md) for commands and rules.
+See [pedestrian-avoidance protocol](../protocols/pedestrian-avoidance.md) for commands and rules.
 The opt-in fixture loads the Warehouse player, then uses a separate open floor
 outside Warehouse geometry with real Kuri, production Rocketbox avatars,
 animator, SFAgent, runtime NavMesh planning, root motion and physics. It isolates
@@ -193,7 +193,7 @@ Update/Time.deltaTime integration. General frame-rate independence is unproven.
 - `baseline2`: valid original-force run; 17/24 strict passes, two physical
   callbacks in one moving-robot case, clean transport. Kept separately from the
   final same-player, three-seed Legacy comparison.
-- Candidates1–5: partial development runs rejected for oversized detours or
+- Candidates 1-5: partial development runs rejected for oversized detours or
   centred-approach deadline failures. Their source/build/trajectory evidence is
   retained. Changes are enumerated in the model-selection protocol.
 - Candidate6: 24/24 development cases passed, but initial held-out seed12345

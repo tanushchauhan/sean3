@@ -1,7 +1,7 @@
 # Long-route navigation reliability
 
 Protocol for the Warehouse / None / RandomABNav Kuri long routes, written before
-the qualification campaign. See [LONG_NAVIGATION.md](LONG_NAVIGATION.md) for the
+the qualification campaign. See [long-navigation protocol](long-navigation.md) for the
 route definition and per-route gates. The dated result reports actual outcomes.
 
 ## Diagnosis
@@ -102,7 +102,7 @@ separate overlay workspace (`ros_ws_tf2`) so build products are not mixed.
   reset and scene reload: seeds 7 and 42 three times each, seed 1001 once, plus
   five seeds not used before (2002, 3003, 4004, 5005, 6006) once each. Runs are
   interleaved to spread host-load conditions.
-- Every route must meet all gates in [LONG_NAVIGATION.md](LONG_NAVIGATION.md),
+- Every route must meet all gates in [long-navigation protocol](long-navigation.md),
   plus the receipt-lag gate. Each sequence's runner must exit zero, which
   includes transport, process-exit and Kuri-identity checks.
 - Nav2 child processes that need SIGTERM or SIGKILL at shutdown are counted and

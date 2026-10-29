@@ -1,4 +1,4 @@
-# Connection lifecycle result — October 27, 2026
+# Connection lifecycle result: October 27, 2026
 
 The bounded connection reload/shutdown milestone passes on robovision for the
 configured Warehouse / None / RandomABNav / Kuri fixture. Across a headless
@@ -51,7 +51,7 @@ display diagnostics.
 | ROS integration | `bf0ea37a4f1eac53ae8a995d7a7d5276ecdc7712` |
 | Rocketbox | `8aa27b9765284e01be88b1eed18ece55af5b7c5c` (unchanged) |
 
-The Linux player was built 21:41:37–21:44:16 UTC from the existing cached checkout
+The Linux player was built 21:41:37-21:44:16 UTC from the existing cached checkout
 at base HEAD `fa63861` plus these source changes. Its manifest records that base
 and the tracked diff, not the later commit `4e9371c` as build-time HEAD. All three
 Unity source/metadata files and all four ROS source/license/build files were
@@ -147,7 +147,7 @@ accepted runs; older unrelated processes were not touched.
 
 ## Evidence and reproduction
 
-See [TRANSPORT_LIFECYCLE.md](TRANSPORT_LIFECYCLE.md) for protocol ownership,
+See [transport-lifecycle protocol](../protocols/transport-lifecycle.md) for protocol ownership,
 acceptance criteria, commands, and test coverage. Authoritative evidence:
 
 - `/scratch/tchauhan/sean3/validation/transport/20261027-candidate9/`

@@ -122,7 +122,7 @@ separate failed evidence. See the dated result for live acceptance.
 From `/scratch/tchauhan/sean3/sean3`, with no other run sharing the overlay.
 Use the tf2-matched image and its own overlay workspace; the earlier `:dev`
 image pairs tf2 0.25.22 with tf2_ros 0.25.24, which can deadlock Nav2's TF
-listener (see [LONG_NAVIGATION_RELIABILITY.md](LONG_NAVIGATION_RELIABILITY.md)):
+listener (see [long-navigation reliability protocol](long-navigation-reliability.md)):
 
 ```sh
 SEAN_ROS_IMAGE=localhost/sean3-humble:tf2-0.25.24 SEAN_CHECK_MODE=long-navigation \

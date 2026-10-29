@@ -16,7 +16,7 @@ long-route campaign passes again with those changes (36 of 36 routes).
 
 ## 1. Encounter rerun (gate)
 
-The unchanged 80-case protocol in [WAREHOUSE_ENCOUNTERS.md](WAREHOUSE_ENCOUNTERS.md),
+The unchanged 80-case protocol in [warehouse-encounter protocol](../protocols/warehouse-encounters.md),
 with the same runner and analyzer, on the new player and image.
 
 | Stage | Seeds | Step s | Cases passed | Nav2 successes | Maximum case s | Earlier maximum s |
@@ -38,7 +38,7 @@ held-out difference was not investigated.
 
 ## 2. Rendered sensors
 
-The measured-target fixture in [RENDERED_SENSORS.md](RENDERED_SENSORS.md) at
+The measured-target fixture in [rendered-sensor protocol](../protocols/rendered-sensors.md) at
 headings 0, 90 and 180 degrees, NVIDIA OpenGL through VirtualGL (`egl4`).
 All three captures pass the analyzer with no failed checks: image decoding and
 dimensions, calibration, optical-frame transforms, marker projection, depth

@@ -1,4 +1,4 @@
-# Multi-person Warehouse result — October 28, 2026
+# Multi-person Warehouse result: October 28, 2026
 
 The clean-source candidate passes **80 controlled four-person encounter cases**
 (320 person routes), including sixteen actual Nav2 actions, with zero recorded
@@ -23,7 +23,7 @@ not a generally reliable simulator release or a validated controller benchmark.
 
 The player was built from a new committed-source clone, with a clean checkout,
 exact submodules and no Library before import. Dirty origin metadata was recorded
-without copying it. The build ran 18:31:54–18:38:25 UTC October 28, exited zero,
+without copying it. The build ran 18:31:54-18:38:25 UTC October 28, exited zero,
 and retained its manifest, full import/build log, source inventories and payload
 hashes. All 175 payload files verified after the runs. The recorded environment
 was reused; this is not an immutable-environment or bit-identical-build claim.
@@ -69,8 +69,8 @@ was observed. All sixteen actions returned SUCCEEDED with fresh required inputs.
 All five conditions have sixteen passing cases and zero robot/person contacts,
 including the oblivious robot. Therefore this fixture demonstrates no contact-rate
 advantage for yielding or Nav2. Yielding improves sampled clearance relative to
-oblivious by 1.028–1.090 m at the rack end, with about 2.32–5.26 seconds of added
-robot delay. In the aisle, the benefit is 0.057–0.099 m, below the declared 0.10 m
+oblivious by 1.028-1.090 m at the rack end, with about 2.32-5.26 seconds of added
+robot delay. In the aisle, the benefit is 0.057-0.099 m, below the declared 0.10 m
 headroom threshold, while adding about eight seconds of delay. The all-pairs
 headroom result is false at all three stages. The threshold was not reduced.
 
@@ -85,13 +85,13 @@ The fixture uses actual Warehouse racks, floor and baked NavMesh, production
 animated SFAgents, the existing ColliderV1 forces and VelocityBodyV1 contacts,
 0.6 m/s desired walking speed and a 0.3 m/s ideal Kuri velocity body. No force,
 material, speed, deadline or acceptance threshold was retuned for these results.
-See [the protocol](WAREHOUSE_ENCOUNTERS.md) for exact layouts and acceptance.
+See [the protocol](../protocols/warehouse-encounters.md) for exact layouts and acceptance.
 
 | Attempts | Outcome and treatment |
 | --- | --- |
-| 1–2 | Fixture authoring/namespace errors; no accepted live result. |
+| 1-2 | Fixture authoring/namespace errors; no accepted live result. |
 | 3 | Bootstrap destroyed the diagnostic owner; corrected persistence. |
-| 4–5 | Proposed coordinates rejected by the actual NavMesh; mesh audited before walking. |
+| 4-5 | Proposed coordinates rejected by the actual NavMesh; mesh audited before walking. |
 | 6 | Three of four no-robot controls missed the deadline because terminal arrivals blocked trailing people. Version3 orders terminal goals downstream; dense terminal queues remain unqualified. |
 | 7 | Full development attempt rejected: Nav2 yaw was frozen and a duplicate report write blocked live input. Four corner goal failures and one freshness failure retained. |
 | 8 | Superseded clean build completed but was not qualified after the yaw defect was identified. |

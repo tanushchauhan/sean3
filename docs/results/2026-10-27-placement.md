@@ -1,4 +1,4 @@
-# Warehouse placement result — October 27, 2026
+# Warehouse placement result: October 27, 2026
 
 The bounded Warehouse random-task placement milestone passes on robovision.
 The supported None / RandomABNav / Kuri configuration now chooses starts and
@@ -50,7 +50,7 @@ revision `23da99e3e1ddd9a99550665535935487ecc935d4`. Final candidate
 and its regression test. ROS remains `2ac78a303d323fbce0caad83555dbe940cc40435`;
 Rocketbox remains `8aa27b9765284e01be88b1eed18ece55af5b7c5c` from the approved fork.
 
-The final player build ran 20:36:16–20:36:49 UTC with source HEAD `fa63861` before
+The final player build ran 20:36:16-20:36:49 UTC with source HEAD `fa63861` before
 and after, exited zero, and reported success. All 175 payload hashes verified.
 All thirteen changed/new source and metadata files were verified byte-for-byte
 before aligning the remote branch/index; working files were retained. Existing
@@ -95,7 +95,7 @@ All 46 real starts and goals passed the 0.6 m ROS-map check, and every actual
 generated task goal received a successful Nav2 global plan with more than one
 pose. This checks planning, not execution of those long routes. The nine driven
 smoke-test goals were one metre from their starts: displacements were
-0.6503–0.6548 m and goal errors 0.3453–0.3498 m. Their acceptance thresholds were
+0.6503-0.6548 m and goal errors 0.3453-0.3498 m. Their acceptance thresholds were
 at least 0.5 m displacement and at most 0.4 m final error.
 
 First-, third-person, and overhead samples were visually inspected for both
@@ -131,7 +131,7 @@ not accepted results.
 
 ## Evidence and reproduction
 
-See [PLACEMENT.md](PLACEMENT.md) for constraints, snapshot regeneration, commands,
+See [placement protocol](../protocols/placement.md) for constraints, snapshot regeneration, commands,
 and acceptance criteria. Authoritative evidence on robovision:
 
 - `/scratch/tchauhan/sean3/validation/placement/20261027-probe/` through `20261027-probe4/`

@@ -7,8 +7,7 @@ Everything goes through the `./sean3` script at the top of this repository.
 
 - Linux x86_64. SEAN 3 is developed on Ubuntu with an NVIDIA GPU.
 - Docker or rootless Podman, for the ROS 2 Humble side.
-- Python 3.8 or newer, Git, and [vcstool](https://github.com/dirk-thomas/vcstool)
-  (`pip install vcstool`).
+- Python 3.8 or newer and Git.
 - Unity 2022.3.62f3 with a license, to build the simulator.
 - For a window: a desktop session. On a server, `xvfb` gives a virtual display
   and `ffmpeg` records it. VirtualGL (`vglrun`) lets a server render on its GPU.
@@ -16,15 +15,16 @@ Everything goes through the `./sean3` script at the top of this repository.
 ## 1. Set up
 
 ```sh
-git clone https://github.com/tanushchauhan/sean3.git
+git clone --recursive -b feature/ros2-environment https://github.com/tanushchauhan/sean3.git
 cd sean3
-git switch feature/ros2-environment
 ./sean3 setup
 ```
 
-`setup` fetches the pinned Unity and ROS repositories into `sources/`, builds
-the ROS image `sean3-humble:local` (several minutes the first time) and builds
-the ROS package. It is safe to run again.
+The clone brings the Unity and ROS components into `sources/` as git submodules
+(the Unity project is large, so this takes a while). `setup` builds the ROS image
+`sean3-humble:local` (several minutes the first time) and the ROS package. If you
+cloned without `--recursive`, `setup` fetches the components first. It is safe to
+run again.
 
 ## 2. Build the simulator
 

@@ -328,7 +328,7 @@ robot calibration or a navigation-performance claim.
 
 ## Versions
 
-Component commits are pinned in `sean3-candidate.repos`.
+Component commits are pinned by the `sources/` submodules.
 
 - Unity: 2022.3.62f3.
 - ROS-TCP-Connector: v0.7.0.
@@ -346,7 +346,7 @@ these tests do not establish that all assets import identically from a clean clo
 
 ## ROS checks
 
-From this repository, with components imported into `sources/`:
+From this repository, with the `sources/` submodules checked out:
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py'

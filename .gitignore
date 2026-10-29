@@ -1,6 +1,3 @@
-# Component checkouts are versioned independently and pinned in sean3.repos.
-/sources/
-
 # Local configuration and credentials
 .env
 .env.*

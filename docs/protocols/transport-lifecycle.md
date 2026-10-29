@@ -1,7 +1,7 @@
 # Connection lifecycle checks
 
 The transport candidate upgrades the Unity connector and ROS endpoint together.
-Use the paired revisions in `sean3-candidate.repos`. The endpoint adaptation is
+Use the paired revisions pinned by the `sources/` submodules. The endpoint adaptation is
 installed by the existing ROS package; no new upstream repository or image
 is required. It retains the pinned endpoint protocol and adds a local
 `__disconnect` command for orderly closure. An older upstream endpoint does not

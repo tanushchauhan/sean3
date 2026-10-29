@@ -15,8 +15,8 @@ the Docker setup, run and test scripts, and documents every validation result.
 | ROS 2 integration | [social_sim_ros](https://github.com/tanushchauhan/social_sim_ros) | [yale-sean/social_sim_ros](https://github.com/yale-sean/social_sim_ros) |
 | Workspace | this repository | |
 
-`sean3-candidate.repos` pins the current development versions; `sean3.repos`
-pins the original SEAN 2 revisions.
+The two components are git submodules under `sources/`, pinned to the versions
+this workspace was tested with. `sean3.repos` records the original SEAN 2 revisions.
 
 ## Status
 
@@ -37,19 +37,17 @@ reports in [docs/results](docs/results).
 ## Quick start
 
 ```sh
-git clone https://github.com/tanushchauhan/sean3.git
+git clone --recursive -b feature/ros2-environment https://github.com/tanushchauhan/sean3.git
 cd sean3
-git switch feature/ros2-environment
 ./sean3 setup
 ./sean3 build-player --unity /path/to/Unity-2022.3.62f3/Editor/Unity
 ./sean3 run
 ```
 
-`setup` fetches the components into `sources/` and builds the ROS image.
-`run` starts ROS, Nav2 and the simulator; Ctrl+C stops all of them. See
-[docs/getting-started.md](docs/getting-started.md) for requirements, options,
-controls and troubleshooting. To change a component, create a branch in its
-`sources/` checkout first, since the pins leave it at a detached HEAD.
+`setup` builds the ROS image, and fetches the components if the clone was not
+recursive. `run` starts ROS, Nav2 and the simulator; Ctrl+C stops all of them.
+See [docs/getting-started.md](docs/getting-started.md) for requirements,
+options, controls and troubleshooting.
 
 ## Documentation
 
@@ -65,8 +63,11 @@ controls and troubleshooting. To change a component, create a branch in its
 ## Contributing
 
 Simulator changes go to the Unity fork and ROS changes to the ROS fork, on
-focused branches. Record seeds, component commits and platform versions with
-any result. Keep recordings, scans, builds and credentials out of Git.
+focused branches. Inside `sources/<component>`, check out a branch before
+editing (submodules start at a detached commit) and push it to the fork. Then
+commit the updated submodule in this repository, so the workspace pins the
+version that was tested. Record seeds, component commits and platform versions
+with any result. Keep recordings, scans, builds and credentials out of Git.
 
 ## License
 

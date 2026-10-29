@@ -45,7 +45,7 @@ scripts/clean_build_unity_player.sh \
   /scratch/tchauhan/sean3/builds/clean-source-<run-id>
 ```
 
-The commit above is the current Unity revision in `sean3-candidate.repos`;
+The commit above was the Unity revision pinned at the time;
 confirm it still matches the intended candidate before running. Choose a unique
 run ID and do not create the output path beforehand. Do not edit source,
 metadata, package pins, or Unity settings in the fresh output checkout before

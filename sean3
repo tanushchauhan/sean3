@@ -118,17 +118,10 @@ def display_mode(args):
 
 
 def setup(args):
-    if not (ROOT / 'sources' / 'social_sim_ros').exists() and not args.ros_source:
-        if not shutil.which('vcs'):
-            raise Failure('vcstool is needed to fetch the sources: pip install vcstool')
-        say('Fetching the pinned component repositories into sources/')
-        (ROOT / 'sources').mkdir(exist_ok=True)
-        with open(ROOT / 'sean3-candidate.repos') as repos:
-            if subprocess.run(['vcs', 'import', str(ROOT / 'sources')], stdin=repos).returncode != 0:
-                raise Failure('Fetching sources failed; see the output above.')
-        for name in ('social_sim_unity', 'social_sim_ros'):
-            subprocess.run(['git', '-C', str(ROOT / 'sources' / name), 'submodule', 'update', '--init', '--recursive'],
-                           check=True)
+    if not (ROOT / 'sources' / 'social_sim_ros' / 'social_sim_ros').exists() and not args.ros_source:
+        say('Fetching the Unity and ROS components (git submodules) into sources/')
+        if subprocess.run(['git', '-C', str(ROOT), 'submodule', 'update', '--init', '--recursive']).returncode != 0:
+            raise Failure('Fetching the components failed; see the output above.')
     if args.rebuild_image or capture([engine(), 'image', 'inspect', args.image]).returncode != 0:
         say(f'Building ROS image {args.image} (this takes a while the first time)')
         if subprocess.run([engine(), 'build', '-f', str(ROOT / 'docker' / 'Dockerfile.humble'),

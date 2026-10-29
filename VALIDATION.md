@@ -1,5 +1,16 @@
 # Migration validation
 
+## Visual experience: October 28
+
+On the long-route stack (Unity `1fec526` c01 player, image
+`localhost/sean3-humble:tf2-0.25.24`), the 80-case encounter matrix passes again
+(16/16 Nav2 actions, zero contacts) and the rendered sensor fixture passes at
+three headings on NVIDIA OpenGL. A visible empty-Warehouse run passes 3 of 3
+routes. Visible and headless runs with 65 `Random` pedestrians pass 3 of 9
+routes: crowd blockage, Nav2 success beyond the 0.4 m gate, and two contacts.
+Receipt lag stayed below 0.17 s and transport was clean throughout. See
+[the result](VISUAL_EXPERIENCE_RESULT_2026-10-28.md).
+
 ## Long-route reliability: October 28
 
 Unity `1fec526`, ROS `cceff5b`, tooling `e6320a2` and image

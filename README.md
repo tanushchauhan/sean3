@@ -26,6 +26,13 @@ with these changes. The 80 encounter cases use controlled stepping at Unity
 and the declared clearance-benefit threshold was not met in the aisle. This is a
 development baseline, not a release or a validated controller benchmark.
 
+**Step 3 visual check (October 28).** On the same stack, the 80 encounter
+cases and the three-heading sensor fixture pass again, and a visible Warehouse
+run passes all three routes. With the 65-person `Random` scenario, rendering and
+transport stay healthy but Nav2 completes only 3 of 9 routes, with two contacts.
+The release Warehouse has no camera-switching control. See the
+[visual result](VISUAL_EXPERIENCE_RESULT_2026-10-28.md).
+
 The earlier [single-person pedestrian result](PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md)
 passes 60 open-floor checks and explains ColliderV1's body geometry, braking and
 sidestepping corrections. The new milestone preserves that model and repairs

@@ -21,7 +21,19 @@ image=${SEAN_ROS_IMAGE:-localhost/sean3-humble:dev}; port=${SEAN_TCP_PORT:-10333
 seeds=${SEAN_ENCOUNTER_SEEDS:-7,42}; step=${SEAN_ENCOUNTER_STEP:-0.02}
 laser=${SEAN_LASER_NO_RETURN:-PositiveInfinity}
 layouts=${SEAN_ENCOUNTER_LAYOUTS:-aisle,rack_end}; modes=${SEAN_ENCOUNTER_MODES:-absent,parked,yielding,oblivious,nav2}
+pedestrian_controller=${SEAN_PEDESTRIAN_CONTROLLER:-social_forces}
+case "$pedestrian_controller" in social_forces|orca) ;; *) echo 'Unsupported encounter pedestrian controller' >&2; exit 2 ;; esac
+orca_options=()
+if [ "$pedestrian_controller" = orca ]; then
+    orca_options=(-orca-decision-period "${SEAN_ORCA_DECISION_PERIOD:-0.1}"
+        -orca-neighbor-distance "${SEAN_ORCA_NEIGHBOR_DISTANCE:-5}"
+        -orca-max-neighbors "${SEAN_ORCA_MAX_NEIGHBORS:-64}"
+        -orca-agent-horizon "${SEAN_ORCA_AGENT_HORIZON:-2.5}"
+        -orca-obstacle-horizon "${SEAN_ORCA_OBSTACLE_HORIZON:-2.5}")
+fi
 printf 'scene=Warehouse\nseeds=%s\nstep=%s\nlayouts=%s\nmodes=%s\n' "$seeds" "$step" "$layouts" "$modes" > "$results/config.txt"
+printf 'pedestrian_controller=%s\n' "$pedestrian_controller" >> "$results/config.txt"
+if [ "${#orca_options[@]}" -gt 0 ]; then printf '%s\n' "${orca_options[@]}" >> "$results/config.txt"; fi
 docker run -d --stop-signal SIGINT --name "$container" -p "127.0.0.1:$port:10000" -e ROS_DOMAIN_ID=76 \
     -v "$workspace:/sean3_ws_overlay" -v "$repository:/sean3_ws_overlay/src/social_sim_ros:ro" \
     -v "$scripts/../tests:/tests:ro" -v "$results:/results" \
@@ -32,6 +44,7 @@ docker exec "$container" bash -c 'source /opt/ros/humble/setup.bash; source /sea
 driver_pid=$!
 setsid xvfb-run -a bash "$scripts/run_unity_player.sh" "$player" -batchmode -nographics \
     -scene SEAN/Warehouse -scenario None -task RandomABNav -seed 7 -ros-tcp-port "$port" \
+    -pedestrian-controller "$pedestrian_controller" "${orca_options[@]}" \
     -completion-distance 0 -task-timeout-seconds 3600 -external-goals -laser-no-return "$laser" \
     -warehouse-encounter-output "$results/encounters.json" -warehouse-encounter-step "$step" \
     -warehouse-encounter-seeds "$seeds" -warehouse-encounter-layouts "$layouts" -warehouse-encounter-modes "$modes" \
@@ -53,6 +66,12 @@ else
 fi
 cleanup; trap - EXIT
 python3 -c 'import json,sys;d=json.load(open(sys.argv[1]));assert d["seeds"]==list(map(int,sys.argv[2].split(","))) and d["layouts"]==sys.argv[3].split(",") and d["modes"]==sys.argv[4].split(",") and abs(d["step"]-float(sys.argv[5]))<1e-6 and d["laserNoReturn"]==sys.argv[6]' "$results/encounters.json" "$seeds" "$layouts" "$modes" "$step" "$laser" || status=1
+python3 -c 'import json,sys;d=json.load(open(sys.argv[1]));assert d.get("pedestrianController","social_forces")==sys.argv[2]' "$results/encounters.json" "$pedestrian_controller" || status=1
+if [ "$pedestrian_controller" = orca ]; then
+    python3 -c 'import json,sys;d=json.load(open(sys.argv[1]))["orcaSettings"];keys=("decisionPeriod","neighborDistance","maxNeighbors","agentHorizon","obstacleHorizon");assert all(abs(d[k]-float(v))<1e-6 for k,v in zip(keys,sys.argv[2:]))' \
+        "$results/encounters.json" "${SEAN_ORCA_DECISION_PERIOD:-0.1}" "${SEAN_ORCA_NEIGHBOR_DISTANCE:-5}" \
+        "${SEAN_ORCA_MAX_NEIGHBORS:-64}" "${SEAN_ORCA_AGENT_HORIZON:-2.5}" "${SEAN_ORCA_OBSTACLE_HORIZON:-2.5}" || status=1
+fi
 python3 "$scripts/../tests/analyze_warehouse_encounters.py" "$results/encounters.json" --navigation "$results/warehouse-navigation.json" || status=1
 python3 "$scripts/../tests/lifecycle_log_check.py" "$results" || status=1
 python3 "$scripts/../tests/audit_simulation_logs.py" "$results" || status=1

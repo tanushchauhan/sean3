@@ -11,6 +11,7 @@
 import argparse
 import datetime
 import json
+import math
 import os
 import shutil
 import signal
@@ -104,6 +105,22 @@ def check_port(port):
             probe.bind(('127.0.0.1', port))
         except OSError:
             raise Failure(f'Port {port} is in use, perhaps by another SEAN run. Pass --port.')
+
+
+def controller_player_args(args):
+    result = ['-pedestrian-controller', args.pedestrian_controller]
+    if args.pedestrian_controller == 'orca':
+        for name in ('decision_period', 'neighbor_distance', 'max_neighbors', 'agent_horizon', 'obstacle_horizon'):
+            value = getattr(args, 'orca_' + name)
+            if not math.isfinite(value) or value <= 0:
+                raise Failure(f'ORCA {name.replace("_", " ")} must be positive and finite.')
+            result += ['-orca-' + name.replace('_', '-'), str(value)]
+    return result
+
+
+def controller_announced(log, requested):
+    names = {'orca': 'ORCA', 'joint_test': 'JointTest', 'social_forces': 'SF'}
+    return log.is_file() and f'SEAN pedestrian controller: {names[requested]}' in log.read_text(errors='replace').splitlines()
 
 
 def display_mode(args):
@@ -210,6 +227,7 @@ class Run:
         scene, supported = SCENES[args.scene]
         mode = display_mode(args)
         player = check_player(args)
+        pedestrian_options = controller_player_args(args)
         check_port(args.port)
         check_image(args)
         check_overlay(args)
@@ -237,6 +255,7 @@ class Run:
                    '-scene', scene, '-scenario', args.scenario, '-task', 'RandomABNav', '-seed', str(args.seed),
                    '-ros-tcp-port', str(args.port), '-external-goals', '-completion-distance', '0',
                    '-task-timeout-seconds', str(args.task_timeout), '-logFile', str(self.logs / 'player.log')]
+        command += pedestrian_options
         if mode == 'headless':
             command += ['-batchmode', '-nographics']
         else:
@@ -256,6 +275,11 @@ class Run:
         self.wait_for(lambda: 'Connection from' in self.endpoint_log(), args.connect_timeout,
                       f'The simulator did not connect to ROS within {args.connect_timeout} s. '
                       f'See {self.logs / "player.log"}.')
+
+        if args.pedestrian_controller != 'social_forces':
+            self.wait_for(lambda: controller_announced(self.logs / 'player.log', args.pedestrian_controller), 10,
+                          'The player did not confirm the requested pedestrian controller. '
+                          'Build a player with this controller; see player.log.')
 
         if not args.no_nav2:
             self.exec_in_ros('nav2', f'ros2 launch social_sim_ros nav2_kuri.launch.py scene:={args.scene}')
@@ -380,6 +404,13 @@ def main():
         if name == 'run':
             command.add_argument('--scene', choices=SCENES, default='warehouse')
             command.add_argument('--scenario', default='None', help='pedestrians: None, Random, HandcraftedSocialSituations')
+            command.add_argument('--pedestrian-controller', choices=('social_forces', 'orca', 'joint_test'),
+                                 default='social_forces', help='pedestrian motion controller (joint_test has no avoidance)')
+            command.add_argument('--orca-decision-period', type=float, default=.1)
+            command.add_argument('--orca-neighbor-distance', type=float, default=5)
+            command.add_argument('--orca-max-neighbors', type=int, default=64)
+            command.add_argument('--orca-agent-horizon', type=float, default=2.5)
+            command.add_argument('--orca-obstacle-horizon', type=float, default=2.5)
             command.add_argument('--seed', type=int, default=7)
             command.add_argument('--view', choices=VIEWS, default='auto')
             command.add_argument('--no-nav2', action='store_true', help='start ROS and the simulator only')

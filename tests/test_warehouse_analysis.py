@@ -30,7 +30,37 @@ def navigation_fixture():
     return r,n
 
 
+def orca_fixture():
+    r=fixture()
+    r.update(pedestrianController='orca',model='ORCA-RVO2-v2.0.1',geometryModel='NavMeshBoundaryV1',
+             orcaSourceRevision='5b7147d36d5cc6310c8e74c6955145c0fdc5fe06',controllerRobotRadius=.5,
+             controllerObstacleCount=1,orcaSettings=dict(decisionPeriod=.1,neighborDistance=5,maxNeighbors=64,agentHorizon=2.5,obstacleHorizon=2.5))
+    for e in r['episodes']:
+        e.update(controllerFaulted=False,inferenceMilliseconds=[1])
+        for i,s in enumerate(e['samples']):
+            s.update(controllerEpisodeId='episode-'+str(e['index']),controllerSequence=i-1,
+                     personTargetVelocities=[dict(x=0,y=0,z=0) for _ in range(4)],
+                     personActualVelocities=[dict(x=0,y=0,z=0) for _ in range(4)])
+    return r
+
+
 class WarehouseAnalysisTests(unittest.TestCase):
+    def test_orca_provenance_and_lifecycle_evidence(self):
+        result=analyze(orca_fixture());self.assertTrue(result['passed'])
+        self.assertEqual(result['pedestrian_controller'],'orca')
+        self.assertEqual(result['episodes'][0]['inference_latency_ms']['maximum'],1)
+    def test_orca_cannot_hide_wrong_model_geometry_or_worker_failure(self):
+        mutations=[lambda r:r.update(model='ColliderV1'),lambda r:r.update(geometryModel=''),
+                   lambda r:r.update(orcaSourceRevision='unknown'),lambda r:r.update(controllerObstacleCount=0),
+                   lambda r:r['episodes'][0].update(controllerFaulted=True),
+                   lambda r:r['episodes'][0].update(inferenceMilliseconds=[]),
+                   lambda r:r['episodes'][0].update(inferenceMilliseconds=[float('nan')]),
+                   lambda r:r['episodes'][0]['samples'][1].update(controllerEpisodeId='stale'),
+                   lambda r:r['episodes'][0]['samples'][1].update(controllerSequence=-2),
+                   lambda r:r['episodes'][0]['samples'][1].update(personActualVelocities=[])]
+        for change in mutations:
+            r=orca_fixture();change(r)
+            with self.subTest(change=change):self.assertFalse(analyze(r)['passed'])
     def test_valid_navigation_evidence(self):
         r,n=navigation_fixture();self.assertTrue(analyze(r,n)['passed'])
     def test_missing_or_invalid_navigation_evidence(self):

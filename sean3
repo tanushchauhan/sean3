@@ -415,7 +415,8 @@ def main():
         command.set_defaults(func=func)
         if name == 'run':
             command.add_argument('--scene', choices=SCENES, default='warehouse')
-            command.add_argument('--scenario', default='None', help='pedestrians: None, Random, HandcraftedSocialSituations')
+            command.add_argument('--scenario', choices=('None', 'Random'), default='None',
+                                 help='pedestrian scenarios validated with this launcher')
             command.add_argument('--pedestrian-controller', choices=('social_forces', 'orca', 'joint_test'),
                                  default='social_forces', help='pedestrian motion controller (joint_test has no avoidance)')
             command.add_argument('--pedestrian-actuation', choices=('root_motion', 'velocity_body'),

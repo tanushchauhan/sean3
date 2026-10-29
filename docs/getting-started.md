@@ -72,6 +72,11 @@ Common options:
 Only the Warehouse is validated. `--scene lab` and `--scene outdoor` start, but
 have not been tested with SEAN 3.
 
+The launcher exposes `None` and `Random` pedestrian scenarios. Handcrafted
+scenario names differ across source assets and have not been qualified against
+the built player. For external perception/navigation stacks, readiness gating
+and artifact-preserving cleanup, see [external integrations](external-integrations.md).
+
 ## Controls
 
 | Where | Control | Effect |

@@ -28,12 +28,20 @@ if [ -n "${SEAN_NAV2_PARAMS_FILE:-}" ]; then
     profile_mount=(-v "$profile:/sean3_ws_overlay/install/social_sim_ros/share/social_sim_ros/params/kuri/nav2_params.yaml:ro")
 fi
 laser=${SEAN_LASER_NO_RETURN:-PositiveInfinity}
+scenario=${SEAN_SCENARIO:-None}
+visible=${SEAN_VISIBLE:-0}
 container="sean3-navigation-$$"
 sampler_pid=
+load_pid=
 player_pid=
 container_started=false
 
 cleanup() {
+    if [ -n "$load_pid" ]; then
+        kill "$load_pid" 2>/dev/null || true
+        wait "$load_pid" 2>/dev/null || true
+        load_pid=
+    fi
     if [ -n "$sampler_pid" ]; then
         kill "$sampler_pid" 2>/dev/null || true
         wait "$sampler_pid" 2>/dev/null || true
@@ -72,13 +80,45 @@ if [ "$mode" = long-navigation ]; then
     task_options=(-completion-distance 0)
 fi
 task_options+=(-laser-no-return "$laser")
-setsid xvfb-run -a bash "$scripts/run_unity_player.sh" "$player" \
-    -batchmode -nographics -scene SEAN/Warehouse -scenario None -task RandomABNav \
+player_args=(-scene SEAN/Warehouse -scenario "$scenario" -task RandomABNav \
     -seed "$seed" -ros-tcp-port "$port" -task-timeout-seconds 3600 -external-goals "${task_options[@]}" \
-    -logFile "$results/player.log" > "$results/player-console.log" 2>&1 &
-player_pid=$!
+    -logFile "$results/player.log")
+if [ "$visible" = 1 ]; then
+    # Rendered window under Xvfb, recorded from the display. The recorder stops
+    # after Unity exits so the video is finalized before display cleanup.
+    LP_NUM_THREADS=${SEAN_RENDER_THREADS:-4} setsid xvfb-run -a -s '-screen 0 1280x720x24' bash -c \
+        'device=$1; results=$2; shift 2; vgl=(); [ -n "$device" ] && vgl=(vglrun -d "$device")
+         "${vgl[@]}" glxinfo -B > "$results/glxinfo.txt" 2>&1
+         ffmpeg -nostdin -loglevel error -f x11grab -framerate 10 -video_size 1280x720 -i "$DISPLAY" \
+             -c:v libx264 -preset veryfast -pix_fmt yuv420p "$results/screen.mkv" > "$results/ffmpeg.log" 2>&1 &
+         recorder=$!
+         "${vgl[@]}" bash "$@"; status=$?
+         kill -INT "$recorder" 2>/dev/null; wait "$recorder"
+         exit "$status"' \
+        bash "${SEAN_VGL_DEVICE:-}" "$results" "$scripts/run_unity_player.sh" "$player" -force-glcore \
+        -screen-width 1280 -screen-height 720 -screen-fullscreen 0 -frame-rate "${SEAN_FRAME_RATE:-30}" \
+        "${player_args[@]}" > "$results/player-console.log" 2>&1 &
+    player_pid=$!
+else
+    setsid xvfb-run -a bash "$scripts/run_unity_player.sh" "$player" -batchmode -nographics \
+        "${player_args[@]}" > "$results/player-console.log" 2>&1 &
+    player_pid=$!
+fi
+# Cumulative CPU ticks (utime+stime) of the TCP endpoint and Unity every 5 s;
+# differences between samples give relay headroom.
+( endpoint=; unity=
+  while sleep 5; do
+    [ -n "$endpoint" ] || endpoint=$(pgrep --ns "$(docker inspect -f '{{.State.Pid}}' "$container")" --nslist pid \
+        -f 'sean_tcp_endpoint' | head -1)
+    [ -n "$unity" ] || unity=$(pgrep -g "$player_pid" -x "$(basename "$player")" | head -1)
+    printf '%s %s %s\n' "$(date +%s.%N)" \
+        "$(awk '{print $14+$15}' "/proc/$endpoint/stat" 2>/dev/null || echo -)" \
+        "$(awk '{print $14+$15}' "/proc/$unity/stat" 2>/dev/null || echo -)"
+  done ) > "$results/cpu-ticks.txt" 2>/dev/null &
+load_pid=$!
 
-printf 'scene=SEAN/Warehouse\nscenario=None\ntask=RandomABNav\nseed=%s\nmode=%s\n' "$seed" "$mode" > "$results/config.txt"
+printf 'scene=SEAN/Warehouse\nscenario=%s\ntask=RandomABNav\nseed=%s\nmode=%s\n' "$scenario" "$seed" "$mode" > "$results/config.txt"
+printf 'visible=%s\nvgl_device=%s\nframe_rate_target=%s\n' "$visible" "${SEAN_VGL_DEVICE:-none}" "${SEAN_FRAME_RATE:-30}" >> "$results/config.txt"
 printf 'laser_no_return=%s\nnav2_override=%s\n' "$laser" "${SEAN_NAV2_PARAMS_FILE:-default}" >> "$results/config.txt"
 if [ -n "${SEAN_NAV2_PARAMS_FILE:-}" ]; then sha256sum "$profile" > "$results/nav2-profile.sha256"; cp "$profile" "$results/nav2-profile.yaml"; fi
 if [ "$mode" = lifecycle ]; then

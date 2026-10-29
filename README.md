@@ -30,7 +30,9 @@ development baseline, not a release or a validated controller benchmark.
 cases and the three-heading sensor fixture pass again, and a visible Warehouse
 run passes all three routes. With the 65-person `Random` scenario, rendering and
 transport stay healthy but Nav2 completes only 3 of 9 routes, with two contacts.
-The release Warehouse has no camera-switching control. See the
+The player now switches on-screen views (C key or `-view`) and logs each person
+contact. The Kuri profile's reported success now stays within 0.4 m, with
+tolerance launch arguments, and the 36-route campaign passes again. See the
 [visual result](VISUAL_EXPERIENCE_RESULT_2026-10-28.md).
 
 The earlier [single-person pedestrian result](PEDESTRIAN_AVOIDANCE_RESULT_2026-10-28.md)

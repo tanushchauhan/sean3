@@ -35,6 +35,19 @@ The camera coroutines wait for rendered frames. The runner deliberately omits
 Set `SEAN_CAPTURE_RESET=1` without a measured heading to request one acknowledged
 task reset before capturing another normal Warehouse view. This records the
 placement change in `reset.json`; it does not certify arbitrary starts as clear.
+`SEAN_PLAYER_ARGS` passes extra player arguments, for example `-view top`.
+`SEAN_VIEW_CYCLE=1` (with `SEAN_XDOTOOL_ROOT` pointing at an extracted xdotool)
+presses the view key every `SEAN_VIEW_INTERVAL` seconds after the task starts,
+`SEAN_VIEW_PRESSES` times, and saves a screenshot of each view under `views/`.
+
+## On-screen views
+
+Press C in the player to cycle the window through `Auto` (the task's own layout:
+first-person view with overhead and third-person insets), `FirstPerson`,
+`ThirdPerson`, `Overhead` and `Top` (the whole environment). `-view NAME` selects
+the starting view. The switcher only changes which camera is drawn on screen;
+ROS camera topics come from separate offscreen copies and are unaffected. It is
+disabled when a participant controls the player.
 
 ## Measured fixture
 

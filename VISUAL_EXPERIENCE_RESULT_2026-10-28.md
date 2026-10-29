@@ -9,8 +9,10 @@ qualified stack: Unity `1fec526` (c01 player, not a clean-source build), ROS
 pass unchanged on the new stack. A visible Warehouse run without pedestrians
 passes all three routes. Visible and headless runs with the 65-person `Random`
 scenario render correctly and keep transport healthy, but Kuri's Nav2 profile
-completes only 3 of 9 routes there and two contacts are recorded. Interactive
-camera switching does not exist in the release Warehouse scene.
+completes only 3 of 9 routes there and two contacts are recorded. Follow-up
+work added on-screen view switching (C key or `-view`), per-contact logging, and
+a Kuri Nav2 profile whose reported success stays within the 0.4 m gate; the
+long-route campaign passes again with those changes (36 of 36 routes).
 
 ## 1. Encounter rerun (gate)
 
@@ -93,21 +95,66 @@ and walk; the yellow goal marker is visible.
 
 ## 4. Camera switching
 
-The release `SEAN/Warehouse` scene has no view-switching control. The C-key
-`CameraController` exists only in deprecated scenes (`Cameras.prefab`). The
-window shows the top view until a task starts, then the first-person camera.
-Third-person and overhead views are available as ROS image topics, which the
-sensor fixture covers. A switching control would be new interface work.
+The release `SEAN/Warehouse` scene had no view-switching control: the C-key
+`CameraController` exists only in deprecated scenes (`Cameras.prefab`).
+Unity `51d1453` adds `ViewSwitcher` to the SEAN display prefab. C cycles
+`Auto`, `FirstPerson`, `ThirdPerson`, `Overhead` and `Top`; `-view NAME` sets the
+starting view; the current view is labelled on screen. It reuses the existing
+cameras and does not run in participant-controlled sessions.
+
+Checked on player `views-da6edb0-20261029` (built from committed `da6edb0` in the
+existing project, so not a clean-source build; 175 payload hashes verified):
+
+- EditMode: 47 passed, including a test of the view cycle, argument parsing and
+  the prefab component.
+- Live: xdotool pressed C five times during a 50 s Warehouse capture. The player
+  logged all five views in order; screenshots show the expected view each time
+  and `Auto` restores both insets. `-view top` starts in the top view.
+- ROS images were unaffected: all four camera streams published 244 images in
+  49.7 s, with no decode errors or timestamp regressions, comparable to the
+  5.35 Hz fixture capture. Transport and process exits were clean.
+
+## 5. Contact review
+
+The two counted contacts could not be reviewed. SEAN counts a person contact
+when a person's trigger entry occurs within the robot radius plus 0.06 m
+(centre distance minus the agent radius); the robot is "at fault" when moving
+toward the person. Neither the time nor the agent was logged, the v03 recording
+around the likely moment is inconclusive, and v04 was headless.
+
+Unity `da6edb0` now logs each counted person contact with ROS time, agent,
+distance, robot speed, fault and both positions. Three visible `Random` runs with
+that player (seeds 7, 42 and 1001, recorded from the overhead view) produced no
+contacts in nine routes; five routes passed. Across all 18 pedestrian routes in
+this step, two contacts were counted. Future pedestrian runs record each one.
+
+## 6. Nav2 success tolerance
+
+Nav2 reported SUCCEEDED up to 0.675 m from the goal because NavFn's 0.5 m
+tolerance lets a replan end short of a blocked goal and the goal checker tests
+the path end. ROS `fe9bd37` lowers the Kuri planner tolerance to 0.05 m, so
+success stays within about 0.4 m, and adds `goal_tolerance:=` and
+`planner_tolerance:=` launch arguments. A launch inside the image confirmed the
+defaults (0.05/0.35) and overrides (0.5/0.25) on the running nodes.
+
+Requalification q03 repeated the q02 plan on the new player and profile:
+**12 of 12 sequences, 36 of 36 routes**, goal error 0.311 to 0.337 m, wall time
+up to 173.3 s, receipt-lag growth at most 0.071 s, zero recoveries, contacts
+and forced Nav2 kills (q02: 0.314 to 0.342 m, 173.2 s, 0.059 s). Pedestrian
+routes have not yet been rerun with this profile.
 
 ## Evidence
 
 Robovision: `/scratch/tchauhan/sean3/validation/step3-visual-20261028/`
 (`encounters.sh`, `visual.sh`, per-run directories, consoles, progress logs,
 recordings). Frames extracted for review are in each visible run's `frames/`.
+Follow-up runs are in `step3-views-20261029/` (tests, build, view cycling),
+`step3-contacts-20261029/` (logged pedestrian runs) and
+`nav2-tolerance-20261029/q03/` (requalification).
 
 ## Limitations
 
-- Same cached, not clean-source, player as the long-route result.
+- Both players (c01 and `views-da6edb0`) are cached, not clean-source, builds.
 - One machine, two pedestrian seeds and one headless run; nine pedestrian
   routes in total.
 - Frame rate, contact timing and pedestrian positions were not logged.

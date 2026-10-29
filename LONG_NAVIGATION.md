@@ -139,4 +139,15 @@ Repeat serially with seed 42, a fresh output directory, and an available TCP
 port. `SEAN_GOAL_TIMEOUT` overrides the declared goal wall-time limit; record
 the value and keep runs with different budgets distinct. Run the Python harness
 regressions on robovision with `python3 -m unittest discover -s tests -p 'test_*.py'`.
+
+Optional runner settings: `SEAN_SCENARIO` selects a pedestrian scenario (default
+`None`; `Random` adds 65 wandering people), `SEAN_VISIBLE=1` renders a 1280x720
+window under Xvfb and records `screen.mkv` (`SEAN_VGL_DEVICE=egl4` for the GPU),
+and `SEAN_PLAYER_ARGS` passes extra player arguments such as `-view overhead`.
+Each run samples endpoint and Unity CPU ticks into `cpu-ticks.txt`.
+
+The Kuri Nav2 profile plans to within 0.05 m of the goal, so Nav2 reports success
+only within about 0.4 m. `nav2_kuri.launch.py` accepts `goal_tolerance:=METRES`
+and `planner_tolerance:=METRES` to change the goal checker and planner tolerances.
+Qualification uses the profile defaults; the 0.4 m acceptance gate is unchanged.
 See the dated result report for actual outcomes and exact source/tooling hashes.

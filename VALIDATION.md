@@ -8,8 +8,10 @@ On the long-route stack (Unity `1fec526` c01 player, image
 three headings on NVIDIA OpenGL. A visible empty-Warehouse run passes 3 of 3
 routes. Visible and headless runs with 65 `Random` pedestrians pass 3 of 9
 routes: crowd blockage, Nav2 success beyond the 0.4 m gate, and two contacts.
-Receipt lag stayed below 0.17 s and transport was clean throughout. See
-[the result](VISUAL_EXPERIENCE_RESULT_2026-10-28.md).
+Receipt lag stayed below 0.17 s and transport was clean throughout. Unity
+`da6edb0` adds view switching and contact logging (47 EditMode tests pass) and
+ROS `fe9bd37` tightens the Kuri planner tolerance; campaign q03 passes 36 of 36
+routes on both. See [the result](VISUAL_EXPERIENCE_RESULT_2026-10-28.md).
 
 ## Long-route reliability: October 28
 

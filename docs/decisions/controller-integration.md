@@ -70,8 +70,10 @@ animated joint avatars (`60e8f8c`), then added the ORCA solver/geometry/encounte
 adapter (`67d97af`). The original boundary-core state described above is
 historical. The [controller protocol](../protocols/pedestrian-controllers.md)
 records the now-executable selection, conservative geometry/robot assumptions,
-third-party revision and parameter interface. Separate worker transport and
-trained STARS artifacts remain unavailable.
+third-party revision and parameter interface. A model-independent local worker
+transport and actual-state history buffer are now implemented; see the
+[worker protocol](../protocols/stars-worker.md). Trained STARS artifacts remain
+unavailable.
 
 The first ORCA root-motion pilot exposed large achieved-versus-target velocity
 spikes despite passing the original contact/goal gates. `aa7bf26` introduces

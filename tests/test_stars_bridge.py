@@ -35,6 +35,15 @@ class Predictor(HoldTestDouble):
 
 
 class BridgeTests(unittest.TestCase):
+    def test_round_trip_token_preserves_timestamp_when_numeric_json_is_rounded(self):
+        session = Session(HoldTestDouble(), 3, .4); session.handle(reset())
+        actual = .019999999552965164
+        request = step(0); request.update(time=.02, time_token=repr(actual))
+        response = session.handle(request)
+        self.assertEqual(response['time_token'], repr(actual))
+        self.assertEqual(response['time'], actual)
+        self.assertEqual(float(response['valid_until_token']), actual + .4)
+
     def test_warmup_uses_sample_instants_and_only_actual_feedback(self):
         predictor = Predictor()
         session = Session(predictor, 3, .4)

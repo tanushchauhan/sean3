@@ -140,8 +140,26 @@ defaults (0.05/0.35) and overrides (0.5/0.25) on the running nodes.
 Requalification q03 repeated the q02 plan on the new player and profile:
 **12 of 12 sequences, 36 of 36 routes**, goal error 0.311 to 0.337 m, wall time
 up to 173.3 s, receipt-lag growth at most 0.071 s, zero recoveries, contacts
-and forced Nav2 kills (q02: 0.314 to 0.342 m, 173.2 s, 0.059 s). Pedestrian
-routes have not yet been rerun with this profile.
+and forced Nav2 kills (q02: 0.314 to 0.342 m, 173.2 s, 0.059 s).
+
+Pedestrian routes with the new profile repeated the three logged contact runs
+(same player, seeds, `Random` scenario and overhead recording):
+
+| Profile | Routes passed | Success beyond 0.4 m | Median recoveries | Contacts |
+| --- | ---: | ---: | ---: | ---: |
+| Planner tolerance 0.5 m | 5 of 9 | 0 | 6 | 0 |
+| Planner tolerance 0.05 m | 2 of 9 | 0 | 16 | 1 |
+
+Failures were aborts or timeouts in crowds; receipt-lag growth stayed at most
+0.178 s and transport was clean. Pedestrian motion differs between runs and nine
+routes per profile are too few to attribute the difference in pass rate to the
+tolerance. Neither set happened to contain a short success, so this comparison
+does not measure the case the change addresses; v02 and v03 did.
+
+The logged contact (seed 1001, startup route) was `Agent_10`, not robot at
+fault, 0.166 m, robot speed 0. The overhead recording shows Kuri stationary and
+the pedestrian walking into its side. This is a pedestrian clearance issue, not
+a navigation one.
 
 ## Evidence
 

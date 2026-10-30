@@ -45,6 +45,21 @@ def orca_fixture():
 
 
 class WarehouseAnalysisTests(unittest.TestCase):
+    def test_stars_requires_forecast_provenance_and_ready_history(self):
+        r=orca_fixture()
+        r.update(pedestrianController='stars',model='STARS-MA-deterministic',starsCheckpointSha256='a'*64,
+                 starsExtensionRevision='d72eb2295c3336f0674932796cf41b60636cde3e',starsObservationSteps=8,starsDecisionPeriod=.4)
+        for e in r['episodes']:
+            e['samples'][0].update(controllerHistoryReady=False,controllerSequence=-1)
+            e['samples'][1].update(controllerHistoryReady=True,controllerSequence=7)
+        self.assertTrue(analyze(r)['passed'])
+        for mutate in [lambda r:r.update(starsCheckpointSha256='invalid'),lambda r:r.update(starsObservationSteps=3),
+                       lambda r:r.update(starsDecisionPeriod=.1),lambda r:r.update(starsExtensionRevision='unknown'),
+                       lambda r:r['episodes'][0]['samples'][1].update(controllerHistoryReady=False),
+                       lambda r:r['episodes'][0]['samples'][0].update(controllerHistoryReady=True),
+                       lambda r:r['episodes'][0].update(controllerFaulted=True)]:
+            changed=copy.deepcopy(r);mutate(changed)
+            with self.subTest(mutate=mutate):self.assertFalse(analyze(changed)['passed'])
     def test_orca_provenance_and_lifecycle_evidence(self):
         result=analyze(orca_fixture());self.assertTrue(result['passed'])
         self.assertEqual(result['pedestrian_controller'],'orca')

@@ -1,0 +1,734 @@
+{
+  "date": "2026-10-30",
+  "scope": "One-seed matched Warehouse aisle diagnostic pilot; original failures retained",
+  "sources": {
+    "unity": "636f8be2662098a2e785500d46d5957e6a7cf4c2",
+    "runner": "b754f14e600a3d0142c5bdaf3113469dce8fc61a",
+    "ros": "234262d28f7f426020fa198aa3f0dedefb04e117",
+    "extension": "d72eb2295c3336f0674932796cf41b60636cde3e",
+    "upstream_stars": "13d840c5c0677ff52e928eea1679ba5ce1f19c14"
+  },
+  "checkpoint_sha256": "382d2c00d818f43dda8d3406d857d824c439bba2918d7872dd576b56b8abaaa3",
+  "training_source_dirty": true,
+  "ros_image_id": "1f928d87cafe30ae9feb382a107a1e559d35f19ddc448a2f21fb0b42f59cb8da",
+  "configuration": {
+    "seeds": [
+      7
+    ],
+    "layouts": [
+      "aisle"
+    ],
+    "mirrors": [
+      -1,
+      1
+    ],
+    "modes": [
+      "parked",
+      "nav2"
+    ],
+    "physics_step": 0.02,
+    "deadline_seconds": 45,
+    "actuator": "VelocityTargetsV1",
+    "stars_observations": 8,
+    "stars_sample_period": 0.4,
+    "orca_decision_period": 0.1
+  },
+  "tests": {
+    "unity": {
+      "id": "2",
+      "testcasecount": "85",
+      "result": "Passed",
+      "total": "85",
+      "passed": "85",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-10-30 22:33:22Z",
+      "end-time": "2026-10-30 22:33:22Z",
+      "duration": "0.6061031"
+    },
+    "python": {
+      "total": 75,
+      "passed": 75,
+      "skipped": 0
+    }
+  },
+  "player_payload": {
+    "files": 177,
+    "all_checksums_verified": true,
+    "build_manifest": {
+      "sha256": "1a852f005d7132e8457cfd5165d2ad60a712ee546d84bd6247317acbd85201a9",
+      "bytes": 1420
+    },
+    "tree_manifest": {
+      "sha256": "f8b837897b4e4f5bf0032ba994e06f93bd8b01db0e5d2ce325a91238fc4f6155",
+      "bytes": 30266
+    }
+  },
+  "controllers": {
+    "social_forces": {
+      "complete": true,
+      "qualified": true,
+      "episodes_passed": 4,
+      "pedestrian_goals_reached": 16,
+      "controller_faults": 0,
+      "physical_contacts": {
+        "robotPersonContacts": 0,
+        "personPersonContacts": 0,
+        "personObjectContacts": 0,
+        "robotObjectContacts": 0
+      },
+      "cases": [
+        {
+          "index": 0,
+          "mirror": -1,
+          "mode": "parked",
+          "passed": true,
+          "errors": [],
+          "duration": 13.419999122619629,
+          "min_robot_clearance_m": 0.48284250497817993,
+          "min_person_clearance_m": 0.7949532270431519,
+          "person_completion_seconds": [
+            13.019999504089355,
+            12.980000495910645,
+            13.40000057220459,
+            13.419999122619629
+          ],
+          "person_paths_m": [
+            7.562679077541114,
+            7.575665992086881,
+            7.555710714252109,
+            7.581833837798521
+          ],
+          "inference_latency_ms": null,
+          "achieved_target_velocity_error_mps": {
+            "p50": 1.6313032481998788e-05,
+            "p95": 4.388197860555821e-05,
+            "maximum": 5.5619626987172234e-05
+          },
+          "achieved_speed_mps": {
+            "p50": 0.5999799751978874,
+            "p95": 0.600041126401754,
+            "maximum": 0.6000553425383809
+          }
+        },
+        {
+          "index": 1,
+          "mirror": 1,
+          "mode": "parked",
+          "passed": true,
+          "errors": [],
+          "duration": 13.419998168945312,
+          "min_robot_clearance_m": 0.48284250497817993,
+          "min_person_clearance_m": 0.7949532270431519,
+          "person_completion_seconds": [
+            12.979999542236328,
+            13.020000457763672,
+            13.419998168945312,
+            13.400001525878906
+          ],
+          "person_paths_m": [
+            7.575665819350468,
+            7.562679077541114,
+            7.58182180942217,
+            7.555708940318475
+          ],
+          "inference_latency_ms": null,
+          "achieved_target_velocity_error_mps": {
+            "p50": 1.7227488216008765e-05,
+            "p95": 5.1750598771084294e-05,
+            "maximum": 0.00011027246342077704
+          },
+          "achieved_speed_mps": {
+            "p50": 0.5999788958366734,
+            "p95": 0.6000471389996507,
+            "maximum": 0.6001097528127444
+          }
+        },
+        {
+          "index": 2,
+          "mirror": -1,
+          "mode": "nav2",
+          "passed": true,
+          "errors": [],
+          "duration": 35.28000259399414,
+          "min_robot_clearance_m": 0.3237397074699402,
+          "min_person_clearance_m": 0.6869360208511353,
+          "person_completion_seconds": [
+            13.700000762939453,
+            12.959999084472656,
+            13.819999694824219,
+            13.419998168945312
+          ],
+          "person_paths_m": [
+            7.789543113107597,
+            7.5644822830967,
+            7.7400529047175395,
+            7.5592471988297145
+          ],
+          "inference_latency_ms": null,
+          "achieved_target_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 3.1791692995406835e-05,
+            "maximum": 0.00011453954399540117
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0,
+            "p95": 0.5999922914073144,
+            "maximum": 0.6001131449788247
+          },
+          "navigation": {
+            "status": 4,
+            "goal_error": 0.3285107244515341,
+            "plan_status": 4,
+            "fresh_sensors": true,
+            "passed": true
+          }
+        },
+        {
+          "index": 3,
+          "mirror": 1,
+          "mode": "nav2",
+          "passed": true,
+          "errors": [],
+          "duration": 36.19999694824219,
+          "min_robot_clearance_m": 0.3258417248725891,
+          "min_person_clearance_m": 0.6775885820388794,
+          "person_completion_seconds": [
+            12.959999084472656,
+            13.720001220703125,
+            13.419998168945312,
+            13.779998779296875
+          ],
+          "person_paths_m": [
+            7.564479823765561,
+            7.789911254040139,
+            7.559185227531435,
+            7.7178807910477
+          ],
+          "inference_latency_ms": null,
+          "achieved_target_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.00012988810686532848,
+            "maximum": 0.00014716422871941215
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0,
+            "p95": 0.6001015008726709,
+            "maximum": 0.6001141038781623
+          },
+          "navigation": {
+            "status": 4,
+            "goal_error": 0.3379488104394539,
+            "plan_status": 4,
+            "fresh_sensors": true,
+            "passed": true
+          }
+        }
+      ],
+      "artifacts": {
+        "config.txt": {
+          "sha256": "c6d4461715373052c9782848517d0cd408d6b63ec2a47aba47a292590d3aa18a",
+          "bytes": 137
+        },
+        "encounters.json": {
+          "sha256": "0d5005e44412a260f4203bcda67eac59dd2fbe6c4edfad444ea49b744bdf224f",
+          "bytes": 19815997
+        },
+        "nav2.log": {
+          "sha256": "1d0824ffa24c33c3e8abd6a43473bd1fcb5eb39474af722a83be80a4d28c2fc0",
+          "bytes": 49878
+        },
+        "summary.json": {
+          "sha256": "aa1dd5aa120cbc19c87b75f3b7d6ab10e13d831ff6f2d7e8534a9e6c65cbc232",
+          "bytes": 6894
+        },
+        "warehouse-navigation.json": {
+          "sha256": "aad8495931a2e436148a1fcc276f97fb2e58480e4ac959c09658763a107ed16f",
+          "bytes": 2453060
+        }
+      }
+    },
+    "orca": {
+      "complete": true,
+      "qualified": false,
+      "episodes_passed": 3,
+      "pedestrian_goals_reached": 16,
+      "controller_faults": 0,
+      "physical_contacts": {
+        "robotPersonContacts": 0,
+        "personPersonContacts": 0,
+        "personObjectContacts": 0,
+        "robotObjectContacts": 0
+      },
+      "cases": [
+        {
+          "index": 0,
+          "mirror": -1,
+          "mode": "parked",
+          "passed": true,
+          "errors": [],
+          "duration": 12.580000877380371,
+          "min_robot_clearance_m": 0.29000329971313477,
+          "min_person_clearance_m": 0.9000002145767212,
+          "person_completion_seconds": [
+            12.499999046325684,
+            12.499999046325684,
+            12.580000877380371,
+            12.580000877380371
+          ],
+          "person_paths_m": [
+            7.529834568500519,
+            7.529834568500519,
+            7.510053634643555,
+            7.510053634643555
+          ],
+          "inference_latency_ms": {
+            "p50": 16.9253,
+            "p95": 20.139625,
+            "maximum": 23.2072
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 9.560366748262439e-06,
+            "p95": 4.766333029282421e-05,
+            "maximum": 4.766333029282421e-05
+          },
+          "achieved_speed_mps": {
+            "p50": 0.5999904634751096,
+            "p95": 0.6000476871721507,
+            "maximum": 0.6000476871721507
+          }
+        },
+        {
+          "index": 1,
+          "mirror": 1,
+          "mode": "parked",
+          "passed": true,
+          "errors": [],
+          "duration": 12.579999923706055,
+          "min_robot_clearance_m": 0.29000329971313477,
+          "min_person_clearance_m": 0.9000002145767212,
+          "person_completion_seconds": [
+            12.499998092651367,
+            12.499998092651367,
+            12.579999923706055,
+            12.579999923706055
+          ],
+          "person_paths_m": [
+            7.529834568500519,
+            7.529834568500519,
+            7.510053634643555,
+            7.510053634643555
+          ],
+          "inference_latency_ms": {
+            "p50": 17.0456,
+            "p95": 20.2975,
+            "maximum": 22.718700000000002
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 9.560366748262439e-06,
+            "p95": 4.766333029282421e-05,
+            "maximum": 0.00010489794372015027
+          },
+          "achieved_speed_mps": {
+            "p50": 0.5999904634751096,
+            "p95": 0.6000476871721507,
+            "maximum": 0.6001049217855781
+          }
+        },
+        {
+          "index": 2,
+          "mirror": -1,
+          "mode": "nav2",
+          "passed": true,
+          "errors": [],
+          "duration": 33.03999710083008,
+          "min_robot_clearance_m": 0.06631319224834442,
+          "min_person_clearance_m": 0.9000002145767212,
+          "person_completion_seconds": [
+            12.5,
+            12.520000457763672,
+            12.580001831054688,
+            12.580001831054688
+          ],
+          "person_paths_m": [
+            7.563598036766052,
+            7.595133098169333,
+            7.5220537185668945,
+            7.520513908366499
+          ],
+          "inference_latency_ms": {
+            "p50": 17.4649,
+            "p95": 21.25205,
+            "maximum": 24.5405
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 2.1740724595182885e-05,
+            "maximum": 0.0001125281336483948
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0,
+            "p95": 0.5999904634751096,
+            "maximum": 0.6001097205965501
+          },
+          "navigation": {
+            "status": 4,
+            "goal_error": 0.3488931660589063,
+            "plan_status": 4,
+            "fresh_sensors": true,
+            "passed": true
+          }
+        },
+        {
+          "index": 3,
+          "mirror": 1,
+          "mode": "nav2",
+          "passed": false,
+          "errors": [
+            "Nav2 did not qualify",
+            "robot missed goal"
+          ],
+          "duration": 45.0,
+          "min_robot_clearance_m": 0.23767904937267303,
+          "min_person_clearance_m": 0.9000002145767212,
+          "person_completion_seconds": [
+            12.520004272460938,
+            12.520004272460938,
+            12.580001831054688,
+            12.580001831054688
+          ],
+          "person_paths_m": [
+            7.597289492445016,
+            7.596444872735904,
+            7.5220537185668945,
+            7.5220537185668945
+          ],
+          "inference_latency_ms": {
+            "p50": 17.76645,
+            "p95": 21.283705,
+            "maximum": 25.143800000000002
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 0.0,
+            "p95": 0.00012397502416150452,
+            "maximum": 0.0001355176336449344
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0,
+            "p95": 0.6001049217855781,
+            "maximum": 0.6001105506367705
+          },
+          "navigation": {
+            "status": 5,
+            "goal_error": 1.7781353472784205,
+            "plan_status": 4,
+            "fresh_sensors": true,
+            "passed": false
+          }
+        }
+      ],
+      "artifacts": {
+        "config.txt": {
+          "sha256": "d77984f674db9cf409d7d6e92b9e381b3820a3c073635ef85288fab57db12d57",
+          "bytes": 254
+        },
+        "diagnosis.json": {
+          "sha256": "0e9a81b33df61da9add4de6ecf359686ecb4935c4707224dfe7078d541f9a027",
+          "bytes": 2708
+        },
+        "encounters.json": {
+          "sha256": "a31c6d9e97e7f31c137c45de81856ded93c3e397609ace03549f867a22630acf",
+          "bytes": 20540338
+        },
+        "nav2-costmap-3.json": {
+          "sha256": "f496942558f069057b5b9368715aa3f226d5dfd2d7924db4fa64862c1e06b2c7",
+          "bytes": 95534
+        },
+        "nav2.log": {
+          "sha256": "16dd4d1fc93fdb9643d00a0695231f60d922f8dac692ffbb35d71d09cc158e25",
+          "bytes": 56008
+        },
+        "summary.json": {
+          "sha256": "c912af107243c2ea222d28786d9cca66493ae0a3c7d527ef04f3e0f6d1ba005d",
+          "bytes": 7199
+        },
+        "warehouse-navigation.json": {
+          "sha256": "a6a5bcabdc653cb32af0e0e4e5577a017982ca35119cc1bf0fdf86f370158a7b",
+          "bytes": 2661827
+        }
+      }
+    },
+    "stars": {
+      "complete": true,
+      "qualified": false,
+      "episodes_passed": 0,
+      "pedestrian_goals_reached": 0,
+      "controller_faults": 0,
+      "physical_contacts": {
+        "robotPersonContacts": 0,
+        "personPersonContacts": 0,
+        "personObjectContacts": 0,
+        "robotObjectContacts": 0
+      },
+      "cases": [
+        {
+          "index": 0,
+          "mirror": -1,
+          "mode": "parked",
+          "passed": false,
+          "errors": [
+            "person missed goal"
+          ],
+          "duration": 45.0,
+          "min_robot_clearance_m": 3.199845314025879,
+          "min_person_clearance_m": 0.8918274641036987,
+          "person_completion_seconds": [
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "person_paths_m": [
+            0.07162686313718565,
+            0.06971365162762166,
+            0.06216356010666383,
+            0.06874127374636964
+          ],
+          "inference_latency_ms": {
+            "p50": 15.9107,
+            "p95": 19.086559999999988,
+            "maximum": 39.6557
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 1.3488155536596317e-05,
+            "p95": 2.3584875875929215e-05,
+            "maximum": 2.580345762785062e-05
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0012068716657092156,
+            "p95": 0.0032075205147515046,
+            "maximum": 0.01874563945993187
+          },
+          "history_ready_consistent": true
+        },
+        {
+          "index": 1,
+          "mirror": 1,
+          "mode": "parked",
+          "passed": false,
+          "errors": [
+            "person missed goal"
+          ],
+          "duration": 44.999996185302734,
+          "min_robot_clearance_m": 3.199845314025879,
+          "min_person_clearance_m": 0.8918274641036987,
+          "person_completion_seconds": [
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "person_paths_m": [
+            0.06971365162762166,
+            0.07162686313718565,
+            0.06874127374636964,
+            0.06216356010666383
+          ],
+          "inference_latency_ms": {
+            "p50": 14.4029,
+            "p95": 16.84634,
+            "maximum": 22.834400000000002
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 1.3461712756176663e-05,
+            "p95": 2.3579074134382317e-05,
+            "maximum": 2.6114217302244295e-05
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0012067565601001935,
+            "p95": 0.0032081324034418427,
+            "maximum": 0.01874832149533724
+          },
+          "history_ready_consistent": true
+        },
+        {
+          "index": 2,
+          "mirror": -1,
+          "mode": "nav2",
+          "passed": false,
+          "errors": [
+            "Nav2 did not qualify",
+            "person missed goal",
+            "robot missed goal"
+          ],
+          "duration": 45.00000762939453,
+          "min_robot_clearance_m": 0.4742721915245056,
+          "min_person_clearance_m": 0.8918274641036987,
+          "person_completion_seconds": [
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "person_paths_m": [
+            0.07162686313718565,
+            0.06971365162762166,
+            0.06216356010666383,
+            0.06874127374636964
+          ],
+          "inference_latency_ms": {
+            "p50": 16.046,
+            "p95": 20.25422,
+            "maximum": 21.121000000000002
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 1.3504924816701728e-05,
+            "p95": 2.3669571103839858e-05,
+            "maximum": 2.6114217302244295e-05
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0012069868111887418,
+            "p95": 0.0032081324034418427,
+            "maximum": 0.01874832149533724
+          },
+          "navigation": {
+            "status": 5,
+            "goal_error": 1.5787399309420493,
+            "plan_status": 4,
+            "fresh_sensors": true,
+            "passed": false
+          },
+          "history_ready_consistent": true
+        },
+        {
+          "index": 3,
+          "mirror": 1,
+          "mode": "nav2",
+          "passed": false,
+          "errors": [
+            "Nav2 did not qualify",
+            "person missed goal",
+            "robot missed goal"
+          ],
+          "duration": 45.0,
+          "min_robot_clearance_m": 0.4867557883262634,
+          "min_person_clearance_m": 0.8918274641036987,
+          "person_completion_seconds": [
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "person_paths_m": [
+            0.06971365162762166,
+            0.07162686313718565,
+            0.06874127374636964,
+            0.06216356010666383
+          ],
+          "inference_latency_ms": {
+            "p50": 15.6921,
+            "p95": 18.88314,
+            "maximum": 21.7341
+          },
+          "achieved_target_velocity_error_mps": {
+            "p50": 1.3471721651002863e-05,
+            "p95": 2.3669571103839858e-05,
+            "maximum": 2.6139428278438035e-05
+          },
+          "achieved_speed_mps": {
+            "p50": 0.0012069868111887418,
+            "p95": 0.0032069088594283254,
+            "maximum": 0.018755477343236224
+          },
+          "navigation": {
+            "status": 5,
+            "goal_error": 1.7189939656477857,
+            "plan_status": 4,
+            "fresh_sensors": true,
+            "passed": false
+          },
+          "history_ready_consistent": true
+        }
+      ],
+      "artifacts": {
+        "config.txt": {
+          "sha256": "980a654c693b21d1a5588d88c025031267878068260c02749ad602ec1d417103",
+          "bytes": 311
+        },
+        "encounters.json": {
+          "sha256": "5170035cf723049b4fae6e8b105f57364004b2c7e883eaed9aa89d4cba3fa53b",
+          "bytes": 37658855
+        },
+        "nav2-costmap-2.json": {
+          "sha256": "3e5712090ece469e6966a510057b773415f5d9907ca9f4773f26e7a3dc10a11b",
+          "bytes": 91757
+        },
+        "nav2-costmap-3.json": {
+          "sha256": "209ea6c37d7db2d2cae6c7d520b6d858645bac4cf3759a30daad990fd3a42141",
+          "bytes": 90444
+        },
+        "nav2.log": {
+          "sha256": "59241dc4e228fef16b44e211e48201a1693685fa008b5a83bd8fd7b59b729cac",
+          "bytes": 57640
+        },
+        "player.log": {
+          "sha256": "95e0469e1cac4dbb04a317e76ce96bcd32f83841d0e2078557d403a06cefef30",
+          "bytes": 39850
+        },
+        "summary.json": {
+          "sha256": "81c001903ceb814213983743c5eb72d33bb393e83da40476e4b7bff390ec585a",
+          "bytes": 7548
+        },
+        "warehouse-navigation.json": {
+          "sha256": "7f26957755bf3422dd0bf7e4c13447a1624cd2ae3c119534f386b0f81f892ce8",
+          "bytes": 3088080
+        },
+        "worker-errors.log": {
+          "sha256": "971c844efebecba8297a8161285d2cc3f8b3258a2a351effeb9875fda9a9f500",
+          "bytes": 252
+        },
+        "worker-exit.txt": {
+          "sha256": "ea9ee004e3282be8317fc772ead50e2e15024f50b447e1cc7788318edeadc55e",
+          "bytes": 32
+        },
+        "worker-startup.json": {
+          "sha256": "e785430623097084fc830fc14cf490c33b9696058bc68424c8df6886802a8f74",
+          "bytes": 1613
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "project-tests.xml": {
+      "sha256": "a959117e06d2b865fdd8f0999faaf6c1ddf4efe60f3ea44491711b3b728d7567",
+      "bytes": 51853
+    },
+    "manifest.txt": {
+      "sha256": "1a852f005d7132e8457cfd5165d2ad60a712ee546d84bd6247317acbd85201a9",
+      "bytes": 1420
+    },
+    "player-payload-check.txt": {
+      "sha256": "e7eab9bf8c6e2394ee885538c07c5e18dd47a0e66d189d08fce974057211273a",
+      "bytes": 19292
+    },
+    "harness.log": {
+      "sha256": "4dab7df2e267a419c6b0c17c2d6d30592e610ad798c4c7d291eec70b1d83a222",
+      "bytes": 10195
+    },
+    "player-tree.sha256": {
+      "sha256": "f8b837897b4e4f5bf0032ba994e06f93bd8b01db0e5d2ce325a91238fc4f6155",
+      "bytes": 30266
+    }
+  },
+  "limits": [
+    "One seed and one layout, two mirrored parked and Nav2 cases each; no full qualification or statistical comparison.",
+    "STARS receives stationary actual warm-up histories and no goals, robot context or map inputs.",
+    "SF, ORCA and STARS have different native decision cadences and goal-conditioning capabilities.",
+    "Preexisting Rocketbox metadata and UserSettings changes preserved in build provenance.",
+    "No ordinary-launcher STARS option enabled; recorded training source was dirty."
+  ]
+}

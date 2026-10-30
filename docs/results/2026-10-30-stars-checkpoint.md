@@ -1,5 +1,9 @@
 # STARS checkpoint adapter: offline and worker validation
 
+This report covers the initial adapter and open-floor integration. Subsequent
+standalone Warehouse testing is recorded in the
+[matched pilot report](2026-10-30-stars-warehouse-pilot.md), including its failures.
+
 The supplied seed-0 fine-tuned multi-agent forecasting checkpoint loads strictly
 against external `stars_steps_extension` revision
 `d72eb2295c3336f0674932796cf41b60636cde3e` and its pinned upstream STARS revision
@@ -81,7 +85,8 @@ manifest. The workspace pins the tested Unity revision.
 
 ## Limits and next validation
 
-No new standalone player or real-checkpoint Warehouse/Nav2 encounter was run.
+No new standalone player or real-checkpoint Warehouse/Nav2 encounter was run
+for the initial integration evidence in this report; see the subsequent pilot above.
 
 The model consumes actual pedestrian position histories only. It has no robot,
 map, destination or commanded-speed conditioning. The adapter executes the first

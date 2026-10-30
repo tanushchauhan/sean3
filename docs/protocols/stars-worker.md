@@ -144,7 +144,10 @@ enabled on robovision. The test skips explicitly if the variables are absent.
 
 Production Unity integration still requires explicit
 `SocketSceneController(port, 8, .4)` driver injection with matching cadence and
-velocity actuation. General speed feasibility, warm-up distribution, map
-collisions, destination completion and Nav2 coexistence remain unqualified. There is no
+velocity actuation. An isolated
+[Warehouse validation path](stars-warehouse-validation.md) now exists; its
+[stationary-history pilot](../results/2026-10-30-stars-warehouse-pilot.md) fails
+qualification on pedestrian goals and robot navigation. General speed feasibility,
+warm-up distribution, map collisions and Nav2 coexistence remain unqualified. There is no
 learned robot policy, goal conditioning, wall avoidance or SF fallback. No
 extension source or weights are redistributed.

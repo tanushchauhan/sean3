@@ -31,14 +31,16 @@ NVIDIA GPU, rootless Podman):
 - In a dense crowd of 65 random pedestrians, Kuri completes only some routes.
   This is open work.
 - Experimental ORCA and shared physical pedestrian actuation are implemented
-  with a bounded local Python worker/history boundary. A matched four-case aisle pilot
+  with a bounded local Python worker/history boundary. An earlier four-case aisle pilot
   passes 4/4 with SF and 3/4 with ORCA, with zero contacts on both; one ORCA/Nav2
   robot goal fails. See
   [the controller result](docs/results/2026-10-29-orca-controller.md).
 - The external seed-0 STARS forecast checkpoint loads through the Python worker;
-  all 74 Python tests and 85 Unity project tests pass on robovision, including
-  real-checkpoint animated motion, reset and process-loss stopping. Warehouse
-  encounters and Nav2 coexistence with these weights remain unqualified. See
+  all 75 Python tests and 85 Unity project tests pass on robovision, including
+  real-checkpoint animated motion, reset and process-loss stopping. The
+  [Warehouse pilot](docs/results/2026-10-30-stars-warehouse-pilot.md) fails STARS
+  qualification: no pedestrian goals complete under stationary-history initialization,
+  and both Nav2 routes miss their deadline, without contacts or worker faults. See
   [the checkpoint validation](docs/results/2026-10-30-stars-checkpoint.md) and
   [worker instructions](docs/protocols/stars-worker.md).
 - An isolated ML-Agents probe builds, trains PPO, resumes a checkpoint and runs

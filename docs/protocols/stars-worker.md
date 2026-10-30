@@ -2,7 +2,8 @@
 
 Unity's `SocketSceneController` and workspace `runtime/stars_bridge.py` provide
 a versioned local Python worker boundary and actual-state history buffer. They
-do not load trained STARS weights. The launcher does not advertise a `stars`
+can load external trained STARS weights through `runtime/stars_predictor.py`.
+The launcher does not advertise a `stars`
 controller until a forecasting adapter has been qualified.
 
 ## Ownership and timing
@@ -82,12 +83,61 @@ The animated test covers physical motion, actual feedback, warm-up, reset and
 failure stopping. Cross-process tests explicitly skip without that environment
 variable; validation on robovision sets it.
 
-## Remaining model gate
+## External forecasting checkpoint
 
-Obtain a trained `stars_ma`, `phase="forecast"` checkpoint. Verify its revision,
-recipes, graph settings, cadence, masks, preprocessing and stochastic-state
-reset. Implement the predictor hook in a separate pinned model environment,
-convert the selected forecast segment to velocity once, then validate offline
-before live inference. Robot conditioning, destination/map support, speed
-feasibility and warm-up distribution remain model assumptions to resolve.
-No extension source or weights are redistributed.
+The adapter supports the deterministic `stars_ma`, `phase="forecast"` recipe
+at extension revision `d72eb2295c3336f0674932796cf41b60636cde3e`, with upstream
+STARS submodule `13d840c5c0677ff52e928eea1679ba5ce1f19c14`. Keep both external
+checkouts clean. It loads weights strictly, in evaluation/inference mode, with
+PyTorch's restricted `weights_only=True` loader. It rejects incompatible
+revisions, preprocessing, windows and stochastic decoders.
+
+Prepare an isolated Python 3.12 environment with `torch==2.9.1`,
+`torch-geometric==2.8.1` and `numpy==2.5.1`. Initialize only the extension's
+`references/stars` submodule. No training/data-analysis dependencies are needed
+for this adapter. Select an appropriate PyTorch CUDA wheel separately on GPU
+hosts; the validated environment for this change is macOS CPU.
+
+From this workspace repository, with absolute external paths:
+
+```sh
+.sean3/stars-venv/bin/python runtime/stars_bridge.py \
+  --checkpoint /absolute/path/to/best.pt \
+  --extension /absolute/path/to/stars_steps_extension \
+  --allow-dirty-training-source \
+  --port 10382 --observation-steps 8 --dt .4 --device cpu --threads 1
+```
+
+`--allow-dirty-training-source` explicitly permits provisional inference when
+the training checkout had uncommitted changes. The supplied seed-0 fine-tuned
+checkpoint records this condition; startup provenance preserves it. Removing
+the flag rejects that checkpoint. The flag does not permit local model-source
+changes or revision mismatches.
+
+All observed pedestrians, including inactive ones, become type-1 graph nodes
+in stable ID order. Kuri is excluded from the model graph because this
+forecaster has no trained robot-conditioning pathway. Only active pedestrians
+receive outputs. No goal, obstacle, desired speed, measured heading or achieved
+velocity is fed into the network: its matching preprocessing derives motion
+and headings from actual position history. The graph uses the checkpoint's
+kNN/radius settings. All eight samples are present, so no history interpolation
+is necessary. The first local forecast displacement is rotated into ROS map
+coordinates and divided by 0.4 seconds; it is held until the next observation.
+The remaining eleven forecast steps are discarded. No predicted positions are
+inserted into history. Deterministic inference has no latent state to reset.
+
+Run the opt-in real-model tests (the default suite skips them without weights):
+
+```sh
+SEAN_STARS_CHECKPOINT=/absolute/path/to/best.pt \
+SEAN_STARS_EXTENSION=/absolute/path/to/stars_steps_extension \
+.sean3/stars-venv/bin/python -m unittest discover -s tests -p 'test_stars*.py' -v
+```
+
+This qualifies offline inference and Python worker transport only. Unity still
+requires explicit `SocketSceneController(port, 8, .4)` driver injection with
+matching cadence and velocity actuation. A real-checkpoint Unity run, speed
+feasibility at Kuri-scene pedestrian limits, held-history warm-up, map collisions,
+destination completion and Nav2 coexistence remain unqualified. There is no
+learned robot policy, goal conditioning, wall avoidance or SF fallback. No
+extension source or weights are redistributed.

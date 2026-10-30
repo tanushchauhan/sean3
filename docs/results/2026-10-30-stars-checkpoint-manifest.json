@@ -1,0 +1,103 @@
+{
+  "checkpoint": {
+    "model": "stars_ma",
+    "checkpoint_sha256": "382d2c00d818f43dda8d3406d857d824c439bba2918d7872dd576b56b8abaaa3",
+    "extension_commit": "d72eb2295c3336f0674932796cf41b60636cde3e",
+    "upstream_commit": "13d840c5c0677ff52e928eea1679ba5ce1f19c14",
+    "training_source_dirty": true,
+    "provisional": true,
+    "window": {
+      "observation_steps": 8,
+      "prediction_steps": 12,
+      "dt": 0.4
+    },
+    "graph": {
+      "knn": 16,
+      "radius": 10.0
+    },
+    "checkpoint_selection": {
+      "metric": "val_top1_agent_ADE_macro",
+      "value": 0.10606858893368765,
+      "best_epoch": 98,
+      "metrics": {
+        "target_ade": 0.1194298679418499,
+        "target_fde": 0.22286369051870286,
+        "agent_ade": 0.10606858893368765,
+        "agent_fde": 0.1911502353413788,
+        "joint_ade": 0.10719085748342333,
+        "joint_fde": 0.1944886465567733,
+        "interacting_ade": 0.11082038242064356,
+        "interacting_fde": 0.19898858222214413,
+        "isolated_ade": 0.08789182074531306,
+        "isolated_fde": 0.16116665538890035,
+        "density_sparse_ade": 0.14585974268783633,
+        "density_medium_ade": 0.10195165956765077,
+        "density_dense_ade": 0.13539084933440104,
+        "collision_rate_gt": 0.0006253838222783127,
+        "min_distance_gt": 6.036536799753227,
+        "collision_rate_pred": 0.0006037864830705031,
+        "min_distance_pred": 6.10861554247821,
+        "steps/target_ade": 0.1194298679418499,
+        "steps/target_fde": 0.22286369051870286,
+        "steps/agent_ade": 0.10606858893368765,
+        "steps/agent_fde": 0.1911502353413788,
+        "steps/joint_ade": 0.10719085748342333,
+        "steps/joint_fde": 0.1944886465567733,
+        "n_target_ade": 7493.0,
+        "n_agent_ade": 122841.0,
+        "n_joint_ade": 7493.0
+      }
+    },
+    "device": "cpu"
+  },
+  "validation": {
+    "date": "2026-10-30",
+    "suite": "python -m unittest discover -s tests -p test_*.py -v",
+    "tests": 74,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "real_checkpoint_tests": 5
+  },
+  "environment": {
+    "python": "3.12.5",
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "packages": {
+      "xxhash": "4.0.2",
+      "setuptools": "84.2.1",
+      "networkx": "3.7",
+      "requests": "2.34.2",
+      "certifi": "2026.10.23",
+      "filelock": "4.2.5",
+      "yarl": "1.25.1",
+      "propcache": "0.5.4",
+      "torch-geometric": "2.8.1",
+      "aiohappyeyeballs": "2.7.1",
+      "sympy": "1.14.0",
+      "tqdm": "4.70.1",
+      "numpy": "2.5.1",
+      "urllib3": "2.8.0",
+      "mpmath": "1.3.0",
+      "fsspec": "2026.9.0",
+      "frozenlist": "1.8.0",
+      "aiosignal": "1.4.0",
+      "Jinja2": "3.1.6",
+      "torch": "2.9.1",
+      "aiohttp": "3.14.5",
+      "attrs": "26.1.0",
+      "multidict": "7.2.1",
+      "typing_extensions": "4.16.0",
+      "MarkupSafe": "3.0.4",
+      "psutil": "7.2.2",
+      "charset-normalizer": "3.5.2",
+      "pyparsing": "3.3.3",
+      "idna": "3.20"
+    }
+  },
+  "limitations": [
+    "Training checkout recorded uncommitted changes; exact training source unverified.",
+    "Synthetic offline and Python transport tests only; no Unity/ROS real-checkpoint run.",
+    "Robovision SSH timed out; its checkout has not been synchronized.",
+    "Embedded validation metrics are training-run metadata, not independently reproduced."
+  ]
+}

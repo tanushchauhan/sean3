@@ -137,18 +137,21 @@ class Session:
                     targets=[dict(id=k, velocity=velocities[k]) for k in sorted(expected)])
 
 
-def serve(port, observation_steps, dt, timeout, moving_test_double=False):
+def serve(port, observation_steps, dt, timeout, moving_test_double=False, predictor=None):
+    predictor = predictor or (PreferredVelocityTestDouble() if moving_test_double else HoldTestDouble())
     # Intentionally loopback only: this boundary has no authentication.
     with socket.socket() as listener:
         listener.bind(('127.0.0.1', port))
         listener.listen(1)
         print(json.dumps(dict(event='listening', port=listener.getsockname()[1],
-                              model='preferred_velocity_test_double' if moving_test_double else 'hold_test_double',
+                              model=getattr(predictor, 'metadata', {}).get('model',
+                                  'preferred_velocity_test_double' if moving_test_double else 'hold_test_double'),
+                              provenance=getattr(predictor, 'metadata', None),
                               observation_steps=observation_steps, dt=dt)), flush=True)
         connection, _ = listener.accept()
         with connection:
             connection.settimeout(timeout)
-            session = Session(PreferredVelocityTestDouble() if moving_test_double else HoldTestDouble(), observation_steps, dt)
+            session = Session(predictor, observation_steps, dt)
             while True:
                 try:
                     request = receive(connection)
@@ -163,8 +166,29 @@ if __name__ == '__main__':
     p.add_argument('--observation-steps', type=int, required=True)
     p.add_argument('--dt', type=float, required=True)
     p.add_argument('--timeout', type=float, default=30)
-    p.add_argument('--test-double', action='store_true', required=True)
+    mode = p.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--test-double', action='store_true')
+    mode.add_argument('--checkpoint', help='External multi-agent forecasting checkpoint')
+    p.add_argument('--extension', help='Matching external stars_steps_extension checkout')
+    p.add_argument('--device', choices=('cpu', 'cuda'), default='cpu')
+    p.add_argument('--threads', type=int, default=1)
+    p.add_argument('--allow-dirty-training-source', action='store_true',
+                   help='Allow provisional inference when checkpoint records uncommitted training source')
     p.add_argument('--moving-test-double', action='store_true', help='Echo preferred velocities after warm-up; no learned inference')
     a = p.parse_args()
     require(math.isfinite(a.timeout) and a.timeout > 0, 'Positive wall timeout required')
-    serve(a.port, a.observation_steps, a.dt, a.timeout, a.moving_test_double)
+    require(not a.moving_test_double or a.test_double, 'Moving test double requires --test-double')
+    predictor = None
+    if a.checkpoint:
+        require(a.extension and a.threads > 0, 'Extension checkout and positive thread count required')
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        import torch
+        torch.set_num_threads(a.threads)
+        from runtime.stars_predictor import StarsPredictor
+        predictor = StarsPredictor(a.checkpoint, a.extension, device=a.device,
+                                   allow_dirty_training_source=a.allow_dirty_training_source)
+        require(a.observation_steps == predictor.steps and abs(a.dt - predictor.dt) < 1e-7,
+                'Worker sampling differs from checkpoint')
+    serve(a.port, a.observation_steps, a.dt, a.timeout, a.moving_test_double, predictor)

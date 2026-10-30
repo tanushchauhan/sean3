@@ -43,11 +43,45 @@ See the [machine-readable manifest](2026-10-30-stars-checkpoint-manifest.json)
 for checkpoint metadata and the complete installed package versions, and the
 [worker protocol](../protocols/stars-worker.md) for setup and commands.
 
+## Robovision Unity validation
+
+After connectivity was restored, the code, checkpoint and pinned model sources
+were synchronized to robovision. The checkpoint checksum matches the original
+above. A dedicated CPU environment uses Python 3.12.3, PyTorch 2.9.1+cpu,
+torch-geometric 2.8.1 and NumPy 2.5.1. The full Python suite passes 74/74 tests
+with no skips on Linux as well.
+
+Unity 2022.3.62f3 passes **85/85 project tests, zero skips**, including a new
+`AnimatedAvatarsUseStarsCheckpointAndStopOnProcessLoss` test and both existing
+animated-avatar tests. The new test uses production Rocketbox avatars, the
+physical velocity actuator, the actual checkpoint-backed Python process and
+the normal joint scene driver on an open test floor. It checks:
+
+- Eighteen consecutive scene observations; history becomes ready at sequence 7,
+  with zero targets on the first seven decisions.
+- Pedestrian-only target batches, bounded achieved planar speed, physical
+  displacement and nonzero movement in subsequent actual-state snapshots.
+- Immediate velocity/target clearing on reset, a new episode ID, and history
+  returning to non-ready before warming up again.
+- Actual Python process termination while a nonzero target is active, followed
+  by the driver's fault/stop behavior, under 5 mm residual planar motion over
+  0.5 simulated seconds, and an unchanged external robot pose.
+
+The maximum target speed was approximately **0.02024 m/s**. The maximum complete
+decision exchange took 28.213 ms in the focused animated run and 25.9255 ms in
+the full-suite run. These are diagnostics from two small stationary-start test
+runs, not a latency benchmark or a claim of realistic pedestrian motion. No
+owned worker or Unity editor process remained after the tests. Existing remote
+Rocketbox metadata and UserSettings changes were preserved.
+
+Raw XML/logs are preserved under local `.sean3/evidence/stars-checkpoint-20261030/`
+and remote `/scratch/tchauhan/sean3/validation/stars-checkpoint-20261030/`.
+Their hashes, exact source revision and Linux package versions are in the
+manifest. The workspace pins the tested Unity revision.
+
 ## Limits and next validation
 
-Robovision SSH timed out during this work. Its checkout has not been synchronized
-and no real-checkpoint Unity/ROS test or new player build was performed. Existing
-Unity test-double evidence must not be reported as learned-model validation.
+No new standalone player or real-checkpoint Warehouse/Nav2 encounter was run.
 
 The model consumes actual pedestrian position histories only. It has no robot,
 map, destination or commanded-speed conditioning. The adapter executes the first
@@ -55,5 +89,5 @@ forecast segment and discards the rest, with no clipping or controller fallback.
 Forecasts may exceed SEAN scene speed limits; those requests deliberately fail
 and stop rather than silently change the learned output. Held warm-up histories,
 physical collisions, reaching destinations and simultaneous Nav2 behavior remain
-to be tested. This change neither exposes a production `stars` launcher option
+to be tested beyond the open-floor integration. This change neither exposes a production `stars` launcher option
 nor establishes a learned robot controller.

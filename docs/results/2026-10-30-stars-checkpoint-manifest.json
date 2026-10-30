@@ -96,8 +96,101 @@
   },
   "limitations": [
     "Training checkout recorded uncommitted changes; exact training source unverified.",
-    "Synthetic offline and Python transport tests only; no Unity/ROS real-checkpoint run.",
-    "Robovision SSH timed out; its checkout has not been synchronized.",
-    "Embedded validation metrics are training-run metadata, not independently reproduced."
-  ]
+    "Embedded validation metrics are training-run metadata, not independently reproduced.",
+    "Robovision Unity editor integration passed; no real-checkpoint Warehouse/Nav2 encounters or new standalone player build."
+  ],
+  "robovision_validation": {
+    "date": "2026-10-30",
+    "unity_version": "2022.3.62f3",
+    "unity_commit": "bc9fd834a16abac0d89c89c458bc558b710b4d30",
+    "workspace_runtime_commit": "7623101",
+    "ros_commit": "234262d28f7f426020fa198aa3f0dedefb04e117",
+    "python_tests": {
+      "total": 74,
+      "passed": 74,
+      "skipped": 0
+    },
+    "environment": {
+      "python": "3.12.3",
+      "platform": "Linux-7.0.0-28-generic-x86_64-with-glibc2.39",
+      "packages": {
+        "torch": "2.9.1+cpu",
+        "certifi": "2026.10.23",
+        "pyparsing": "3.3.3",
+        "psutil": "7.2.2",
+        "attrs": "26.1.0",
+        "propcache": "0.5.4",
+        "sympy": "1.14.0",
+        "torch-geometric": "2.8.1",
+        "Jinja2": "3.1.6",
+        "mpmath": "1.3.0",
+        "multidict": "7.2.1",
+        "networkx": "3.7",
+        "requests": "2.34.2",
+        "aiosignal": "1.4.0",
+        "MarkupSafe": "3.0.3",
+        "fsspec": "2026.9.0",
+        "filelock": "4.2.4",
+        "charset-normalizer": "3.5.2",
+        "setuptools": "78.1.0",
+        "numpy": "2.5.1",
+        "urllib3": "2.8.0",
+        "idna": "3.20",
+        "xxhash": "4.0.2",
+        "tqdm": "4.70.1",
+        "typing_extensions": "4.16.0",
+        "aiohappyeyeballs": "2.7.1",
+        "frozenlist": "1.8.0",
+        "yarl": "1.25.1",
+        "aiohttp": "3.14.5"
+      }
+    },
+    "artifacts": {
+      "avatar-tests.xml": {
+        "sha256": "530844779f4c5e7e8d64b66edf6dd529bd8b8f3c6e9a1351acc3905a3df2f60e",
+        "bytes": 4190,
+        "result": {
+          "result": "Passed",
+          "total": "3",
+          "passed": "3",
+          "failed": "0",
+          "skipped": "0",
+          "start-time": "2026-10-30 20:56:55Z",
+          "end-time": "2026-10-30 20:56:58Z"
+        },
+        "checkpoint_test_output": "STARS_CHECKPOINT_AVATAR decisions=18 first_ready_sequence=7 max_target_speed=0.02023958 max_inference_ms=28.213"
+      },
+      "avatar-tests.log": {
+        "sha256": "da0bc5d11e0cae262e8c479fe06ea0f93044360984aa0b02631d59002f5ea660",
+        "bytes": 191278
+      },
+      "project-tests.xml": {
+        "sha256": "63217c246c6b9aa7e4b1738e76d4154e5970d0fe864f57fcc1ae72214119780b",
+        "bytes": 51846,
+        "result": {
+          "result": "Passed",
+          "total": "85",
+          "passed": "85",
+          "failed": "0",
+          "skipped": "0",
+          "start-time": "2026-10-30 20:58:03Z",
+          "end-time": "2026-10-30 20:58:04Z"
+        },
+        "checkpoint_test_output": "STARS_CHECKPOINT_AVATAR decisions=18 first_ready_sequence=7 max_target_speed=0.02023958 max_inference_ms=25.9255"
+      },
+      "project-tests.log": {
+        "sha256": "d42d39bc00000bbea3b393feeafac948f92b016115cac2252ec0bea02e181445",
+        "bytes": 238897
+      },
+      "harness.log": {
+        "sha256": "f68481a05362ff757897b22cacef837e4769b922e521b7ad7a042bd91b9e419f",
+        "bytes": 10024
+      },
+      "python-environment.json": {
+        "sha256": "e3ceba9fff95ea85b41addda22f7a9d95b8934b8b7dfbc3fd9d3239f90ec4f1a",
+        "bytes": 856
+      }
+    },
+    "scope": "Animated open-floor checkpoint integration, reset and actual process-loss stop; no standalone player or Nav2 run."
+  }
 }

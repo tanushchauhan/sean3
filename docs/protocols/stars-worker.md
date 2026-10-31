@@ -96,7 +96,7 @@ Prepare an isolated Python 3.12 environment with `torch==2.9.1`,
 `torch-geometric==2.8.1` and `numpy==2.5.1`. Initialize only the extension's
 `references/stars` submodule. No training/data-analysis dependencies are needed
 for this adapter. Select an appropriate PyTorch CUDA wheel separately on GPU
-hosts; the validated environment for this change is macOS CPU.
+hosts; validated environments are macOS CPU and robovision Linux CPU.
 
 From this workspace repository, with absolute external paths:
 
@@ -134,10 +134,20 @@ SEAN_STARS_EXTENSION=/absolute/path/to/stars_steps_extension \
 .sean3/stars-venv/bin/python -m unittest discover -s tests -p 'test_stars*.py' -v
 ```
 
-This qualifies offline inference and Python worker transport only. Unity still
-requires explicit `SocketSceneController(port, 8, .4)` driver injection with
-matching cadence and velocity actuation. A real-checkpoint Unity run, speed
-feasibility at Kuri-scene pedestrian limits, held-history warm-up, map collisions,
-destination completion and Nav2 coexistence remain unqualified. There is no
+The opt-in Unity test
+`JointAvatarTests.AnimatedAvatarsUseStarsCheckpointAndStopOnProcessLoss` also
+validates animated physical motion, warm-up, reset and actual process-loss
+stopping on an open floor. Set `SEAN_WORKER_SCRIPT`, `SEAN_WORKER_PYTHON`,
+`SEAN_STARS_CHECKPOINT` and `SEAN_STARS_EXTENSION` before running the
+`SEAN.Editor.Tests` assembly. All 85 project tests pass with these variables
+enabled on robovision. The test skips explicitly if the variables are absent.
+
+Production Unity integration still requires explicit
+`SocketSceneController(port, 8, .4)` driver injection with matching cadence and
+velocity actuation. An isolated
+[Warehouse validation path](stars-warehouse-validation.md) now exists; its
+[stationary-history pilot](../results/2026-10-30-stars-warehouse-pilot.md) fails
+qualification on pedestrian goals and robot navigation. General speed feasibility,
+warm-up distribution, map collisions and Nav2 coexistence remain unqualified. There is no
 learned robot policy, goal conditioning, wall avoidance or SF fallback. No
 extension source or weights are redistributed.

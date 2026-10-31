@@ -56,7 +56,7 @@ def analyze(report, navigation=None):
         errors = []
         if not e.get('setup') or not e.get('complete') or e.get('error'):
             errors.append('setup or episode incomplete')
-        if controller == 'orca':
+        if controller in ('orca', 'stars'):
             identities = {s.get('controllerEpisodeId') for s in samples}
             sequences = [s.get('controllerSequence', -1) for s in samples]
             if (e.get('controllerFaulted') or not e.get('inferenceMilliseconds') or
@@ -68,6 +68,9 @@ def analyze(report, navigation=None):
                 errors.append('controller episode or sequence corruption')
             if any(len(s.get(k, [])) != 4 for s in samples for k in ('personTargetVelocities','personActualVelocities')):
                 errors.append('missing controller velocity telemetry')
+            if controller == 'stars' and (not any(s.get('controllerHistoryReady') for s in samples) or
+                    any(s.get('controllerHistoryReady') != (s.get('controllerSequence',-1) >= 7) for s in samples)):
+                errors.append('STARS history readiness missing or inconsistent')
         center = (-5,5) if e['layout'] == 'aisle' else (-5,-8)
         expected_robot = (1,-15) if e['mode'] == 'absent' else (center if e['mode'] == 'parked' else ((center[0],center[1]-4) if e['layout']=='aisle' else (center[0]-4*e['mirror'],center[1])))
         expected_goal = (center[0],center[1]+4) if e['layout']=='aisle' else (center[0]+4*e['mirror'],center[1])
@@ -198,6 +201,12 @@ def analyze(report, navigation=None):
         if controller_schema_ok:
             cadence = settings['decisionPeriod']/report['step']
             controller_schema_ok = (isinstance(settings['maxNeighbors'],int) and cadence >= 1 and abs(cadence-round(cadence))<1e-4)
+    if controller == 'stars':
+        checksum = report.get('starsCheckpointSha256', '')
+        controller_schema_ok = (report.get('model') == 'STARS-MA-deterministic' and
+            actuation == 'VelocityTargetsV1' and len(checksum) == 64 and all(c in '0123456789abcdef' for c in checksum) and
+            report.get('starsExtensionRevision') == 'd72eb2295c3336f0674932796cf41b60636cde3e' and
+            report.get('starsObservationSteps') == 8 and report.get('starsDecisionPeriod') == .4)
     schema_ok = (report.get('schema') == 2 and report.get('laserNoReturn') == 'PositiveInfinity' and report.get('layoutVersion') == 3 and controller_schema_ok
                  and report.get('contactModel') == 'VelocityBodyV1' and any(abs(report['step']-v)<1e-6 for v in (.02,.04))
                  and report['deadline'] == 45 and abs(report['desiredSpeed']-.6) < 1e-6

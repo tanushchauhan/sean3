@@ -8,11 +8,19 @@ scripts=$(cd "$(dirname "$0")" && pwd)
 source "$scripts/cleanup_validation.sh"
 player=$(realpath "$1"); workspace=$(realpath "$2"); repository=$(realpath "$3")
 mkdir "$4"; results=$(realpath "$4")
-container="sean3-warehouse-$$"; player_pid=; driver_pid=; started=false; status=0
+container="sean3-warehouse-$$"; player_pid=; driver_pid=; worker_pid=; started=false; status=0
 cleanup() {
     if [ -n "$player_pid" ]; then stop_unity_player "$player_pid" "$player" "$results" || status=1; player_pid=; fi
     if [ "$started" = true ]; then stop_ros_container "$container" "$results" || status=1; started=false; fi
     if [ -n "$driver_pid" ]; then wait "$driver_pid" || status=1; driver_pid=; fi
+    if [ -n "$worker_pid" ]; then
+        for attempt in $(seq 1 50); do kill -0 "$worker_pid" 2>/dev/null || break; sleep .1; done
+        forced_worker_stop=false
+        if kill -0 "$worker_pid" 2>/dev/null; then forced_worker_stop=true; kill "$worker_pid" 2>/dev/null || true; fi
+        worker_status=0; wait "$worker_pid" 2>/dev/null || worker_status=$?; worker_pid=
+        printf 'exit_status=%s\nforced_stop=%s\n' "$worker_status" "$forced_worker_stop" > "$results/worker-exit.txt"
+        if [ "$worker_status" != 0 ] || [ "$forced_worker_stop" = true ]; then status=1; fi
+    fi
 }
 trap cleanup EXIT
 trap 'exit 130' INT
@@ -23,10 +31,10 @@ laser=${SEAN_LASER_NO_RETURN:-PositiveInfinity}
 layouts=${SEAN_ENCOUNTER_LAYOUTS:-aisle,rack_end}; modes=${SEAN_ENCOUNTER_MODES:-absent,parked,yielding,oblivious,nav2}
 pedestrian_controller=${SEAN_PEDESTRIAN_CONTROLLER:-social_forces}
 pedestrian_actuation=${SEAN_PEDESTRIAN_ACTUATION:-root_motion}
-if [ "$pedestrian_controller" = orca ] && [ -z "${SEAN_PEDESTRIAN_ACTUATION:-}" ]; then pedestrian_actuation=velocity_body; fi
+if [ "$pedestrian_controller" != social_forces ] && [ -z "${SEAN_PEDESTRIAN_ACTUATION:-}" ]; then pedestrian_actuation=velocity_body; fi
 case "$pedestrian_actuation" in root_motion|velocity_body) ;; *) echo 'Unsupported pedestrian actuator' >&2; exit 2 ;; esac
-if [ "$pedestrian_controller" = orca ] && [ "$pedestrian_actuation" != velocity_body ]; then echo 'ORCA requires velocity_body actuation' >&2; exit 2; fi
-case "$pedestrian_controller" in social_forces|orca) ;; *) echo 'Unsupported encounter pedestrian controller' >&2; exit 2 ;; esac
+if [ "$pedestrian_controller" != social_forces ] && [ "$pedestrian_actuation" != velocity_body ]; then echo 'Joint controllers require velocity_body actuation' >&2; exit 2; fi
+case "$pedestrian_controller" in social_forces|orca|stars) ;; *) echo 'Unsupported encounter pedestrian controller' >&2; exit 2 ;; esac
 orca_options=()
 if [ "$pedestrian_controller" = orca ]; then
     orca_options=(-orca-decision-period "${SEAN_ORCA_DECISION_PERIOD:-0.1}"
@@ -36,6 +44,32 @@ if [ "$pedestrian_controller" = orca ]; then
         -orca-obstacle-horizon "${SEAN_ORCA_OBSTACLE_HORIZON:-2.5}")
 fi
 printf 'scene=Warehouse\nseeds=%s\nstep=%s\nlayouts=%s\nmodes=%s\n' "$seeds" "$step" "$layouts" "$modes" > "$results/config.txt"
+if [ "$pedestrian_controller" = stars ]; then
+    : "${SEAN_STARS_CHECKPOINT:?External forecasting checkpoint required}"
+    : "${SEAN_STARS_EXTENSION:?Pinned external model checkout required}"
+    : "${SEAN_WORKER_PYTHON:?Dedicated model Python required}"
+    "$SEAN_WORKER_PYTHON" -u "$scripts/../runtime/stars_bridge.py" \
+        --checkpoint "$SEAN_STARS_CHECKPOINT" --extension "$SEAN_STARS_EXTENSION" \
+        --allow-dirty-training-source --threads 1 --port 0 --observation-steps 8 --dt .4 \
+        > "$results/worker.log" 2> "$results/worker-errors.log" &
+    worker_pid=$!
+    for attempt in $(seq 1 60); do
+        [ ! -s "$results/worker.log" ] || break
+        kill -0 "$worker_pid" 2>/dev/null || { echo 'STARS worker exited during startup' >&2; exit 1; }
+        sleep 1
+    done
+    head -n 1 "$results/worker.log" > "$results/worker-startup.json"
+    read -r worker_port checkpoint_sha extension_revision < <(python3 - "$results/worker-startup.json" "$SEAN_STARS_CHECKPOINT" <<'PY'
+import hashlib,json,sys
+d=json.load(open(sys.argv[1])); p=d['provenance']
+assert d['model']=='stars_ma' and d['observation_steps']==8 and d['dt']==.4
+assert p['checkpoint_sha256']==hashlib.sha256(open(sys.argv[2],'rb').read()).hexdigest()
+assert p['extension_commit']=='d72eb2295c3336f0674932796cf41b60636cde3e'
+print(d['port'],p['checkpoint_sha256'],p['extension_commit'])
+PY
+    )
+    orca_options=(-stars-worker-port "$worker_port" -stars-checkpoint-sha256 "$checkpoint_sha" -stars-extension-revision "$extension_revision")
+fi
 printf 'pedestrian_controller=%s\n' "$pedestrian_controller" >> "$results/config.txt"
 printf 'pedestrian_actuation=%s\n' "$pedestrian_actuation" >> "$results/config.txt"
 if [ "${#orca_options[@]}" -gt 0 ]; then printf '%s\n' "${orca_options[@]}" >> "$results/config.txt"; fi
